@@ -14,7 +14,6 @@ from celery_connectors.utils import ev
 setup_logging()
 name = "prepare"
 log = logging.getLogger(name)
-log.info("start - {}".format(name))
 
 
 def find_all_headers(pipeline_files=[],
