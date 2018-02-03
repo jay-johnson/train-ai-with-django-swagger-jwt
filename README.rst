@@ -17,7 +17,7 @@ Watch Getting Started in under a minute
 
 .. raw:: html
 
-    <a href="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89" target="_blank"><img src="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89.png"/></a>
+    <a href="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89" target="_blank"><img src="https://asciinema.org/a/160914.png"/></a>
 
 Install
 =======
