@@ -1,0 +1,15 @@
+{
+    "csv_file": "/tmp/cleaned_attack_scans.csv",
+    "meta_file": "/tmp/cleaned_metadata.json",
+    "title": "Keras DNN - network-pipeline==1.0.9",
+    "desc": "Tensorflow backend with simulated data",
+    "ds_name": "cleaned",
+    "algo_name": "dnn",
+    "ml_type": "keras",
+    "predict_feature": "label_value",
+    "training_data": "{}",
+    "pre_proc": "{}",
+    "post_proc": "{}",
+    "meta_data": "{}",
+    "version": 0
+}
