@@ -12,6 +12,13 @@ I plan to automate the tests in a loop and then release the captured HTTP traffi
 
 https://github.com/jay-johnson/network-pipeline-datasets
 
+Watch Getting Started in under a minute
+=======================================
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89" target="_blank"><img src="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89.png"/></a>
+
 Install
 =======
 
@@ -131,8 +138,8 @@ Train a Keras Deep Neural Network with Tensorflow
 Development
 ===========
 
-Swagger Train a Keras Deep Neural Network with Tensorflow
----------------------------------------------------------
+Swagger Prepare a new Dataset from Captured Recordings
+------------------------------------------------------
 
 http://localhost:8080/swagger/?next=/swagger/#!/mlprepare/mlprepare_create
 
