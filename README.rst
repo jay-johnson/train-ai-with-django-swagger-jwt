@@ -12,8 +12,10 @@ I plan to automate the tests in a loop and then release the captured HTTP traffi
 
 https://github.com/jay-johnson/network-pipeline-datasets
 
-Watch Getting Started in under a minute
-=======================================
+Watch Getting Started
+=====================
+
+Assuming your host has the pips already cached locally this takes about a minute.
 
 .. raw:: html
 
@@ -117,6 +119,10 @@ git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/datasets
 Prepare a new Dataset from Captured Recordings
 ----------------------------------------------
 
+.. raw:: html
+
+    <a href="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu?autoplay=1" target="_blank"><img src="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu.png"/></a>
+
 ::
 
     cd tests
@@ -124,6 +130,10 @@ Prepare a new Dataset from Captured Recordings
 
 Train a Keras Deep Neural Network with Tensorflow
 -------------------------------------------------
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In?autoplay=1" target="_blank"><img src="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In.png"/></a>
 
 ::
 
