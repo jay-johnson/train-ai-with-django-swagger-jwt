@@ -60,10 +60,9 @@ if user_token == "":
                       post_response.text))
     sys.exit(1)
 else:
-    log.info(("user={} token={}")
+    log.info(("logged in user={} token={}")
              .format(username,
                      user_token))
-    log.info("Login success koken={}".format(user_token))
 # end if/else
 
 log.info("building post data")
