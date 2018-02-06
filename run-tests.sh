@@ -1,5 +1,12 @@
 #!/bin/bash
 
+venv=~/.venvs/venvdrfpipeline
+env_name=dev
+
+source ${venv}/bin/activate
+echo "Sourcing: ./envs/${env_name}.env"
+source ./envs/${env_name}.env
+
 cd webapp
 
 echo ""

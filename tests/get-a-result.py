@@ -6,16 +6,14 @@ import logging
 import json
 import requests
 from network_pipeline.log.setup_logging import setup_logging
+from network_pipeline.utils import ppj
 
 
 setup_logging(config_name="logging.json")
-name = "create-keras-dnn"
+name = "get-a-result"
 log = logging.getLogger(name)
 
 
-test_data_file = os.getenv(
-    "TEST_DATA",
-    "./prepare-new-dataset.json")
 url = os.getenv(
     "BASE_URL",
     "http://localhost:8080")
@@ -26,15 +24,15 @@ password = os.getenv(
     "API_PASS",
     "123321")
 
-if not os.path.exists(test_data_file):
-    log.info(("Failed to find test_data_file={}")
-             .format(test_data_file))
-    sys.exit(1)
-# end of checking the path to the test json file
+# must be owned by the user logging in
+object_id = os.getenv(
+    "JOB_RESULT_ID",
+    "1")
 
-test_data = json.loads(open(test_data_file, "r").read())
 auth_url = "{}/api-token-auth/".format(url)
-resource_url = "{}/mlprepare/".format(url)
+resource_url = ("{}/mlresults/{}").format(
+                    url,
+                    object_id)
 use_headers = {
     "Content-type": "application/json"
 }
@@ -65,38 +63,35 @@ else:
                      user_token))
 # end if/else
 
-log.info("building post data")
+log.info("building get data")
 
 use_headers = {
     "Content-type": "application/json",
     "Authorization": "JWT {}".format(user_token)
 }
 
-log.info(("Running ML Job url={} "
-          "test_data={}")
-         .format(resource_url,
-                 test_data))
-post_response = requests.post(resource_url,
-                              data=json.dumps(test_data),
-                              headers=use_headers)
+log.info(("Getting a Job Result url={}")
+         .format(resource_url))
+get_response = requests.get(resource_url,
+                            headers=use_headers)
 
-if post_response.status_code != 201 \
-   and post_response.status_code != 200:
-    log.error(("Failed with Post response status={} reason={}")
-              .format(post_response.status_code,
-                      post_response.reason))
-    log.error("Details:\n{}".format(post_response.text))
+if get_response.status_code != 201 \
+   and get_response.status_code != 200:
+    log.error(("Failed with GET response status={} reason={}")
+              .format(get_response.status_code,
+                      get_response.reason))
+    log.error("Details:\n{}".format(get_response.text))
     sys.exit(1)
 else:
-    log.info(("SUCCESS - Post Response status={} reason={}")
-             .format(post_response.status_code,
-                     post_response.reason))
+    log.info(("SUCCESS - GET Response status={} reason={}")
+             .format(get_response.status_code,
+                     get_response.reason))
 
     as_json = True
     record = {}
     if as_json:
-        record = json.loads(post_response.text)
-        log.info(record)
+        record = json.loads(get_response.text)
+        log.info(ppj(record))
 # end of post for running an ML Job
 
 sys.exit(0)

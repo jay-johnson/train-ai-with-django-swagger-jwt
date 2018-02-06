@@ -16,6 +16,9 @@ schema_view = get_swagger_view(title="DRF Swagger with JWT")
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
+router.register(r"mlprepare", ml_api.MLPrepareViewSet)
+router.register(r"ml", ml_api.MLJobViewSet)
+router.register(r"mlresults", ml_api.MLJobResultViewSet)
 
 
 urlpatterns = [
@@ -33,30 +36,6 @@ urlpatterns = [
     path("accounts/",
          include("rest_registration.api.urls"),
          name="account-create"),
-    path("mlprepare/",
-         ml_api.MLPrepareViewSet.as_view({
-             "post": "create"
-         }),
-         name="mlpreparecreate"),
-    path("ml/run/",
-         ml_api.MLJobViewSet.as_view({
-             "post": "create"
-         }),
-         name="mljobcreate"),
-    path("ml/<pk>/",
-         ml_api.MLJobViewSet.as_view({
-             "get": "get",
-             "put": "update",
-             "delete": "delete"
-         }),
-         name="mljobgpd"),
-    path("mlresults/<pk>/",
-         ml_api.MLJobResultViewSet.as_view({
-             "get": "get",
-             "put": "update",
-             "delete": "delete"
-         }),
-         name="mljobresults"),
 ]
 
 

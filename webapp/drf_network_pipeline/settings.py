@@ -189,6 +189,12 @@ class Common(Configuration):
         'JWT_AUTH_COOKIE': None,
     }
     """
+
+    INCLUDE_ML_MODEL = True
+    INCLUDE_ML_WEIGHTS = True
+    MAX_RECS_ML_PREPARE = 20
+    MAX_RECS_ML_JOB = 20
+    MAX_RECS_ML_JOB_RESULT = 20
 # end of Common
 
 

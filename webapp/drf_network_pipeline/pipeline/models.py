@@ -85,6 +85,8 @@ class MLPrepare(models.Model):
                 null=False)
     label_rules = JSONField(
                 null=False)
+    meta_data = JSONField(
+                null=False)
     tracking_id = models.CharField(
                 max_length=512)
     version = models.IntegerField(
@@ -298,7 +300,12 @@ class MLJobResult(models.Model):
     error_data = JSONField(
                 null=True,
                 default=None)
-
+    model_json = JSONField(
+                null=True,
+                default=None)
+    model_weights = JSONField(
+                null=True,
+                default=None)
     version = models.IntegerField(
                 default=1)
     created = models.DateTimeField(
@@ -309,7 +316,9 @@ class MLJobResult(models.Model):
                 default=None,
                 null=True)
 
-    def get_public(self):
+    def get_public(self,
+                   include_model=True,
+                   include_weights=True):
         node = {
             "id": self.id,
             "user_id": self.user.id,
@@ -319,6 +328,8 @@ class MLJobResult(models.Model):
             "version": self.version,
             "acc_data": self.acc_data,
             "error_data": self.error_data,
+            "model_json": None,
+            "model_weights": None,
             "created": convert_to_date(self.created),
             "updated": convert_to_date(self.updated),
             "deleted": convert_to_date(self.deleted)
@@ -326,6 +337,10 @@ class MLJobResult(models.Model):
 
         if self.job:
             node["job_id"] = self.job.id
+        if include_model:
+            node["model_json"] = self.model_json
+        if include_weights:
+            node["model_weights"] = self.model_weights
 
         return node
     # end of get_public

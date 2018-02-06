@@ -34,7 +34,7 @@ if not os.path.exists(test_data_file):
 
 test_data = json.loads(open(test_data_file, "r").read())
 auth_url = "{}/api-token-auth/".format(url)
-resource_url = "{}/ml/run/".format(url)
+resource_url = "{}/ml/".format(url)
 use_headers = {
     "Content-type": "application/json"
 }
@@ -44,7 +44,7 @@ login_data = {
 }
 
 # Login as the user:
-log.info("Running ML Job url={}".format(auth_url))
+log.info("Logging in user url={}".format(auth_url))
 post_response = requests.post(auth_url,
                               data=json.dumps(login_data),
                               headers=use_headers)

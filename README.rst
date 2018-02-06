@@ -1,9 +1,30 @@
 Django REST Framework + JWT + Swagger + Keras + Tensorflow
 ==========================================================
 
-Automate training AI to defend applications with a Django 2.0+ REST Framework application + Swagger and JWT. The Swagger API supports **Prepare Dataset** and **Run Deep Neural Network with new Dataset** requests. These calls are used by the included client scripts in the ``tests`` directory and are ready for automation on networks and infrastructure. For more details please refer to the parent `Network Pipeline`_ repository.
+Automate training AI to defend applications with a Django 2.0+ REST Framework + Swagger and JWT using Keras and Tensorflow.
 
-This repository was built to help capture ``non-attack`` network traffic and to improve the accuracy of the Keras + Tensorflow Deep Neural Networks by providing them a simple multi-tenant REST API that has Swagger + JWT authentication baked into a single web application. It also does not require a database (unless you want to set it up), and will be scaled out with `Celery Connectors`_ in the future.
+.. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
+    :width: 200px
+    :height: 400px
+
+Supported API Requests
+----------------------
+
+- `Prepare a Dataset`_
+- `Train a Deep Neural Network from a Prepared Dataset using Keras and Tensorflow`_
+- `Get recent Training jobs (including Models as json and weights)`_
+- `Get recent Training results (nice for reviewing historical accuracy)`_
+- `Get recent Prepared Datasets`_
+- `Creating and managing users`_
+
+.. _Prepare a Dataset:  https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#prepare-a-new-dataset-from-captured-recordings
+.. _Train a Deep Neural Network from a Prepared Dataset using Keras and Tensorflow: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#train-a-keras-deep-neural-network-with-tensorflow
+.. _Get recent Training jobs (including Models as json and weights): https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-ml-job-results
+.. _Get recent Training results (nice for reviewing historical accuracy): https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-ml-jobs
+.. _Get recent Prepared Datasets: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-prepared-datasets
+.. _Creating and managing users: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#swagger
+
+This repository was built to help capture ``non-attack`` network traffic and to improve the accuracy of the Keras + Tensorflow Deep Neural Networks by providing them a simple multi-tenant REST API that has Swagger + JWT authentication baked into a single web application. By default, all created Deep Neural Networks are automatically saved as JSON including model weights. It also does not require a database (unless you want to set it up), and will be scaled out with `Celery Connectors`_ in the future. Please refer to the `Network Pipeline`_ repository for more details.
 
 .. _Network Pipeline: https://github.com/jay-johnson/network-pipeline
 .. _Celery Connectors: https://github.com/jay-johnson/celery-connectors
@@ -50,6 +71,126 @@ Start
     Starting development server at http://0.0.0.0:8080/
     Quit the server with CONTROL-C.
 
+Automation
+==========
+
+All of these scripts run in the ``tests`` directory:
+
+::
+
+    cd tests
+
+Make sure the virtual environment has been loaded:
+
+::
+
+    source ~/.venvs/venvdrfpipeline/bin/activate
+
+Clone the datasets repository
+-----------------------------
+
+git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/datasets
+
+Prepare a new Dataset from Captured Recordings
+----------------------------------------------
+
+::
+
+    ./build-new-dataset.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu?autoplay=1" target="_blank"><img src="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu.png"/></a>
+
+Train a Keras Deep Neural Network with Tensorflow
+-------------------------------------------------
+
+::
+
+    create-keras-dnn.py
+
+    ...
+
+    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - SUCCESS - Post Response status=200 reason=OK
+    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - {'job': {'id': 1, 'user_id': 1, 'user_name': 'root', 'title': 'Keras DNN - network-pipeline==1.0.9', 'desc': 'Tensorflow backend with simulated data', 'ds_name': 'cleaned', 'algo_name': 'dnn', 'ml_type': 'keras', 'status': 'initial', 'control_state': 'active', 'predict_feature': 'label_value', 'training_data': {}, 'pre_proc': {}, 'post_proc': {}, 'meta_data': {}, 'tracking_id': 'ml_701552d5-c761-4c69-9258-00d05ff81a48', 'version': 1, 'created': '2018-02-03 08:31:17', 'updated': '2018-02-03 08:31:17', 'deleted': ''}, 'results': {'id': 1, 'user_id': 1, 'user_name': 'root', 'job_id': 1, 'status': 'finished', 'version': 1, 'acc_data': {'accuracy': 83.7837837300859}, 'error_data': None, 'created': '2018-02-03 08:31:24', 'updated': '2018-02-03 08:31:24', 'deleted': ''}}
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In?autoplay=1" target="_blank"><img src="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In.png"/></a>
+
+Get a Prepared Dataset
+----------------------
+
+::
+
+    export PREPARE_JOB_ID=1
+    ./get-a-prepared-dataset.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB?autoplay=1" target="_blank"><img src="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB.png"/></a>
+
+Get an ML Job
+-------------
+
+Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
+
+::
+
+    export JOB_ID=1
+    ./get-a-job.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz.png"/></a>
+
+Get an ML Job Result
+--------------------
+
+::
+
+    export JOB_RESULT_ID=1
+    ./get-a-result.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ?autoplay=1" target="_blank"><img src="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ.png"/></a>
+
+Get Recent Prepared Datasets
+----------------------------
+
+::
+
+    ./get-recent-datasets.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk?autoplay=1" target="_blank"><img src="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk.png"/></a>
+
+Get Recent ML Jobs
+------------------
+
+::
+
+    ./get-recent-jobs.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2?autoplay=1" target="_blank"><img src="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2.png"/></a>
+
+
+Get Recent ML Job Results
+-------------------------
+
+This is nice for reviewing historical accuracy as your tune your models.
+
+::
+
+    ./get-recent-results.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k?autoplay=1" target="_blank"><img src="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k.png"/></a>
 
 Swagger
 =======
@@ -107,43 +248,6 @@ This will validate authentication with JWT is working:
     }
 
 http://localhost:8080/swagger/?next=/swagger/#!/ml/ml_run_create
-
-Automation
-==========
-
-Clone the datasets repository
------------------------------
-
-git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/datasets
-
-Prepare a new Dataset from Captured Recordings
-----------------------------------------------
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu?autoplay=1" target="_blank"><img src="https://asciinema.org/a/Py5OaIFOJJIMCdP5Ktjd0VhOu.png"/></a>
-
-::
-
-    cd tests
-    ./build-new-dataset.py
-
-Train a Keras Deep Neural Network with Tensorflow
--------------------------------------------------
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In?autoplay=1" target="_blank"><img src="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In.png"/></a>
-
-::
-
-    cd tests
-    create-keras-dnn.py
-
-    ...
-
-    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - SUCCESS - Post Response status=200 reason=OK
-    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - {'job': {'id': 1, 'user_id': 1, 'user_name': 'root', 'title': 'Keras DNN - network-pipeline==1.0.9', 'desc': 'Tensorflow backend with simulated data', 'ds_name': 'cleaned', 'algo_name': 'dnn', 'ml_type': 'keras', 'status': 'initial', 'control_state': 'active', 'predict_feature': 'label_value', 'training_data': {}, 'pre_proc': {}, 'post_proc': {}, 'meta_data': {}, 'tracking_id': 'ml_701552d5-c761-4c69-9258-00d05ff81a48', 'version': 1, 'created': '2018-02-03 08:31:17', 'updated': '2018-02-03 08:31:17', 'deleted': ''}, 'results': {'id': 1, 'user_id': 1, 'user_name': 'root', 'job_id': 1, 'status': 'finished', 'version': 1, 'acc_data': {'accuracy': 83.7837837300859}, 'error_data': None, 'created': '2018-02-03 08:31:24', 'updated': '2018-02-03 08:31:24', 'deleted': ''}}
 
 Development
 ===========
@@ -213,6 +317,13 @@ The unit tests can be run:
     ...
 
     PASSED - unit tests
+
+Or run a single test
+
+::
+
+    source envs/dev.env; cd webapp; source ~/.venvs/venvdrfpipeline/bin/activate
+    python manage.py test drf_network_pipeline.tests.test_ml.MLJobTest
 
 Linting
 -------

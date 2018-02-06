@@ -1,0 +1,72 @@
+{
+    "created": "2018-02-05 08:57:44",
+    "feature_to_predict": "label_name",
+    "features_to_process": [
+        "eth_type",
+        "idx",
+        "ip_ihl",
+        "ip_len",
+        "ip_tos",
+        "ip_version",
+        "label_value",
+        "tcp_dport",
+        "tcp_fields_options.MSS",
+        "tcp_fields_options.Timestamp",
+        "tcp_fields_options.WScale",
+        "tcp_seq",
+        "tcp_sport"
+    ],
+    "headers": [
+        "eth_type",
+        "idx",
+        "ip_ihl",
+        "ip_len",
+        "ip_tos",
+        "ip_version",
+        "label_value",
+        "tcp_dport",
+        "tcp_fields_options.MSS",
+        "tcp_fields_options.Timestamp",
+        "tcp_fields_options.WScale",
+        "tcp_seq",
+        "tcp_sport"
+    ],
+    "ignore_features": [
+        "label_name"
+    ],
+    "label_rules": {
+        "label_values": [
+            0,
+            1
+        ],
+        "labels": [
+            "not_attack",
+            "attack"
+        ],
+        "set_if_above": 85
+    },
+    "output_type": "clean",
+    "pipeline_files": [
+        "/opt/datasets/react-redux/netdata-2018-01-29-13-36-35.csv",
+        "/opt/datasets/spring/netdata-2018-01-29-15-00-12.csv",
+        "/opt/datasets/vue/netdata-2018-01-29-14-12-44.csv",
+        "/opt/datasets/django/netdata-2018-01-28-23-12-13.csv",
+        "/opt/datasets/django/netdata-2018-01-28-23-06-05.csv",
+        "/opt/datasets/flask-restplus/netdata-2018-01-29-11-30-02.csv"
+    ],
+    "post_proc_rules": {
+        "drop_columns": [
+            "src_file",
+            "raw_id",
+            "raw_load",
+            "raw_hex_load",
+            "raw_hex_field_load",
+            "pad_load",
+            "eth_dst",
+            "eth_src",
+            "ip_dst",
+            "ip_src"
+        ],
+        "predict_feature": "label_name"
+    }
+}

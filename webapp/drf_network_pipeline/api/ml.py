@@ -27,6 +27,9 @@ class MLPrepareViewSet(
     retrieve:
         Return a Prepared dataset
 
+    list:
+        Return recent Prepared datasets
+
     create:
         Create new Prepared dataset of CSVs for analysis with /ml/run
         ---
@@ -100,9 +103,9 @@ class MLPrepareViewSet(
                         obj_res["code"])
     # end of update
 
-    def get(self,
-            request,
-            pk):
+    def retrieve(self,
+                 request,
+                 pk):
         log.info(("{} get")
                  .format(self.name))
         obj_res = self.serializer_class().get(
@@ -110,11 +113,22 @@ class MLPrepareViewSet(
                     pk=pk)
         return Response(obj_res["data"],
                         obj_res["code"])
-    # end of get
+    # end of retrieve
 
-    def delete(self,
-               request,
-               pk=None):
+    def list(self,
+             request):
+        log.info(("{} list")
+                 .format(self.name))
+        obj_res = self.serializer_class().get(
+                    request=request,
+                    pk=None)
+        return Response(obj_res["data"],
+                        obj_res["code"])
+    # end of list
+
+    def destroy(self,
+                request,
+                pk=None):
         log.info(("{} delete")
                  .format(self.name))
         obj_res = self.serializer_class().delete(
@@ -137,6 +151,9 @@ class MLJobViewSet(
     """
     retrieve:
         Return a ML Job instance
+
+    list:
+        Return recent ML Jobs
 
     create:
         Create a new ML Job
@@ -211,9 +228,9 @@ class MLJobViewSet(
                         obj_res["code"])
     # end of update
 
-    def get(self,
-            request,
-            pk):
+    def retrieve(self,
+                 request,
+                 pk):
         log.info(("{} get")
                  .format(self.name))
         obj_res = self.serializer_class().get(
@@ -221,11 +238,22 @@ class MLJobViewSet(
                     pk=pk)
         return Response(obj_res["data"],
                         obj_res["code"])
-    # end of get
+    # end of retrieve
 
-    def delete(self,
-               request,
-               pk=None):
+    def list(self,
+             request):
+        log.info(("{} list")
+                 .format(self.name))
+        obj_res = self.serializer_class().get(
+                    request=request,
+                    pk=None)
+        return Response(obj_res["data"],
+                        obj_res["code"])
+    # end of list
+
+    def destroy(self,
+                request,
+                pk=None):
         log.info(("{} delete")
                  .format(self.name))
         obj_res = self.serializer_class().delete(
@@ -249,14 +277,12 @@ class MLJobResultViewSet(
     retrieve:
         Return a ML Job Result.
 
+    list:
+        Return recent ML Job Results
+
     create:
         Create a new ML Job Result
-        ---
 
-        Here is a sample Job Result:
-        ```
-        {}
-        ```
     delete:
         Remove an existing ML Job Result
 
@@ -308,9 +334,9 @@ class MLJobResultViewSet(
                         obj_res["code"])
     # end of update
 
-    def get(self,
-            request,
-            pk):
+    def retrieve(self,
+                 request,
+                 pk):
         log.info(("{} get")
                  .format(self.name))
         obj_res = self.serializer_class().get(
@@ -318,11 +344,22 @@ class MLJobResultViewSet(
                     pk=pk)
         return Response(obj_res["data"],
                         obj_res["code"])
-    # end of get
+    # end of retrieve
 
-    def delete(self,
-               request,
-               pk=None):
+    def list(self,
+             request):
+        log.info(("{} list")
+                 .format(self.name))
+        obj_res = self.serializer_class().get(
+                    request=request,
+                    pk=None)
+        return Response(obj_res["data"],
+                        obj_res["code"])
+    # end of list
+
+    def destroy(self,
+                request,
+                pk=None):
         log.info(("{} delete")
                  .format(self.name))
         obj_res = self.serializer_class().delete(

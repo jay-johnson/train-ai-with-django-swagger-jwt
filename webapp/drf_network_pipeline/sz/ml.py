@@ -1,8 +1,11 @@
+import os
 import logging
 import uuid
 import json
+import pandas as pd
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework import status as drf_status
@@ -89,6 +92,11 @@ class MLPrepareSerializer(serializers.Serializer):
                 min_length=None,
                 allow_blank=False,
                 trim_whitespace=True)
+    meta_data = serializers.CharField(
+                max_length=None,
+                min_length=None,
+                allow_blank=False,
+                trim_whitespace=True)
     version = serializers.IntegerField(
                 default=1,
                 required=False)
@@ -112,6 +120,7 @@ class MLPrepareSerializer(serializers.Serializer):
             "pipeline_files",
             "post_proc",
             "label_rules",
+            "meta_data",
             "version",
         )
 
@@ -157,6 +166,7 @@ class MLPrepareSerializer(serializers.Serializer):
             pipeline_files = None
             post_proc = None
             label_rules = None
+            meta_data = None
             version = 1
 
             if validated_data["title"]:
@@ -184,9 +194,12 @@ class MLPrepareSerializer(serializers.Serializer):
             if validated_data["pipeline_files"]:
                 last_step = "parsing pipeline_files"
                 pipeline_files = json.loads(validated_data["pipeline_files"])
+            if validated_data["post_proc"]:
+                last_step = "parsing meta_data"
+                post_proc = json.loads(validated_data["post_proc"])
             if validated_data["meta_data"]:
-                last_step = "parsing meat_data"
-                post_proc = json.loads(validated_data["meta_data"])
+                last_step = "parsing meta_data"
+                meta_data = json.loads(validated_data["meta_data"])
             if validated_data["label_rules"]:
                 last_step = "parsing label_rules"
                 label_rules = json.loads(validated_data["label_rules"])
@@ -211,6 +224,7 @@ class MLPrepareSerializer(serializers.Serializer):
                     pipeline_files=pipeline_files,
                     post_proc=post_proc,
                     label_rules=label_rules,
+                    meta_data=meta_data,
                     tracking_id=tracking_id,
                     version=version)
 
@@ -277,6 +291,18 @@ class MLPrepareSerializer(serializers.Serializer):
             if save_node["status"] == VALID:
 
                 log.info("successfully process datasets:")
+
+                obj.post_proc = save_node["post_proc_rules"]
+                obj.post_proc["features_to_process"] = \
+                    save_node["features_to_process"]
+                obj.post_proc["ignore_features"] = \
+                    save_node["ignore_features"]
+                obj.post_proc["feature_to_predict"] = \
+                    save_node["feature_to_predict"]
+                obj.label_rules = save_node["label_rules"]
+                obj.pipeline_files = save_node["pipeline_files"]
+                obj.full_file = save_node["fulldata_file"]
+                obj.clean_file = save_node["clean_file"]
                 obj.status = "finished"
                 obj.control_state = "finished"
                 obj.save()
@@ -284,7 +310,7 @@ class MLPrepareSerializer(serializers.Serializer):
                          .format(obj.id))
 
                 if ev("SHOW_SUMMARY",
-                      "1") == "1":
+                      "0") == "1":
                     log.info(("Full csv: {}")
                              .format(save_node["fulldata_file"]))
                     log.info(("Full meta: {}")
@@ -303,20 +329,16 @@ class MLPrepareSerializer(serializers.Serializer):
                     log.info("------------------------------------------")
                 # end of show summary
 
-                log.info("")
-                log.info("done saving csv:")
                 log.info("Full: {}".format(
                     save_node["fulldata_file"]))
                 log.info("Cleaned (no-NaNs in columns): {}".format(
                     save_node["clean_file"]))
-                log.info("")
-                data["prepare"] = obj.get_public()
-                data["ready"] = save_node
+                data = obj.get_public()
                 res = {
                     "status": SUCCESS,
-                    "code": drf_status.HTTP_200_OK,
+                    "code": drf_status.HTTP_201_CREATED,
                     "error": "",
-                    "data": save_node
+                    "data": data
                 }
             else:
                 last_step = ("failed to prepare csv status={} "
@@ -363,10 +385,10 @@ class MLPrepareSerializer(serializers.Serializer):
                pk=None):
         """update
 
-        Update an MLJob
+        Update an MLPrepare
 
         :param request: http request
-        :param validated_data: post dictionary
+        :param pk: MLPrepare.id
         """
 
         data = {}
@@ -413,10 +435,10 @@ class MLPrepareSerializer(serializers.Serializer):
             pk):
         """get
 
-        Start a new MLJob
+        Start a new MLPrepare
 
         :param request: http request
-        :param pk: MLJob.id
+        :param pk: MLPrepare.id
         """
 
         data = {}
@@ -428,16 +450,39 @@ class MLPrepareSerializer(serializers.Serializer):
         }
 
         try:
-            log.info(("{} get pk={}")
+            log.info(("{} get user_id={} pk={}")
                      .format(self.class_name,
+                             request.user.id,
                              pk))
 
-            res = {
-                "status": SUCCESS,
-                "code": drf_status.HTTP_200_OK,
-                "error": "not implemented yet",
-                "data": data
-            }
+            db_query = (Q(user=request.user.id) & Q(id=pk))
+            qset = []
+            if pk:
+                qset = MLPrepare.objects.select_related() \
+                            .filter(db_query)
+            else:
+                db_query = (Q(user=request.user.id))
+                qset = MLPrepare.objects.select_related().filter(
+                        db_query).order_by(
+                        "-created").all()[:settings.MAX_RECS_ML_JOB_RESULT]
+
+            if len(qset) == 1:
+                data = qset[0].get_public()
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            elif len(qset) > 1:
+                data["prepares"] = []
+                for i in qset:
+                    data["prepares"].append(i.get_public())
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            else:
+                data = {}
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+
+            res["status"] = SUCCESS
+            res["data"] = data
         except Exception as e:
             last_step = ("{} Failed with ex={}").format(
                             self.class_name,
@@ -453,7 +498,7 @@ class MLPrepareSerializer(serializers.Serializer):
 
         log.info(("{} get res={}")
                  .format(self.class_name,
-                         res))
+                         json.dumps(res)[0:32]))
 
         return res
     # end of get
@@ -463,10 +508,10 @@ class MLPrepareSerializer(serializers.Serializer):
                pk):
         """delete
 
-        Delete an MLJob
+        Delete an MLPrepare
 
         :param request: http request
-        :param pk: MLJob.id
+        :param pk: MLPrepare.id
         """
 
         data = {}
@@ -649,6 +694,7 @@ class MLJobsSerializer(serializers.Serializer):
             ds_name = validated_data["ds_name"]
             algo_name = validated_data["algo_name"]
             ml_type = validated_data["ml_type"]
+            version = validated_data["version"]
             status = "initial"
             control_state = "active"
             predict_feature = validated_data["predict_feature"]
@@ -657,7 +703,6 @@ class MLJobsSerializer(serializers.Serializer):
             post_proc = json.loads(validated_data["post_proc"])
             meta_data = json.loads(validated_data["meta_data"])
             tracking_id = "ml_{}".format(str(uuid.uuid4()))
-            version = 1
             test_size = 0.20
             epochs = 5
             batch_size = 2
@@ -678,6 +723,31 @@ class MLJobsSerializer(serializers.Serializer):
 
             csv_file = validated_data["csv_file"]
             meta_file = validated_data["meta_file"]
+
+            if not os.path.exists(csv_file):
+                last_step = ("Missing csv_file={}").format(
+                                csv_file)
+                log.error(last_step)
+                res = {
+                    "status": ERR,
+                    "code": drf_status.HTTP_400_BAD_REQUEST,
+                    "error": last_step,
+                    "data": data
+                }
+                return res
+            # end of check for csv file
+            if not os.path.exists(meta_file):
+                last_step = ("Missing meta_file={}").format(
+                                csv_file)
+                log.error(last_step)
+                res = {
+                    "status": ERR,
+                    "code": drf_status.HTTP_400_BAD_REQUEST,
+                    "error": last_step,
+                    "data": data
+                }
+                return res
+            # end of check for meta file
 
             job = MLJob(
                     user=request.user,
@@ -819,24 +889,38 @@ class MLJobsSerializer(serializers.Serializer):
                     log.info(("saved job={}")
                              .format(job.id))
 
-                    log.info(("saving job={} results")
-                             .format(job.id))
                     acc_data = {
                         "accuracy": scores[1] * 100
                     }
+                    error_data = None
+                    log.info(("converting job={} model to json")
+                             .format(job.id))
+                    model_json = model.to_json()
+                    log.info(("converting job={} model weights")
+                             .format(job.id))
+                    model_weights = {
+                        "weights": pd.Series(
+                            model.get_weights()).to_json(
+                                orient="values")
+                    }
+                    log.info(("saving job={} results")
+                             .format(job.id))
                     job_results = MLJobResult(
                         user=job.user,
                         job=job,
                         status="finished",
                         acc_data=acc_data,
-                        error_data=None)
+                        error_data=error_data,
+                        model_json=model_json,
+                        model_weights=model_weights,
+                        version=version)
                     job_results.save()
 
                     data["results"] = job_results.get_public()
                     res = {
                         "status": SUCCESS,
-                        "code": drf_status.HTTP_200_OK,
-                        "error": "not implemented yet",
+                        "code": drf_status.HTTP_201_CREATED,
+                        "error": "",
                         "data": data
                     }
             # end of checking it started
@@ -856,7 +940,7 @@ class MLJobsSerializer(serializers.Serializer):
 
         log.info(("{} create res={}")
                  .format(self.class_name,
-                         res))
+                         json.dumps(res)[0:32]))
 
         return res
     # end of create
@@ -869,7 +953,7 @@ class MLJobsSerializer(serializers.Serializer):
         Update an MLJob
 
         :param request: http request
-        :param validated_data: post dictionary
+        :param pk: MLJob.id
         """
 
         data = {}
@@ -916,7 +1000,7 @@ class MLJobsSerializer(serializers.Serializer):
             pk):
         """get
 
-        Start a new MLJob
+        Get MLJob or Get Recent ML Jobs for User (if pk=None)
 
         :param request: http request
         :param pk: MLJob.id
@@ -931,16 +1015,40 @@ class MLJobsSerializer(serializers.Serializer):
         }
 
         try:
-            log.info(("{} get pk={}")
+            log.info(("{} get user_id={} pk={}")
                      .format(self.class_name,
+                             request.user.id,
                              pk))
 
-            res = {
-                "status": SUCCESS,
-                "code": drf_status.HTTP_200_OK,
-                "error": "not implemented yet",
-                "data": data
-            }
+            db_query = (Q(user=request.user.id) & Q(id=pk))
+            qset = []
+            if pk:
+                qset = MLJob.objects.select_related() \
+                            .filter(db_query)
+            else:
+                db_query = (Q(user=request.user.id))
+                qset = MLJob.objects.select_related() \
+                            .filter(db_query) \
+                            .order_by("-created") \
+                            .all()[:settings.MAX_RECS_ML_JOB]
+
+            if len(qset) == 1:
+                data = qset[0].get_public()
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            elif len(qset) > 1:
+                data["jobs"] = []
+                for i in qset:
+                    data["jobs"].append(i.get_public())
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            else:
+                data = {}
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+
+            res["status"] = SUCCESS
+            res["data"] = data
         except Exception as e:
             last_step = ("{} Failed with ex={}").format(
                             self.class_name,
@@ -956,7 +1064,7 @@ class MLJobsSerializer(serializers.Serializer):
 
         log.info(("{} get res={}")
                  .format(self.class_name,
-                         res))
+                         json.dumps(res)[0:32]))
 
         return res
     # end of get
@@ -1113,7 +1221,7 @@ class MLJobResultsSerializer(serializers.Serializer):
         Update an MLJobResult
 
         :param request: http request
-        :param validated_data: post dictionary
+        :param pk: MLJobResult.id
         """
 
         data = {}
@@ -1175,16 +1283,41 @@ class MLJobResultsSerializer(serializers.Serializer):
         }
 
         try:
-            log.info(("{} get pk={}")
+            log.info(("{} get user_id={} pk={}")
                      .format(self.class_name,
+                             request.user.id,
                              pk))
 
-            res = {
-                "status": SUCCESS,
-                "code": drf_status.HTTP_200_OK,
-                "error": "not implemented yet",
-                "data": data
-            }
+            db_query = (Q(user=request.user.id) & Q(id=pk))
+            qset = []
+            if pk:
+                qset = MLJobResult.objects.select_related() \
+                            .filter(db_query)
+            else:
+                db_query = (Q(user=request.user.id))
+                qset = MLJobResult.objects.select_related().filter(
+                        db_query).order_by(
+                        "-created").all()[:settings.MAX_RECS_ML_JOB_RESULT]
+
+            if len(qset) == 1:
+                data = qset[0].get_public()
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            elif len(qset) > 1:
+                data["results"] = []
+                for i in qset:
+                    data["results"].append(i.get_public(
+                        include_model=settings.INCLUDE_ML_MODEL,
+                        include_weights=settings.INCLUDE_ML_WEIGHTS))
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+            else:
+                data = {}
+                res["code"] = drf_status.HTTP_200_OK
+                res["error"] = ""
+
+            res["status"] = SUCCESS
+            res["data"] = data
         except Exception as e:
             last_step = ("{} Failed with ex={}").format(
                             self.class_name,
@@ -1200,7 +1333,7 @@ class MLJobResultsSerializer(serializers.Serializer):
 
         log.info(("{} get res={}")
                  .format(self.class_name,
-                         res))
+                         json.dumps(res)[0:32]))
 
         return res
     # end of get
