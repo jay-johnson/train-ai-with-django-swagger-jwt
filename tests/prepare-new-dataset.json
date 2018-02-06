@@ -4,7 +4,7 @@
     "ds_name": "new_recording",
     "full_file": "/tmp/fulldata_attack_scans.csv",
     "clean_file": "/tmp/cleaned_attack_scans.csv",
-    "meta_prefix": "metadata",
+    "meta_suffix": "metadata.json",
     "output_dir": "/tmp/",
     "ds_dir": "/opt/datasets",
     "ds_glob_path": "/opt/datasets/*/*.csv",

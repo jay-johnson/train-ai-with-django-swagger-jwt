@@ -54,7 +54,7 @@ def build_csv(
         clean_file=None,
         post_proc_rules=None,
         label_rules=None,
-        metadata_filename="metadata.json"):
+        meta_suffix="metadata.json"):
 
     save_node = {
         "status": INVALID,
@@ -197,7 +197,7 @@ def build_csv(
 
                 fulldata_metadata_file = "{}/fulldata_{}".format(
                     "/".join(fulldata_file.split("/")[:-1]),
-                    metadata_filename)
+                    meta_suffix)
                 log.info(("writing fulldata metadata file={}")
                          .format(fulldata_metadata_file))
                 header_data = {"headers": list(df.columns.values),
@@ -267,7 +267,7 @@ def build_csv(
 
                 clean_metadata_file = "{}/cleaned_{}".format(
                     "/".join(clean_file.split("/")[:-1]),
-                    metadata_filename)
+                    meta_suffix)
                 log.info(("writing clean metadata file={}")
                          .format(clean_metadata_file))
                 header_data = {"headers": list(write_clean_df.columns.values),
@@ -296,7 +296,7 @@ def build_csv(
 
                 fulldata_metadata_file = "{}/fulldata_{}".format(
                     "/".join(fulldata_file.split("/")[:-1]),
-                    metadata_filename)
+                    meta_suffix)
                 log.info(("writing fulldata metadata file={}")
                          .format(fulldata_metadata_file))
                 header_data = {"headers": list(df.columns.values),
@@ -366,7 +366,7 @@ def build_csv(
 
                 clean_metadata_file = "{}/cleaned_{}".format(
                     "/".join(clean_file.split("/")[:-1]),
-                    metadata_filename)
+                    meta_suffix)
                 log.info(("writing clean metadata file={}")
                          .format(clean_metadata_file))
                 header_data = {"headers": list(write_clean_df.columns.values),

@@ -33,6 +33,13 @@ if not os.path.exists(test_data_file):
 # end of checking the path to the test json file
 
 test_data = json.loads(open(test_data_file, "r").read())
+if len(sys.argv) > 2:
+    full_file = str(sys.argv[1])
+    meta_file = str(sys.argv[2])
+    test_data["csv_file"] = full_file
+    test_data["meta_file"] = meta_file
+# end of full + clean file custom args
+
 auth_url = "{}/api-token-auth/".format(url)
 resource_url = "{}/ml/".format(url)
 use_headers = {

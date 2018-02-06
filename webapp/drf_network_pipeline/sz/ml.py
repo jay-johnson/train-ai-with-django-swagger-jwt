@@ -56,7 +56,7 @@ class MLPrepareSerializer(serializers.Serializer):
                 max_length=1024,
                 allow_blank=False,
                 default="/tmp/cleaned_attack_scans.csv")
-    meta_prefix = serializers.CharField(
+    meta_suffix = serializers.CharField(
                 max_length=256,
                 allow_blank=False,
                 default="metadata")
@@ -113,7 +113,7 @@ class MLPrepareSerializer(serializers.Serializer):
             "desc",
             "full_file",
             "clean_file",
-            "meta_prefix",
+            "meta_suffix",
             "output_dir",
             "ds_dir",
             "ds_glob_path",
@@ -159,7 +159,7 @@ class MLPrepareSerializer(serializers.Serializer):
             desc = "no desc"
             full_file = None
             clean_file = None
-            meta_prefix = None
+            meta_suffix = "metadata.json"
             output_dir = None
             ds_dir = None
             ds_glob_path = None
@@ -179,9 +179,9 @@ class MLPrepareSerializer(serializers.Serializer):
             if validated_data["clean_file"]:
                 last_step = "parsing clean_file"
                 clean_file = validated_data["clean_file"]
-            if validated_data["meta_prefix"]:
-                last_step = "parsing meta_prefix"
-                meta_prefix = validated_data["meta_prefix"]
+            if validated_data["meta_suffix"]:
+                last_step = "parsing meta_suffix"
+                meta_suffix = validated_data["meta_suffix"]
             if validated_data["output_dir"]:
                 last_step = "parsing output_dir"
                 output_dir = validated_data["output_dir"]
@@ -217,7 +217,7 @@ class MLPrepareSerializer(serializers.Serializer):
                     desc=desc,
                     full_file=full_file,
                     clean_file=clean_file,
-                    meta_prefix=meta_prefix,
+                    meta_suffix=meta_suffix,
                     output_dir=output_dir,
                     ds_dir=ds_dir,
                     ds_glob_path=ds_glob_path,
@@ -275,10 +275,11 @@ class MLPrepareSerializer(serializers.Serializer):
             }
 
             log.info(("preparing={} clean={} full={} "
-                      "files={}")
+                      "meta_suffix={} files={}")
                      .format(obj.id,
                              clean_file,
                              full_file,
+                             meta_suffix,
                              pipeline_files))
 
             save_node = build_csv(
@@ -286,7 +287,8 @@ class MLPrepareSerializer(serializers.Serializer):
                 fulldata_file=full_file,
                 clean_file=clean_file,
                 post_proc_rules=post_proc_rules,
-                label_rules=label_rules)
+                label_rules=label_rules,
+                meta_suffix=meta_suffix)
 
             if save_node["status"] == VALID:
 

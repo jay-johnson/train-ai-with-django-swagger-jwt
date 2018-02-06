@@ -192,6 +192,73 @@ This is nice for reviewing historical accuracy as your tune your models.
 
     <a href="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k?autoplay=1" target="_blank"><img src="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k.png"/></a>
 
+Advanced Naming for Multi-Tenant Environments
+=============================================
+
+Problems will happen if multiple users are sharing the same host's ``/tmp/`` directory with the default naming conventions. To prevent issues, it is recommended to change the output dataset directory to separate directories per user and to make sure the directories are accessible by the Django server processes. Here's an example of changing the output directory to my user which triggers the custom name detection. This detection means I will see logs for the training command to run with my newly generated dataset and metadata files:
+
+::
+
+    mkdir /opt/jay
+    export OUTPUT_DIR=/opt/jay/
+    ./build-new-dataset.py
+
+    ...
+
+    Train a Neural Network with:
+    ./create-keras-dnn.py /opt/jay/cleaned_attack_scans.csv /opt/jay/cleaned_metadata.json
+
+If changing the output directory is not possible, then users will need to make sure the file names are unique before running. Here's an example naming strategy for the csv datasets and metadata files to prevent collisions. The ``build-new-dataset.py`` script will also suggest the training command to run when you activate custom names:
+
+Prepare a Named Dataset
+-----------------------
+
+::
+
+    ./build-new-dataset.py /tmp/<MyFirstName>_$(date +"%Y-%m-%d-%H-%m-%N")_full.csv /tmp/<MyFirstName>_$(date +"%Y-%m-%d-%H-%m-%N")_readytouse.csv
+
+Example that shows the suggested training command to run using the named dataset files on disk:
+
+::
+
+    ./build-new-dataset.py /tmp/jay_$(date +"%Y-%m-%d-%H-%m-%N")_full.csv /tmp/jay_$(date +"%Y-%m-%d-%H-%m-%N")_readytouse.csv
+
+    ...
+
+    Train a Neural Network with:
+    ./create-keras-dnn.py /tmp/jay_2018-02-05-21-02-274468596_readytouse.csv /tmp/cleaned_meta-54525d8da8a54e9d9005a29c63f2918b.json
+
+Confirm the files were created:
+
+::
+
+    ls -lrth /tmp/jay_2018-02-05-21-02-274468596_readytouse.csv /tmp/cleaned_meta-54525d8da8a54e9d9005a29c63f2918b.json
+    -rw-rw-r-- 1 jay jay 143K Feb  5 21:23 /tmp/jay_2018-02-05-21-02-274468596_readytouse.csv
+    -rw-rw-r-- 1 jay jay 1.8K Feb  5 21:23 /tmp/cleaned_meta-54525d8da8a54e9d9005a29c63f2918b.json
+
+Please note, if you use filenames and set the ``OUTPUT_DIR`` environment variable, the environment variable takes priority (even if you specify ``/path/to/some/dir/uniquename.csv``). The dataset and metadata files will be stored in the ``OUTPUT_DIR`` directory:
+
+::
+
+    echo $OUTPUT_DIR
+    /opt/jay/
+
+    ./build-new-dataset.py jay_$(date +"%Y-%m-%d-%H-%m-%N")_full.csv jay_$(date +"%Y-%m-%d-%H-%m-%N")_readytouse.csv
+
+    ...
+
+    Train a Neural Network with:
+    ./create-keras-dnn.py /opt/jay/jay_2018-02-05-22-02-521671337_readytouse.csv /opt/jay/cleaned_meta-2b961845162a4d6e9e382c6f540302fe.json
+
+Train a Keras Neural Network with the Named Dataset
+---------------------------------------------------
+
+You can either use the suggested **Train a Neural Network with** command after creation or use your own csv dataset ending in **_readytouse.csv** (or whatever suffix you used to name the scrubbed and cleaned csv dataset) with a valid metadata json file.
+
+::
+
+    ./create-keras-dnn.py /tmp/jay_2018-02-05-21-02-274468596_readytouse.csv /tmp/cleaned_meta-54525d8da8a54e9d9005a29c63f2918b.json 
+
 Swagger
 =======
 
@@ -267,7 +334,7 @@ Paste in the following values and click **Try it Out**:
         "ds_name": "new_recording",
         "full_file": "/tmp/fulldata_attack_scans.csv",
         "clean_file": "/tmp/cleaned_attack_scans.csv",
-        "meta_prefix": "metadata",
+        "meta_suffix": "metadata.json",
         "output_dir": "/tmp/",
         "ds_dir": "/opt/datasets",
         "ds_glob_path": "/opt/datasets/*/*.csv",

@@ -68,8 +68,9 @@ class MLPrepare(models.Model):
     clean_file = models.CharField(
                 max_length=1024,
                 null=False)
-    meta_prefix = models.CharField(
-                max_length=256)
+    meta_suffix = models.CharField(
+                max_length=256,
+                default="metadata.json")
     output_dir = models.CharField(
                 max_length=1024,
                 null=False)
@@ -110,7 +111,7 @@ class MLPrepare(models.Model):
             "desc": self.desc,
             "full_file": self.full_file,
             "clean_file": self.clean_file,
-            "meta_prefix": self.meta_prefix,
+            "meta_suffix": self.meta_suffix,
             "output_dir": self.output_dir,
             "ds_dir": self.ds_dir,
             "ds_glob_path": self.ds_glob_path,
