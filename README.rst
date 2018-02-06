@@ -324,7 +324,7 @@ Development
 Swagger Prepare a new Dataset from Captured Recordings
 ------------------------------------------------------
 
-http://localhost:8080/swagger/?next=/swagger/#!/mlprepare/mlprepare_create
+http://localhost:8080/swagger/#!/mlprepare/mlprepare_create
 
 Paste in the following values and click **Try it Out**:
 
@@ -352,7 +352,7 @@ Paste in the following values and click **Try it Out**:
 Swagger Train a Keras Deep Neural Network with Tensorflow
 ---------------------------------------------------------
 
-http://localhost:8080/swagger/?next=/swagger/#!/ml/ml_run_create
+http://0.0.0.0:8080/swagger/#!/ml/ml_create
 
 Paste in the following values and click **Try it Out**:
 
