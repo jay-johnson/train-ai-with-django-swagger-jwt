@@ -195,6 +195,7 @@ class Common(Configuration):
     MAX_RECS_ML_PREPARE = 20
     MAX_RECS_ML_JOB = 20
     MAX_RECS_ML_JOB_RESULT = 20
+
 # end of Common
 
 

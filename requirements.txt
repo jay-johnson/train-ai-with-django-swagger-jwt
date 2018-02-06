@@ -25,6 +25,7 @@ pydocstyle
 requests
 scikit-learn
 tensorflow
+uwsgi
 virtualenvwrapper
 whitenoise==4.0b4
 Werkzeug==0.12.2

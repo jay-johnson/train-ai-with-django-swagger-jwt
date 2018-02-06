@@ -27,8 +27,8 @@ password = os.getenv(
     "123321")
 
 if not os.path.exists(test_data_file):
-    log.info(("Failed to find test_data_file={}")
-             .format(test_data_file))
+    log.error(("Failed to find test_data_file={}")
+              .format(test_data_file))
     sys.exit(1)
 # end of checking the path to the test json file
 

@@ -27,7 +27,6 @@ from drf_network_pipeline.pipeline.prepare_dataset_tools import \
 from drf_network_pipeline.pipeline.models import MLJobResult
 from keras.models import Sequential
 from keras.layers import Dense
-from keras import backend as K
 
 
 setup_logging()
@@ -827,14 +826,15 @@ class MLJobsSerializer(serializers.Serializer):
                 log.info(last_step)
 
                 log.info("resetting Keras backend")
-                K.clear_session()
 
                 log.info("creating Keras - sequential model")
+                scores = None
 
                 # create the model
                 model = Sequential()
                 model.add(Dense(8,
-                                input_dim=len(ml_req["features_to_process"]),
+                                input_dim=len(
+                                    ml_req["features_to_process"]),
                                 kernel_initializer="uniform",
                                 activation="relu"))
                 model.add(Dense(6,
@@ -855,9 +855,9 @@ class MLJobsSerializer(serializers.Serializer):
                 last_step = ("fitting model - "
                              "epochs={} batch={} "
                              "verbose={} - please wait").format(
-                                 epochs,
-                                 batch_size,
-                                 verbose)
+                                epochs,
+                                batch_size,
+                                verbose)
                 log.info(last_step)
 
                 # fit the model
@@ -872,6 +872,7 @@ class MLJobsSerializer(serializers.Serializer):
                 # evaluate the model
                 scores = model.evaluate(ml_req["X_test"],
                                         ml_req["Y_test"])
+
                 last_step = ("job={} accuracy={}").format(
                                 job.id,
                                 scores[1] * 100)

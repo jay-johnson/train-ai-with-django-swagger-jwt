@@ -12,6 +12,7 @@ Supported API Requests
 
 - `Prepare a Dataset`_
 - `Train a Deep Neural Network from a Prepared Dataset using Keras and Tensorflow`_
+- `Multi-Tenant Deep Neural Network Training with Simulations`_
 - `Get recent Training jobs (including Models as json and weights)`_
 - `Get recent Training results (nice for reviewing historical accuracy)`_
 - `Get recent Prepared Datasets`_
@@ -19,6 +20,7 @@ Supported API Requests
 
 .. _Prepare a Dataset:  https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#prepare-a-new-dataset-from-captured-recordings
 .. _Train a Deep Neural Network from a Prepared Dataset using Keras and Tensorflow: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#train-a-keras-deep-neural-network-with-tensorflow
+.. _Multi-Tenant Deep Neural Network Training with Simulations: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#multi-tenant-simulations
 .. _Get recent Training jobs (including Models as json and weights): https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-ml-job-results
 .. _Get recent Training results (nice for reviewing historical accuracy): https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-ml-jobs
 .. _Get recent Prepared Datasets: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-prepared-datasets
@@ -391,6 +393,57 @@ Or run a single test
 
     source envs/dev.env; cd webapp; source ~/.venvs/venvdrfpipeline/bin/activate
     python manage.py test drf_network_pipeline.tests.test_ml.MLJobTest
+
+Multi-Tenant Simulations
+========================
+
+Start the Django REST Framework in Multi-Tenant uWSGI Mode
+----------------------------------------------------------
+
+Keras does not work with threads for multi-tenant, so this will use Django Processes with uWSGI instead to ensure multiple users can train models at the same time.
+
+Please see this issue for more details:
+https://github.com/keras-team/keras/issues/2397#issuecomment-306687500
+
+::
+
+    export MULTI_TENANT=1
+    ./start.sh
+
+    ...
+
+    Starting Multi-Tenant Django listening on TCP port 8080
+    http://localhost:8080/swagger
+
+    [uWSGI] getting INI configuration from ./django-uwsgi.ini
+    *** Starting uWSGI 2.0.15 (64bit) on [Tue Feb  6 02:05:08 2018] ***
+    compiled with version: 7.2.0 on 17 January 2018 20:52:07
+    os: Linux-4.13.0-16-generic #19-Ubuntu SMP Wed Oct 11 18:35:14 UTC 2017
+
+Simulations are ran from the ``./tests/`` directory. All commands below assume your terminal sessions run from this directory.
+
+::
+
+    cd tests
+
+
+Run the default ``user1`` simulation in a new terminal:
+
+::
+
+    ./run-user-sim.py
+
+In a new terminal start ``user2`` simulation:
+
+::
+
+    ./run-user-sim.py user2
+
+In a new terminal start ``user3`` simulation:
+
+::
+
+    ./run-user-sim.py user3
 
 Linting
 -------

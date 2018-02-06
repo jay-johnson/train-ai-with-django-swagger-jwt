@@ -29,17 +29,21 @@ which python
 pip list
 echo ""
 echo ""
-# export DJANGO_SECRET_KEY=supersecret
-# export DJANGO_SECRET_KEY=supersecret
-# export DJANGO_DEBUG=yes
-# export DJANGO_TEMPLATE_DEBUG=yes
 env | grep DJANGO | sort
 echo ""
 
-echo ""
-echo "Starting Django listening on TCP port 8080"
-echo "http://localhost:8080/swagger"
-echo ""
 
 
-python ./manage.py runserver 0.0.0.0:8080
+if [[ "${MULTI_TENANT}" == "1" ]]; then
+    echo ""
+    echo "Starting Multi-Tenant Django listening on TCP port 8080"
+    echo "http://localhost:8080/swagger"
+    echo ""
+    uwsgi ./django-uwsgi.ini --thunder-lock
+else
+    echo ""
+    echo "Starting Django listening on TCP port 8080"
+    echo "http://localhost:8080/swagger"
+    echo ""
+    python ./manage.py runserver 0.0.0.0:8080
+fi

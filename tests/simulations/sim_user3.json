@@ -1,0 +1,46 @@
+{
+    "user": {
+        "username": "jerrysmith",
+        "password": "plutoisaplanet",
+        "email": "jerryholeinone@aol.com",
+        "alias": "user3",
+        "unique": true
+    },
+    "sim_requests": [
+        {
+            "name": "login",
+            "data": "user"
+        },
+        {
+            "name": "prepare",
+            "unique_names": true,
+            "file": "./simulations/{}/prepare1.json"
+        },
+        {
+            "name": "train",
+            "unique_names": true,
+            "file": "./simulations/{}/train1.json"
+        },
+        {
+            "name": "getjob",
+            "pk": "lasttrain"
+        },
+        {
+            "name": "getjobresult",
+            "pk": "lasttrain"
+        },
+        {
+            "name": "recentjobs",
+            "pk": "lasttrain"
+        },
+        {
+            "name": "recentresults",
+            "pk": "lasttrain"
+        },
+        {
+            "name": "train",
+            "unique_names": true,
+            "file": "./simulations/{}/train1.json"
+        }
+    ]
+}
