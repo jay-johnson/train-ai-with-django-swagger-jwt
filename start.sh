@@ -32,18 +32,11 @@ echo ""
 env | grep DJANGO | sort
 echo ""
 
-
-
-if [[ "${MULTI_TENANT}" == "1" ]]; then
-    echo ""
-    echo "Starting Multi-Tenant Django listening on TCP port 8080"
-    echo "http://localhost:8080/swagger"
-    echo ""
-    uwsgi ./django-uwsgi.ini --thunder-lock
-else
-    echo ""
-    echo "Starting Django listening on TCP port 8080"
-    echo "http://localhost:8080/swagger"
-    echo ""
-    python ./manage.py runserver 0.0.0.0:8080
-fi
+echo ""
+echo "Starting Django listening on TCP port 8080"
+echo "http://localhost:8080/swagger"
+echo ""
+# runserver has issues with
+# threads which break keras
+# python ./manage.py runserver 0.0.0.0:8080
+uwsgi ./django-uwsgi.ini --thunder-lock

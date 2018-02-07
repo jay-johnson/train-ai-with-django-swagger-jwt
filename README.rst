@@ -59,19 +59,14 @@ Start
 ::
 
     ./start.sh
+
     Starting Django listening on TCP port 8080
     http://localhost:8080/swagger
 
-    django-configurations version 2.0, using configuration 'Development'
-    Performing system checks...
-
-    2018-02-03 08:25:41,252 - prepare - INFO - start - prepare
-    Using TensorFlow backend.
-    System check identified no issues (0 silenced).
-    February 03, 2018 - 08:25:42
-    Django version 2.0, using settings 'drf_network_pipeline.settings'
-    Starting development server at http://0.0.0.0:8080/
-    Quit the server with CONTROL-C.
+    [uWSGI] getting INI configuration from ./django-uwsgi.ini
+    *** Starting uWSGI 2.0.15 (64bit) on [Tue Feb  6 20:29:45 2018] ***
+    compiled with version: 7.2.0 on 17 January 2018 21:26:44
+    os: Linux-4.13.0-16-generic #19-Ubuntu SMP Wed Oct 11 18:35:14 UTC 2017
 
 Automation
 ==========
@@ -397,30 +392,7 @@ Or run a single test
 Multi-Tenant Simulations
 ========================
 
-Start the Django REST Framework in Multi-Tenant uWSGI Mode
-----------------------------------------------------------
-
-Keras does not work with threads for multi-tenant, so this will use Django Processes with uWSGI instead to ensure multiple users can train models at the same time.
-
-Please see this issue for more details:
-https://github.com/keras-team/keras/issues/2397#issuecomment-306687500
-
-::
-
-    export MULTI_TENANT=1
-    ./start.sh
-
-    ...
-
-    Starting Multi-Tenant Django listening on TCP port 8080
-    http://localhost:8080/swagger
-
-    [uWSGI] getting INI configuration from ./django-uwsgi.ini
-    *** Starting uWSGI 2.0.15 (64bit) on [Tue Feb  6 02:05:08 2018] ***
-    compiled with version: 7.2.0 on 17 January 2018 20:52:07
-    os: Linux-4.13.0-16-generic #19-Ubuntu SMP Wed Oct 11 18:35:14 UTC 2017
-
-Simulations are ran from the ``./tests/`` directory. All commands below assume your terminal sessions run from this directory.
+Simulations run from the ``./tests/`` directory.
 
 ::
 
