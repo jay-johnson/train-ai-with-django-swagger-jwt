@@ -39,4 +39,13 @@ echo ""
 # runserver has issues with
 # threads which break keras
 # python ./manage.py runserver 0.0.0.0:8080
-uwsgi ./django-uwsgi.ini --thunder-lock
+
+if [[ "${APP_SERVER}" == "uwsgi" ]]; then
+    uwsgi ./django-uwsgi.ini --thunder-lock
+else
+    if [[ "${DJANGO_DEBUG}" == "yes" ]]; then
+        gunicorn -c ./django-gunicorn.py drf_network_pipeline.wsgi --reload
+    else
+        gunicorn -c ./django-gunicorn.py drf_network_pipeline.wsgi
+    fi
+fi

@@ -12,8 +12,9 @@ django-six
 djangorestframework
 djangorestframework-jwt
 flake8
-gunicorn==19.7.1
+gunicorn
 jsonfield
+inotify
 keras
 network-pipeline
 newrelic

@@ -56,6 +56,8 @@ This was tested on Ubuntu 17.10.
 Start
 =====
 
+By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi`_ by running ``export APP_SERVER=uwsgi`` before starting. Both app servers should work just fine, but gunicorn is set up for `auto-reloading`_ on code changes. So it is easier to develop and test changes.
+
 ::
 
     ./start.sh
@@ -63,10 +65,25 @@ Start
     Starting Django listening on TCP port 8080
     http://localhost:8080/swagger
 
-    [uWSGI] getting INI configuration from ./django-uwsgi.ini
-    *** Starting uWSGI 2.0.15 (64bit) on [Tue Feb  6 20:29:45 2018] ***
-    compiled with version: 7.2.0 on 17 January 2018 21:26:44
-    os: Linux-4.13.0-16-generic #19-Ubuntu SMP Wed Oct 11 18:35:14 UTC 2017
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] Starting gunicorn 19.7.1
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] Listening at: http://127.0.0.1:8080 (10418)
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] Using worker: sync
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] DJANGO_DEBUG=yes - auto-reload enabled
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] Server is ready. Spawning workers
+    [2018-02-07 11:27:20 -0800] [10422] [INFO] Booting worker with pid: 10422
+    [2018-02-07 11:27:20 -0800] [10422] [INFO] Worker spawned (pid: 10422)
+    [2018-02-07 11:27:20 -0800] [10423] [INFO] Booting worker with pid: 10423
+    [2018-02-07 11:27:20 -0800] [10423] [INFO] Worker spawned (pid: 10423)
+    [2018-02-07 11:27:20 -0800] [10424] [INFO] Booting worker with pid: 10424
+    [2018-02-07 11:27:20 -0800] [10424] [INFO] Worker spawned (pid: 10424)
+    [2018-02-07 11:27:20 -0800] [10426] [INFO] Booting worker with pid: 10426
+    [2018-02-07 11:27:20 -0800] [10426] [INFO] Worker spawned (pid: 10426)
+    [2018-02-07 11:27:20 -0800] [10430] [INFO] Booting worker with pid: 10430
+    [2018-02-07 11:27:20 -0800] [10430] [INFO] Worker spawned (pid: 10430)
+
+.. _gunicorn: http://docs.gunicorn.org/
+.. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
+.. _auto-reload: http://docs.gunicorn.org/en/stable/settings.html#debugging
 
 Automation
 ==========
@@ -417,6 +434,21 @@ In a new terminal start ``user3`` simulation:
 
     ./run-user-sim.py user3
 
+Want to check how many threads each process is using?
+-----------------------------------------------------
+
+It appears that either Keras or Tensorflow are using quite a bit of threads behind the scenes. On Ubuntu you can view the number of threads used by ``gunicorn`` or ``uwsgi`` with these commands:
+
+::
+
+    ps -o nlwp $(ps awuwx | grep django | grep -v grep | awk '{print $2}')
+
+If you're running ``uwsgi`` instead of the ``gunicorn`` use:
+
+::
+
+    ps -o nlwp $(ps awuwx | grep uwsgi | grep -v grep | awk '{print $2}')
+
 Linting
 -------
 
@@ -467,3 +499,13 @@ https://github.com/tensorflow
 SQLite
 ------
 https://www.sqlite.org/index.html
+
+Gunicorn
+--------
+
+http://docs.gunicorn.org/
+
+uWSGI
+-----
+
+https://uwsgi-docs.readthedocs.io/en/latest/
