@@ -27,6 +27,9 @@ from drf_network_pipeline.pipeline.prepare_dataset_tools import \
 from drf_network_pipeline.pipeline.models import MLJobResult
 from keras.models import Sequential
 from keras.layers import Dense
+import matplotlib
+matplotlib.use("Agg")  # noqa
+import matplotlib.pyplot as plt  # noqa
 
 
 setup_logging()
@@ -89,6 +92,7 @@ class MLPrepareSerializer(serializers.Serializer):
     label_rules = serializers.CharField(
                 max_length=None,
                 min_length=None,
+                required=False,
                 allow_blank=False,
                 trim_whitespace=True)
     meta_data = serializers.CharField(
@@ -193,15 +197,17 @@ class MLPrepareSerializer(serializers.Serializer):
             if validated_data["pipeline_files"]:
                 last_step = "parsing pipeline_files"
                 pipeline_files = json.loads(validated_data["pipeline_files"])
-            if validated_data["post_proc"]:
-                last_step = "parsing meta_data"
-                post_proc = json.loads(validated_data["post_proc"])
+            if "post_proc" in validated_data:
+                if validated_data["post_proc"]:
+                    last_step = "parsing post_proc"
+                    post_proc = json.loads(validated_data["post_proc"])
             if validated_data["meta_data"]:
                 last_step = "parsing meta_data"
                 meta_data = json.loads(validated_data["meta_data"])
-            if validated_data["label_rules"]:
-                last_step = "parsing label_rules"
-                label_rules = json.loads(validated_data["label_rules"])
+            if "label_rules" in validated_data:
+                if validated_data["label_rules"]:
+                    last_step = "parsing label_rules"
+                    label_rules = json.loads(validated_data["label_rules"])
             if validated_data["version"]:
                 version = int(validated_data["version"])
 
@@ -251,28 +257,6 @@ class MLPrepareSerializer(serializers.Serializer):
             pipeline_files = find_all_pipeline_csvs(
                                 csv_glob_path=ds_glob_path)
 
-            post_proc_rules = {
-                "drop_columns": [
-                    "src_file",
-                    "raw_id",
-                    "raw_load",
-                    "raw_hex_load",
-                    "raw_hex_field_load",
-                    "pad_load",
-                    "eth_dst",  # need to make this an int
-                    "eth_src",  # need to make this an int
-                    "ip_dst",   # need to make this an int
-                    "ip_src"    # need to make this an int
-                ],
-                "predict_feature": "label_name"
-            }
-
-            label_rules = {
-                "set_if_above": 85,
-                "labels": ["not_attack", "attack"],
-                "label_values": [0, 1]
-            }
-
             log.info(("preparing={} clean={} full={} "
                       "meta_suffix={} files={}")
                      .format(obj.id,
@@ -285,7 +269,7 @@ class MLPrepareSerializer(serializers.Serializer):
                 pipeline_files=pipeline_files,
                 fulldata_file=full_file,
                 clean_file=clean_file,
-                post_proc_rules=post_proc_rules,
+                post_proc_rules=post_proc,
                 label_rules=label_rules,
                 meta_suffix=meta_suffix)
 
@@ -589,6 +573,11 @@ class MLJobsSerializer(serializers.Serializer):
                 required=False,
                 allow_null=True,
                 default="Predict with Filter")
+    image_file = serializers.CharField(
+                max_length=256,
+                allow_blank=True,
+                required=False,
+                allow_null=True)
     status = serializers.CharField(
                 max_length=256,
                 allow_blank=True,
@@ -650,6 +639,7 @@ class MLJobsSerializer(serializers.Serializer):
             "ds_name",
             "algo_name",
             "ml_type",
+            "image_file",
             "status",
             "control_state",
             "predict_feature",
@@ -694,7 +684,7 @@ class MLJobsSerializer(serializers.Serializer):
             desc = validated_data["desc"]
             ds_name = validated_data["ds_name"]
             algo_name = validated_data["algo_name"]
-            ml_type = validated_data["ml_type"]
+            ml_type = str(validated_data["ml_type"]).strip().lower()
             version = validated_data["version"]
             status = "initial"
             control_state = "active"
@@ -721,6 +711,11 @@ class MLJobsSerializer(serializers.Serializer):
             if "verbose" in training_data:
                 last_step = "parsing verbose"
                 verbose = int(training_data["verbose"])
+
+            image_file = None
+            if "image_file" in validated_data:
+                image_file = validated_data["image_file"]
+            # end of saving file naming
 
             csv_file = validated_data["csv_file"]
             meta_file = validated_data["meta_file"]
@@ -785,6 +780,7 @@ class MLJobsSerializer(serializers.Serializer):
                     predict_feature=predict_feature,
                     test_size=test_size)
 
+            job_results = None
             if ml_req["status"] != VALID:
                 last_step = ("Stopping for status={} "
                              "errors: {}").format(
@@ -827,30 +823,90 @@ class MLJobsSerializer(serializers.Serializer):
 
                 log.info("resetting Keras backend")
 
-                log.info("creating Keras - sequential model")
                 scores = None
-
-                # create the model
                 model = Sequential()
-                model.add(Dense(8,
-                                input_dim=len(
-                                    ml_req["features_to_process"]),
-                                kernel_initializer="uniform",
-                                activation="relu"))
-                model.add(Dense(6,
-                                kernel_initializer="uniform",
-                                activation="relu"))
-                model.add(Dense(1,
-                                kernel_initializer="uniform",
-                                activation="sigmoid"))
+                histories = []
 
-                last_step = "compiling model"
-                log.info(last_step)
+                if ml_type == "regression":
+                    log.info(("creating Keras - regression - "
+                              "sequential model ml_type={}")
+                             .format(ml_type))
 
-                # compile the model
-                model.compile(loss="binary_crossentropy",
-                              optimizer="adam",
-                              metrics=["accuracy"])
+                    # create the model
+                    model.add(Dense(8,
+                                    input_dim=len(
+                                        ml_req["features_to_process"]),
+                                    kernel_initializer="normal",
+                                    activation="relu"))
+                    model.add(Dense(6,
+                                    kernel_initializer="normal",
+                                    activation="relu"))
+                    model.add(Dense(1,
+                                    kernel_initializer="normal",
+                                    activation="sigmoid"))
+
+                    loss = "mse"
+                    metrics = [
+                        "mse",
+                        "mae",
+                        "mape",
+                        "cosine"
+                    ]
+
+                    histories = [
+                        "mean_squared_error",
+                        "mean_absolute_error",
+                        "mean_absolute_percentage_error",
+                        "cosine_proximity"
+                    ]
+
+                    last_step = ("compiling model "
+                                 "loss={} metrics={}").format(
+                                    loss,
+                                    metrics)
+                    log.info(last_step)
+
+                    # compile the model
+                    model.compile(
+                            loss=loss,
+                            optimizer="adam",
+                            metrics=metrics)
+
+                else:
+                    log.info(("creating Keras - sequential model"
+                              "ml_type={}")
+                             .format(ml_type))
+
+                    # create the model
+                    model.add(Dense(8,
+                                    input_dim=len(
+                                        ml_req["features_to_process"]),
+                                    kernel_initializer="uniform",
+                                    activation="relu"))
+                    model.add(Dense(6,
+                                    kernel_initializer="uniform",
+                                    activation="relu"))
+                    model.add(Dense(1,
+                                    kernel_initializer="uniform",
+                                    activation="sigmoid"))
+
+                    histories = [
+                        "val_loss",
+                        "val_acc",
+                        "loss",
+                        "acc"
+                    ]
+
+                    last_step = "compiling model"
+                    log.info(last_step)
+
+                    # compile the model
+                    model.compile(
+                            loss="binary_crossentropy",
+                            optimizer="adam",
+                            metrics=["accuracy"])
+
+                # end of classification vs regression
 
                 last_step = ("fitting model - "
                              "epochs={} batch={} "
@@ -861,13 +917,15 @@ class MLJobsSerializer(serializers.Serializer):
                 log.info(last_step)
 
                 # fit the model
-                model.fit(ml_req["X_train"],
-                          ml_req["Y_train"],
-                          validation_data=(ml_req["X_test"],
-                                           ml_req["Y_test"]),
-                          epochs=epochs,
-                          batch_size=batch_size,
-                          verbose=verbose)
+                history = model.fit(
+                            ml_req["X_train"],
+                            ml_req["Y_train"],
+                            validation_data=(
+                                ml_req["X_test"],
+                                ml_req["Y_test"]),
+                            epochs=epochs,
+                            batch_size=batch_size,
+                            verbose=verbose)
 
                 # evaluate the model
                 scores = model.evaluate(ml_req["X_test"],
@@ -906,7 +964,7 @@ class MLJobsSerializer(serializers.Serializer):
                             model.get_weights()).to_json(
                                 orient="values")
                     }
-                    log.info(("saving job={} results")
+                    log.info(("building job={} results")
                              .format(job.id))
                     job_results = MLJobResult(
                         user=job.user,
@@ -917,6 +975,74 @@ class MLJobsSerializer(serializers.Serializer):
                         model_json=model_json,
                         model_weights=model_weights,
                         version=version)
+
+                    log.info(("saving job={} results")
+                             .format(job.id))
+                    job_results.save()
+
+                    try:
+                        if history and len(histories) > 0:
+                            log.info(("plotting history={} "
+                                      "histories={}")
+                                     .format(
+                                         history,
+                                         histories))
+                            should_save = False
+                            for h in histories:
+                                if h in history.history:
+                                    log.info(("plotting={}")
+                                             .format(h))
+                                    plt.plot(
+                                        history.history[h],
+                                        label=h)
+                                    should_save = True
+                                else:
+                                    log.error(("missing history={}")
+                                              .format(h))
+                            # for all histories
+
+                            if should_save:
+                                if not image_file:
+                                    image_file = ("{}/accuracy_job_"
+                                                  "{}_result_{}.png").format(
+                                                settings.IMAGE_SAVE_DIR,
+                                                job.id,
+                                                job_results.id,
+                                                str(uuid.uuid4()).replace(
+                                                    "-", ""))
+                                log.info(("saving plots as image={}")
+                                         .format(image_file))
+                                plt.legend(loc='best')
+                                plt.savefig(image_file)
+                                if not os.path.exists(image_file):
+                                    log.error(("Failed saving image={}")
+                                              .format(image_file))
+                                else:
+                                    job_results.acc_image_file = \
+                                            image_file
+                            # end of saving file
+
+                        # end of if there are hsitories to plot
+                    except Exception as e:
+                        if job and job_results:
+                            log.error(("Failed saving job={} "
+                                       "image_file={} ex={}")
+                                      .format(
+                                        job.id,
+                                        image_file,
+                                        e))
+                        else:
+                            log.error(("Failed saving "
+                                       "image_file={} ex={}")
+                                      .format(
+                                        image_file,
+                                        e))
+                    # end of try/ex
+
+                    log.info(("updating job={} results={}")
+                             .format(
+                                job.id,
+                                job_results.id))
                     job_results.save()
 
                     data["results"] = job_results.get_public()

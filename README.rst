@@ -56,7 +56,7 @@ This was tested on Ubuntu 17.10.
 Start
 =====
 
-By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi`_ by running ``export APP_SERVER=uwsgi`` before starting. Both app servers should work just fine, but gunicorn is set up for `auto-reloading`_ on code changes. So it is easier to develop and test changes.
+By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi`_ by running ``export APP_SERVER=uwsgi`` before starting. Both app servers should work just fine.
 
 ::
 
@@ -83,7 +83,6 @@ By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi
 
 .. _gunicorn: http://docs.gunicorn.org/
 .. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
-.. _auto-reload: http://docs.gunicorn.org/en/stable/settings.html#debugging
 
 Automation
 ==========

@@ -107,6 +107,12 @@ def build_csv(
         set_if_above = label_rules["set_if_above"]
         labels = label_rules["labels"]
         label_values = label_rules["label_values"]
+    if post_proc_rules:
+        if "predict_feature" in post_proc_rules:
+            feature_to_predict = post_proc_rules["predict_feature"]
+    if not feature_to_predict:
+        if "label_name" in hdrs:
+            feature_to_predict = "label_name"
 
     all_rows = []
     num_done = 0
@@ -171,11 +177,11 @@ def build_csv(
 
             clean_metadata_file = ""
 
-            feature_to_predict = "label_name"
             features_to_process = []
             ignore_features = []
             if label_rules:
-                ignore_features = [feature_to_predict]
+                if feature_to_predict:
+                    ignore_features = [feature_to_predict]
 
             if "drop_columns" in post_proc_rules:
                 for p in post_proc_rules["drop_columns"]:
@@ -214,7 +220,8 @@ def build_csv(
                     otfile.write(str(ppj(header_data)))
 
                 keep_these = features_to_process
-                keep_these.append(feature_to_predict)
+                if feature_to_predict:
+                    keep_these.append(feature_to_predict)
 
                 log.info(("creating new clean_file={} "
                           "keep_these={} "
@@ -231,8 +238,9 @@ def build_csv(
                 cleaned_to_process = []
                 cleaned_ignore_features = []
                 for c in cleaned_features:
-                    if c == feature_to_predict:
-                        cleaned_ignore_features.append(c)
+                    if feature_to_predict:
+                        if c == feature_to_predict:
+                            cleaned_ignore_features.append(c)
                     else:
                         keep_it = True
                         for ign in ignore_features:
@@ -313,7 +321,8 @@ def build_csv(
                     otfile.write(str(ppj(header_data)))
 
                 keep_these = features_to_process
-                keep_these.append(feature_to_predict)
+                if feature_to_predict:
+                    keep_these.append(feature_to_predict)
 
                 log.info(("creating new clean_file={} "
                           "keep_these={} "
@@ -330,8 +339,9 @@ def build_csv(
                 cleaned_to_process = []
                 cleaned_ignore_features = []
                 for c in cleaned_features:
-                    if c == feature_to_predict:
-                        cleaned_ignore_features.append(c)
+                    if feature_to_predict:
+                        if c == feature_to_predict:
+                            cleaned_ignore_features.append(c)
                     else:
                         keep_it = True
                         for ign in ignore_features:

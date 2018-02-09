@@ -1,0 +1,16 @@
+{
+    "csv_file": "/tmp/cleaned_spy.csv",
+    "meta_file": "/tmp/cleaned_spy_metadata.json",
+    "title": "Keras DNN - SPY",
+    "desc": "Tensorflow backend with simulated data",
+    "ds_name": "SPY",
+    "algo_name": "SPY DNN",
+    "ml_type": "regression",
+    "image_file": "/media/sf_shared/spy_dnn_plots.png",
+    "predict_feature": "close",
+    "training_data": "{}",
+    "pre_proc": "{}",
+    "post_proc": "{}",
+    "meta_data": "{}",
+    "version": 1
+}

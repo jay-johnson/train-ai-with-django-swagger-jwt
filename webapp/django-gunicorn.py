@@ -85,7 +85,7 @@ threads = 1
 workers = int(os.getenv("NUM_WORKERS", "5"))
 worker_class = 'sync'
 worker_connections = 1000
-timeout = 60
+timeout = 3600
 keepalive = 2
 
 

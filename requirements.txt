@@ -16,6 +16,7 @@ gunicorn
 jsonfield
 inotify
 keras
+matplotlib
 network-pipeline
 newrelic
 pandas

@@ -196,6 +196,16 @@ class Common(Configuration):
     MAX_RECS_ML_JOB = 20
     MAX_RECS_ML_JOB_RESULT = 20
 
+    # for saving images to the host
+    # on vbox
+    if os.path.exists("/media/sf_shared"):
+        IMAGE_SAVE_DIR = "/media/sf_shared"
+    else:
+        IMAGE_SAVE_DIR = os.getenv(
+            "IMAGE_SAVE_DIR",
+            "/tmp")
+    # end of image save path
+
 # end of Common
 
 

@@ -44,7 +44,7 @@ if [[ "${APP_SERVER}" == "uwsgi" ]]; then
     uwsgi ./django-uwsgi.ini --thunder-lock
 else
     if [[ "${DJANGO_DEBUG}" == "yes" ]]; then
-        gunicorn -c ./django-gunicorn.py drf_network_pipeline.wsgi --reload
+        gunicorn -c ./django-gunicorn.py drf_network_pipeline.wsgi
     else
         gunicorn -c ./django-gunicorn.py drf_network_pipeline.wsgi
     fi

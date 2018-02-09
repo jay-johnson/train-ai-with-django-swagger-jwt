@@ -307,6 +307,10 @@ class MLJobResult(models.Model):
     model_weights = JSONField(
                 null=True,
                 default=None)
+    acc_image_file = models.CharField(
+                max_length=256,
+                null=True,
+                default=None)
     version = models.IntegerField(
                 default=1)
     created = models.DateTimeField(
@@ -331,6 +335,7 @@ class MLJobResult(models.Model):
             "error_data": self.error_data,
             "model_json": None,
             "model_weights": None,
+            "acc_image_file": self.acc_image_file,
             "created": convert_to_date(self.created),
             "updated": convert_to_date(self.updated),
             "deleted": convert_to_date(self.deleted)
