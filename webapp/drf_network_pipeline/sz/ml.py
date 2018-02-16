@@ -250,11 +250,15 @@ class MLPrepareSerializer(serializers.Serializer):
                              tracking_id)
             log.info(last_step)
 
+            log_id = "job={}".format(
+                obj.id)
+
             log.info(("prepare={} csvs={}")
                      .format(obj.id,
                              ds_glob_path))
 
             pipeline_files = find_all_pipeline_csvs(
+                                use_log_id=log_id,
                                 csv_glob_path=ds_glob_path)
 
             log.info(("preparing={} clean={} full={} "
@@ -266,6 +270,7 @@ class MLPrepareSerializer(serializers.Serializer):
                              pipeline_files))
 
             save_node = build_csv(
+                use_log_id=log_id,
                 pipeline_files=pipeline_files,
                 fulldata_file=full_file,
                 clean_file=clean_file,

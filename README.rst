@@ -42,7 +42,7 @@ Assuming your host has the pips already cached locally this takes about a minute
 
 .. raw:: html
 
-    <a href="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89?autoplay=1" target="_blank"><img src="https://asciinema.org/a/160914.png"/></a>
+    <a href="https://asciinema.org/a/Ct8TS1PMPminXBr5xoojTZq89?autoplay=1" target="_blank"><img src="https://imgur.com/LRVlbcv.png"/></a>
 
 Install
 =======
@@ -155,7 +155,7 @@ Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
 
 .. raw:: html
 
-    <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz.png"/></a>
+    <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://imgur.com/gFsh5q8.png"/></a>
 
 Get an ML Job Result
 --------------------
