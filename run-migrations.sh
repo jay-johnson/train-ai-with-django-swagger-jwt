@@ -10,6 +10,8 @@ if [[ ! -e ${venv}/bin/activate ]]; then
     exit 1
 fi
 
+source ${venv}/bin/activate
+
 if [[ "${USE_ENV}" != "" ]]; then
     env_name="${USE_ENV}"
 fi
