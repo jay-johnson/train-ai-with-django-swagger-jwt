@@ -37,21 +37,23 @@ class MLPrepareViewSet(
         Here is a sample Prepare dataset
         ```
         {
-            "csv_file": "/tmp/cleaned_attack_scans.csv",
-            "meta_file": "/tmp/cleaned_metadata.json",
             "title": "Keras DNN 1.0.9",
             "desc": "Tensorflow backend with simulated data",
-            "ds_name": "cleaned",
-            "algo_name": "dnn",
-            "ml_type": "keras",
-            "predict_feature": "label_value",
-            "training_data": "{}",
-            "pre_proc": "{}",
-            "post_proc": "{}",
+            "ds_name": "new_recording",
+            "full_file": "/tmp/fulldata_attack_scans.csv",
+            "clean_file": "/tmp/cleaned_attack_scans.csv",
+            "meta_suffix": "metadata.json",
+            "output_dir": "/tmp/",
+            "ds_dir": "/opt/datasets",
+            "ds_glob_path": "/opt/datasets/*/*.csv",
+            "pipeline_files": "{}",
             "meta_data": "{}",
-            "version": 0
+            "post_proc": "{}",
+            "label_rules": "{}",
+            "version": 1
         }
         ```
+
     delete:
         Remove an existing Prepared dataset
 

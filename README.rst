@@ -1,7 +1,7 @@
-Django REST Framework + JWT + Swagger + Keras + Tensorflow
-==========================================================
+Django REST Framework + Celery + JWT + Swagger + Keras + Tensorflow
+===================================================================
 
-Automate training AI to defend applications with a Django 2.0+ REST Framework + Swagger and JWT using Keras and Tensorflow.
+Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow.
 
 .. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
     :width: 200px
@@ -26,7 +26,7 @@ Supported API Requests
 .. _Get recent Prepared Datasets: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#get-recent-prepared-datasets
 .. _Creating and managing users: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt#swagger
 
-This repository was built to help capture ``non-attack`` network traffic and to improve the accuracy of the Keras + Tensorflow Deep Neural Networks by providing them a simple multi-tenant REST API that has Swagger + JWT authentication baked into a single web application. By default, all created Deep Neural Networks are automatically saved as JSON including model weights. It also does not require a database (unless you want to set it up), and will be scaled out with `Celery Connectors`_ in the future. Please refer to the `Network Pipeline`_ repository for more details.
+This repository was built to help capture ``non-attack`` network traffic and to improve the accuracy of the Keras + Tensorflow Deep Neural Networks by providing them a simple multi-tenant REST API that has Swagger + JWT authentication baked into a single web application. By default, all created Deep Neural Networks are automatically saved as JSON including model weights. It also does not require a database (unless you want to set it up), and will be scaled out with `Celery Connectors`_ in the future. Please refer to the `Network Pipeline`_ repository for more details. This Django application server also comes with a functional Celery worker for running heavyweight, time-intensive tasks required for asynchronous use cases. This is good for when you are trying to train a deep net that takes a few minutes, and you do not want your HTTP client to time out.
 
 .. _Network Pipeline: https://github.com/jay-johnson/network-pipeline
 .. _Celery Connectors: https://github.com/jay-johnson/celery-connectors
@@ -34,6 +34,10 @@ This repository was built to help capture ``non-attack`` network traffic and to 
 I plan to automate the tests in a loop and then release the captured HTTP traffic to compile the first ``non-attack`` dataset for pairing up with the OWASP ``attack`` data which is already recorded and available in:
 
 https://github.com/jay-johnson/network-pipeline-datasets
+
+Update: 2018-02-25 - These merged datasets and accuracies are now available in the repository:
+
+https://github.com/jay-johnson/antinex-datasets
 
 Watch Getting Started
 =====================
@@ -51,12 +55,97 @@ This was tested on Ubuntu 17.10.
 
 ::
 
+    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git
+    cd train-ai-with-django-swagger-jwt
     ./install.sh
+
+Full Stack - Django + Celery + Postgres + Redis + pgAdmin
+=========================================================
+
+You can run without these optional steps if you just want to get started using the default SQLite database.
+
+If you are interested, you can run the full stack of docker containers for simulating a more production-ready environment. Here's the containers these steps will start:
+
+#.  Postgres 10
+#.  Redis (Pub/Sub, Caching and Celery Tasks)
+#.  pgAdmin4 - Web app for managing Postgres
+
+Here's how to run it:
+
+#.  Source the environment
+
+    ::
+
+        source envs/drf-dev.env
+
+#.  Start the Stack
+
+    ::
+
+        ./run-stack.sh 
+        Starting stack: full-stack-dev.yml
+        Creating postgres ... done
+        Creating pgadmin ... 
+        Creating postgres ... 
+
+#.  Verify the containers are running
+
+    ::
+
+        docker ps
+        CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                                                                                                       NAMES
+        2c7cfbd9328e        postgres:10.2-alpine        "docker-entrypoint.s…"   3 minutes ago       Up 3 minutes        0.0.0.0:5432->5432/tcp                                                                                      postgres
+        9c34c9588349        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   3 minutes ago       Up 3 minutes        0.0.0.0:83->5050/tcp                                                                                        pgadmin
+        75e325113424        redis:4.0.5-alpine          "docker-entrypoint.s…"   3 minutes ago       Up 3 minutes        0.0.0.0:6379->6379/tcp                                                                                      redis
+
+#.  Initialize the Postgres database
+
+    ::
+
+        export USE_ENV=drf-dev
+        ./run-migrations.sh
+
+#.  Login to pgAdmin4
+
+    http://localhost:83/browser/
+
+    User: ``admin@email.com``
+    Password: ``postgres``
+
+#.  Register the Postgres server
+
+    #.  Right click on "Servers" and then "Create Server"
+
+    #.  On the "General" tab enter a name like "webapp"
+
+    #.  On the "Connection" tab enter:
+
+        Host: postgres
+        Username: postgres
+        Password: postgres
+
+    #.  Click "Save password?" check box
+
+    #.  Click the "Save" button
+
+    #.  Navigate down the tree:
+
+        Servers > webapp (or the name you entered) > Databases > webapp > Schemas > public > Tables
+
+    #.  Confirm there's database tables with names like:
+
+        ::
+
+            pipeline_mljob
+            pipeline_mljobresult
+            pipeline_mlprepare
 
 Start
 =====
 
 By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi`_ by running ``export APP_SERVER=uwsgi`` before starting. Both app servers should work just fine.
+
+Note: if you are running the docker "full stack" please make sure to run: ``export USE_ENV=drf-dev`` before starting the django application, or you can use ``run-django.sh`` which should do the same as ``start.sh``.
 
 ::
 
@@ -83,6 +172,15 @@ By default, this project uses `gunicorn`_ to start, but you can change to `uwsgi
 
 .. _gunicorn: http://docs.gunicorn.org/
 .. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
+
+Celery Worker
+=============
+
+Start the Celery worker in a new terminal to process published Django work tasks for heavyweight, time-intensive operations.
+
+::
+
+    ./run-worker.sh
 
 Automation
 ==========
@@ -358,8 +456,6 @@ Paste in the following values and click **Try it Out**:
         "version": 1
     }
 
-
-
 Swagger Train a Keras Deep Neural Network with Tensorflow
 ---------------------------------------------------------
 
@@ -448,12 +544,21 @@ If you're running ``uwsgi`` instead of the ``gunicorn`` use:
 
     ps -o nlwp $(ps awuwx | grep uwsgi | grep -v grep | awk '{print $2}')
 
+Stop Full Stack
+===============
+
+If you are running the "full stack", then you can run this command to stop the docker containers:
+
+::
+
+    ./stop-stack.sh 
+
 Linting
 -------
 
 flake8 .
 
-pycodestyle --exclude=.tox,.eggs
+pycodestyle --exclude=.tox,.eggs,migrations
 
 License
 -------
@@ -474,6 +579,11 @@ https://github.com/jpadilla/django-project-template
 Django REST Framework
 ---------------------
 https://github.com/encode/django-rest-framework
+
+Celery
+------
+
+http://www.celeryproject.org/
 
 User Registration
 -----------------
@@ -508,3 +618,8 @@ uWSGI
 -----
 
 https://uwsgi-docs.readthedocs.io/en/latest/
+
+pgAdmin
+-------
+
+https://www.pgadmin.org/

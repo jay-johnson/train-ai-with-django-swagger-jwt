@@ -1,11 +1,17 @@
 celery-connectors
+celery-loaders
+celery[redis]
 colorlog
 dj-database-url==0.4.2
 Django==2.0
 django-admin
+django-celery-results
 django-configurations==2.0.0
 django-debug-toolbar==1.9.1
 django-extensions==1.9.7
+django-redis
+django-redis-cache
+django-redis-sessions
 django-rest-registration
 django-rest-swagger
 django-six

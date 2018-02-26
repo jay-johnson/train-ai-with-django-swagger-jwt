@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+
+  # Redis
+  nexredis1:
+    hostname: redis1
+    image: redis:4.0.5-alpine
+    labels:
+      NAME: "nexredis1"
+    ports:
+      - "6379:6379"
+    container_name: "nexredis1"

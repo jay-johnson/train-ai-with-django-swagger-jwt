@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+
+  # PostgreSQL database
+  postgres:
+    container_name: "postgres"
+    image: postgres:10.2-alpine
+    hostname: postgres
+    env_file:
+      - ./envs/postgres-dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  # pgAdmin
+  pgadmin:
+    container_name: "pgadmin"
+    image: jayjohnson/pgadmin4:1.0.0
+    hostname: pgadmin
+    env_file:
+      - ./envs/pgadmin-dev.env
+    ports:
+      - "83:5050"
+    volumes:
+      - ./data/pgadmin:/data
+  
+  # Redis
+  redis:
+    container_name: "redis"
+    hostname: redis
+    image: redis:4.0.5-alpine
+    ports:
+      - "6379:6379"

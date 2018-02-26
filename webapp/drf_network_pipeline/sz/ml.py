@@ -25,6 +25,7 @@ from drf_network_pipeline.pipeline.prepare_dataset_tools import \
 from drf_network_pipeline.pipeline.prepare_dataset_tools import \
     find_all_pipeline_csvs
 from drf_network_pipeline.pipeline.models import MLJobResult
+from drf_network_pipeline.users.tasks import task_get_user
 from keras.models import Sequential
 from keras.layers import Dense
 import matplotlib
@@ -155,6 +156,31 @@ class MLPrepareSerializer(serializers.Serializer):
                      .format(self.class_name,
                              user_id,
                              validated_data))
+
+            lookup_user_data = {
+                "user_id": user_id
+            }
+            try:
+                user_data = {}
+                if settings.CELERY_ENABLED:
+                    job_res = task_get_user.delay(lookup_user_data)
+                    user_data = job_res.get()
+                else:
+                    user_data = task_get_user(lookup_user_data)
+                # if celery enabled or not
+
+                if len(user_data) > 0:
+                    log.info(("celery={} - found user={}")
+                             .format(
+                                settings.CELERY_ENABLED,
+                                user_data))
+            except Exception as e:
+                log.error(("Failed to run task_get_user celery={} "
+                           "with ex={}")
+                          .format(
+                            settings.CELERY_ENABLED,
+                            e))
+            # end of sending tasks to a Celery worker if it is enabled
 
             status = "initial"
             control_state = "active"

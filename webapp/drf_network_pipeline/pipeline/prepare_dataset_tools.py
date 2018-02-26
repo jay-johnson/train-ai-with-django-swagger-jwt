@@ -115,6 +115,14 @@ def build_csv(
         save_node["status"] = INVALID
         return save_node
 
+    fulldata_metadata_file = "{}/fulldata_{}".format(
+        "/".join(fulldata_file.split("/")[:-1]),
+        meta_suffix)
+
+    clean_metadata_file = "{}/cleaned_{}".format(
+        "/".join(clean_file.split("/")[:-1]),
+        meta_suffix)
+
     log.info(("{} build_csv - START")
              .format(
                  log_id))
@@ -254,8 +262,6 @@ def build_csv(
 
         if post_proc_rules:
 
-            clean_metadata_file = ""
-
             features_to_process = []
             ignore_features = []
             if label_rules:
@@ -280,9 +286,6 @@ def build_csv(
                 # for all df columns we're not ignoring...
                 # add them as features to process
 
-                fulldata_metadata_file = "{}/fulldata_{}".format(
-                    "/".join(fulldata_file.split("/")[:-1]),
-                    meta_suffix)
                 log.info(("{} writing fulldata metadata file={}")
                          .format(
                             log_id,
@@ -410,9 +413,6 @@ def build_csv(
                 # for all df columns we're not ignoring...
                 # add them as features to process
 
-                fulldata_metadata_file = "{}/fulldata_{}".format(
-                    "/".join(fulldata_file.split("/")[:-1]),
-                    meta_suffix)
                 log.info(("{} writing fulldata metadata file={}")
                          .format(
                             log_id,
@@ -511,9 +511,6 @@ def build_csv(
                          encoding='utf-8',
                          index=False)
 
-                clean_metadata_file = "{}/cleaned_{}".format(
-                    "/".join(clean_file.split("/")[:-1]),
-                    meta_suffix)
                 log.info(("{} writing clean metadata file={}")
                          .format(
                             log_id,

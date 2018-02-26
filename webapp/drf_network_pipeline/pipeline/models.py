@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
@@ -5,10 +6,12 @@ from django.db.models.deletion import PROTECT
 from drf_network_pipeline.pipeline.utils import \
         convert_to_date
 
-from jsonfield import JSONField
-
-# with postgres use this:
-# from django.contrib.postgres.fields import JSONField
+# with postgres use this for the JSONField type:
+if os.environ.get("POSTGRES_DB", "") != "":  # noqa
+    from django.contrib.postgres.fields import JSONField  # noqa
+else:  # noqa
+    from jsonfield import JSONField  # noqa
+# end of if using postgres vs another db type for JSONField support
 
 
 User = get_user_model()  # noqa
