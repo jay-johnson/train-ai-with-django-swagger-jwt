@@ -121,7 +121,9 @@ Here's how to run it:
     #.  On the "Connection" tab enter:
 
         Host: postgres
+
         Username: postgres
+
         Password: postgres
 
     #.  Click "Save password?" check box
