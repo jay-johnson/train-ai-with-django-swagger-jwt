@@ -178,11 +178,47 @@ Note: if you are running the docker "full stack" please make sure to run: ``expo
 Celery Worker
 =============
 
+Start the Worker
+----------------
+
 Start the Celery worker in a new terminal to process published Django work tasks for heavyweight, time-intensive operations.
 
-::
+    ::
 
-    ./run-worker.sh
+        ./run-worker.sh
+
+Verify the Celery Worker Processes a Task without Django
+--------------------------------------------------------
+
+I find the first time I integrate Celery + Django + Redis can be painful. So I try to validate Celery tasks work before connecting Celery to Django over a message broker (like Redis). Here is a test tool for helping debug this integration with the `celery-loaders`_ project. It's also nice not having to click through the browser to debug a new task.
+
+#.  Run the task test script
+
+    ::
+
+        ./run-celery-task.py -t drf_network_pipeline.users.tasks.task_get_user -f tests/celery/task_get_user.json
+        2018-02-25 23:25:03,832 - run-celery-task - INFO - start - run-celery-task
+        2018-02-25 23:25:03,832 - run-celery-task - INFO - connecting Celery=run-celery-task broker=redis://localhost:6379/9 backend=redis://localhost:6379/10 tasks=['drf_network_pipeline.users.tasks']
+        2018-02-25 23:25:03,832 - get_celery_app - INFO - creating celery app=run-celery-task tasks=['drf_network_pipeline.users.tasks']
+        2018-02-25 23:25:03,847 - run-celery-task - INFO - app.broker_url=redis://localhost:6379/9 calling task=drf_network_pipeline.users.tasks.task_get_user data={'user_id': 1}
+        2018-02-25 23:25:03,897 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - started job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71
+        2018-02-25 23:25:03,905 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - success job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71 task_result={'id': 1, 'username': 'root', 'email': 'root@email.com'}
+        2018-02-25 23:25:03,905 - run-celery-task - INFO - end - run-celery-task
+
+#.  Verify the Celery Worker Processed the Task
+
+    If Redis and Celery are working as expected, the logs should print something similar to the following:
+
+    ::
+
+        2018-02-26 07:25:03,897 - celery.worker.strategy - INFO - Received task: drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71]  
+        2018-02-26 07:25:03,898 - user_tasks - INFO - task - task_get_user - start user_data={'user_id': 1}
+        2018-02-26 07:25:03,899 - user_tasks - INFO - finding user=1
+        2018-02-26 07:25:03,903 - user_tasks - INFO - found user.id=1 name=root
+        2018-02-26 07:25:03,904 - user_tasks - INFO - task - task_get_user - done
+        2018-02-26 07:25:03,905 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71] succeeded in 0.006255952997889835s: {'id': 1, 'username': 'root', 'email': 'root@email.com'}
+
+.. _celery-loaders: https://github.com/jay-johnson/celery-loaders
 
 Automation
 ==========
