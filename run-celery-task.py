@@ -71,7 +71,7 @@ log.info(("connecting Celery={} "
             backend_url,
             include_tasks))
 
-# Get the Celery app from the ecommerce project"s get_celery_app
+# Get the Celery app using the celery-loaders api
 app = get_celery_app(
         name,
         auth_url=broker_url,
