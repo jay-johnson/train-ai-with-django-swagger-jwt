@@ -591,6 +591,42 @@ If you are running the "full stack", then you can run this command to stop the d
 
     ./stop-stack.sh 
 
+Testing
+-------
+
+#.  Set up the Testing Runtime and Environment Variables
+
+    ::
+
+        source ~/.venvs/venvdrfpipeline/bin/activate
+        source ./envs/dev.env
+
+#.  Change to the ``webapp`` directory
+
+    Tests need to run in the same directory as the ``manage.py``
+
+    ::
+
+        cd webapp
+
+#.  Run all Tests
+
+    ::
+
+        python manage.py test
+
+#.  Run all Test Cases in a Test module
+
+    ::
+
+        python manage.py test drf_network_pipeline.tests.test_ml
+
+#.  Run a Single Test Case
+
+    ::
+
+        python manage.py test drf_network_pipeline.tests.test_user.AccountsTest.test_create_user_with_invalid_email
+
 Linting
 -------
 
@@ -661,3 +697,13 @@ pgAdmin
 -------
 
 https://www.pgadmin.org/
+
+PostgreSQL
+----------
+
+https://www.postgresql.org/
+
+Django Cacheops
+---------------
+
+https://github.com/Suor/django-cacheops

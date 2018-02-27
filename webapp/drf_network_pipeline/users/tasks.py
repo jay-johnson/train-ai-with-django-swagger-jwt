@@ -1,12 +1,15 @@
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from celery_loaders.log.setup_logging import build_colorized_logger
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-from django.db.models import Q
+from django.conf import settings
+from drf_network_pipeline.pipeline.consts import SUCCESS
+from drf_network_pipeline.pipeline.consts import FAILED
+from drf_network_pipeline.pipeline.consts import ERR
+from drf_network_pipeline.job_utils.build_task_response import \
+    build_task_response
+from drf_network_pipeline.users.db_lookup_user import \
+    db_lookup_user
 
-
-User = get_user_model()  # noqa
 
 name = "user_tasks"
 log = build_colorized_logger(name=name)
@@ -14,51 +17,57 @@ log = build_colorized_logger(name=name)
 
 @shared_task
 def task_get_user(
-        user_data):
+        req_node):
     """task_get_user
 
-    :param user_data: user dictionary for lookup values
+    :param req_node: dictionary for lookup values
     """
-
-    ret_data = {}
 
     label = "task_get_user"
 
     log.info(("task - {} - start "
-              "user_data={}")
-             .format(label,
-                     user_data))
+              "req_node={}")
+             .format(
+                label,
+                req_node))
 
-    user_id = user_data.get("user_id", None)
+    req_data = req_node.get("data", {})
+    use_cache = req_node.get("use_cache", settings.CACHEOPS_ENABLED)
+
+    # create the response node from request
+    res = build_task_response(
+            use_cache=use_cache,
+            celery_enabled=req_node["celery_enabled"],
+            cache_key=req_node["cache_key"])
+
+    user_id = req_data.get("user_id", None)
     if user_id:
-        db_query = (Q(id=user_id))
-        log.info(("finding user={}")
-                 .format(
-                    user_id))
-        qset = User.objects.select_related().filter(db_query)
-        if len(qset) == 0:
-            log.error(("failed to find user={}")
-                      .format(
-                          user_id))
+        full_user_res = db_lookup_user(
+            user_id=user_id,
+            use_cache=use_cache)
+        if full_user_res["status"] == SUCCESS:
+            res["status"] = SUCCESS
+            res["err"] = ""
+            res["data"] = full_user_res.get("data", None)
         else:
-            obj = qset[0]
-            log.info(("found user.id={} name={}")
-                     .format(
-                         obj.id,
-                         obj.username))
-            ret_data = {
-                "id": obj.id,
-                "username": obj.username,
-                "email": obj.email
-            }
+            res["err"] = ("did not find user_id={}").format(
+                            user_id)
+            log.info(res["err"])
+            res["status"] = FAILED
+            res["data"] = None
+        # end of looking up user from db
     else:
-        log.info(("no user_id in data={}")
-                 .format(
-                     user_data))
+        res["err"] = ("no user_id in data={}").format(
+                        req_data)
+        log.info(res["err"])
+        res["status"] = ERR
+        res["data"] = None
     # end of if user_id found
 
-    log.info(("task - {} - done")
-             .format(label))
+    log.info(("task - {} result={} - done")
+             .format(
+                label,
+                res))
 
-    return ret_data
+    return res
 # end of task_get_user

@@ -29,6 +29,10 @@ echo ""
 
 cd webapp
 
+echo "Migrating"
+python manage.py makemigrations users
+python manage.py makemigrations pipeline
+
 echo "Syncing db"
 python manage.py migrate --run-syncdb
 echo ""

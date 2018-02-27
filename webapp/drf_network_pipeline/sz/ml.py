@@ -1,5 +1,4 @@
 import os
-import logging
 import uuid
 import json
 import pandas as pd
@@ -9,23 +8,21 @@ from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework import status as drf_status
-from celery_connectors.utils import ev
-from network_pipeline.log.setup_logging import setup_logging
-from network_pipeline.utils import ppj
 from network_pipeline.consts import VALID
 from network_pipeline.build_training_request import build_training_request
+from celery_loaders.log.setup_logging import build_colorized_logger
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import FAILED
 from drf_network_pipeline.pipeline.consts import ERR
+from drf_network_pipeline.pipeline.consts import NOTDONE
 from drf_network_pipeline.sz.user import UserSerializer
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLPrepare
-from drf_network_pipeline.pipeline.prepare_dataset_tools import \
-    build_csv
-from drf_network_pipeline.pipeline.prepare_dataset_tools import \
-    find_all_pipeline_csvs
 from drf_network_pipeline.pipeline.models import MLJobResult
-from drf_network_pipeline.users.tasks import task_get_user
+from drf_network_pipeline.job_utils.run_task import run_task
+from drf_network_pipeline.pipeline.tasks import task_ml_prepare
+from drf_network_pipeline.pipeline.create_ml_prepare_record import \
+    create_ml_prepare_record
 from keras.models import Sequential
 from keras.layers import Dense
 import matplotlib
@@ -33,9 +30,8 @@ matplotlib.use("Agg")  # noqa
 import matplotlib.pyplot as plt  # noqa
 
 
-setup_logging()
 name = "ml-sz"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
 
 User = get_user_model()  # noqa
@@ -157,225 +153,86 @@ class MLPrepareSerializer(serializers.Serializer):
                              user_id,
                              validated_data))
 
-            lookup_user_data = {
-                "user_id": user_id
+            # if the Full Stack is running with Celery
+            # then it is assumed the task will be published
+            # to the worker and only the MLPrepare record will be
+            # returned for polling the status
+            # of the long-running job
+            prepare_task_name = "ml_prepare"
+            get_result = True
+            prepare_task = task_ml_prepare
+            if settings.CELERY_ENABLED:
+                prepare_task = task_ml_prepare.delay
+                get_result = False
+
+            req_data = validated_data
+            req_data["user_id"] = user_id
+
+            create_res = create_ml_prepare_record(
+                            req_data=req_data)
+            user_obj = create_res.get(
+                "user_obj",
+                None)
+            ml_prepare_obj = create_res.get(
+                "ml_prepare_obj",
+                None)
+            if not user_obj:
+                res["error"] = ("{} - Failed to find User").format(
+                                    prepare_task_name)
+                res["status"] = ERR
+                res["error"] = create_res.get("err", "error not set")
+                res["data"] = None
+                log.error(res["error"])
+                return res
+            if not ml_prepare_obj:
+                res["error"] = ("{} - Failed to create MLPrepare").format(
+                                    prepare_task_name)
+                res["status"] = ERR
+                res["error"] = create_res.get("err", "error not set")
+                res["data"] = None
+                log.error(res["error"])
+                return res
+
+            req_data["user_data"] = {
+                "id": user_obj.id,
+                "email": user_obj.email,
+                "username": user_obj.username
             }
-            try:
-                user_data = {}
-                if settings.CELERY_ENABLED:
-                    job_res = task_get_user.delay(lookup_user_data)
-                    user_data = job_res.get()
-                else:
-                    user_data = task_get_user(lookup_user_data)
-                # if celery enabled or not
+            req_data["ml_prepare_data"] = ml_prepare_obj.get_public()
 
-                if len(user_data) > 0:
-                    log.info(("celery={} - found user={}")
-                             .format(
-                                settings.CELERY_ENABLED,
-                                user_data))
-            except Exception as e:
-                log.error(("Failed to run task_get_user celery={} "
-                           "with ex={}")
-                          .format(
-                            settings.CELERY_ENABLED,
-                            e))
-            # end of sending tasks to a Celery worker if it is enabled
+            job_res = run_task(
+                task_method=prepare_task,
+                task_name=prepare_task_name,
+                req_data=req_data,
+                get_result=get_result)
 
-            status = "initial"
-            control_state = "active"
-            title = "no title"
-            desc = "no desc"
-            full_file = None
-            clean_file = None
-            meta_suffix = "metadata.json"
-            output_dir = None
-            ds_dir = None
-            ds_glob_path = None
-            pipeline_files = None
-            post_proc = None
-            label_rules = None
-            meta_data = None
-            version = 1
+            log.info(("task={} res={}")
+                     .format(
+                        prepare_task_name,
+                        job_res))
 
-            if validated_data["title"]:
-                title = validated_data["title"]
-            if validated_data["desc"]:
-                desc = validated_data["desc"]
-            if validated_data["full_file"]:
-                last_step = "parsing full_file"
-                full_file = validated_data["full_file"]
-            if validated_data["clean_file"]:
-                last_step = "parsing clean_file"
-                clean_file = validated_data["clean_file"]
-            if validated_data["meta_suffix"]:
-                last_step = "parsing meta_suffix"
-                meta_suffix = validated_data["meta_suffix"]
-            if validated_data["output_dir"]:
-                last_step = "parsing output_dir"
-                output_dir = validated_data["output_dir"]
-            if validated_data["ds_dir"]:
-                last_step = "parsing ds_dir"
-                ds_dir = validated_data["ds_dir"]
-            if validated_data["ds_glob_path"]:
-                last_step = "parsing ds_glob_path"
-                ds_glob_path = validated_data["ds_glob_path"]
-            if validated_data["pipeline_files"]:
-                last_step = "parsing pipeline_files"
-                pipeline_files = json.loads(validated_data["pipeline_files"])
-            if "post_proc" in validated_data:
-                if validated_data["post_proc"]:
-                    last_step = "parsing post_proc"
-                    post_proc = json.loads(validated_data["post_proc"])
-            if validated_data["meta_data"]:
-                last_step = "parsing meta_data"
-                meta_data = json.loads(validated_data["meta_data"])
-            if "label_rules" in validated_data:
-                if validated_data["label_rules"]:
-                    last_step = "parsing label_rules"
-                    label_rules = json.loads(validated_data["label_rules"])
-            if validated_data["version"]:
-                version = int(validated_data["version"])
-
-            tracking_id = "prep_{}".format(
-                            str(uuid.uuid4()))
-
-            obj = MLPrepare(
-                    user=request.user,
-                    status=status,
-                    control_state=control_state,
-                    title=title,
-                    desc=desc,
-                    full_file=full_file,
-                    clean_file=clean_file,
-                    meta_suffix=meta_suffix,
-                    output_dir=output_dir,
-                    ds_dir=ds_dir,
-                    ds_glob_path=ds_glob_path,
-                    pipeline_files=pipeline_files,
-                    post_proc=post_proc,
-                    label_rules=label_rules,
-                    meta_data=meta_data,
-                    tracking_id=tracking_id,
-                    version=version)
-
-            last_step = "saving"
-            log.info("saving prepare")
-            obj.save()
-
-            last_step = ("starting user={} prepare={} "
-                         "pipeline={} clean={} full={} "
-                         "post={} label={} tracking={}").format(
-                             user_id,
-                             obj.id,
-                             pipeline_files,
-                             clean_file,
-                             full_file,
-                             post_proc,
-                             label_rules,
-                             tracking_id)
-            log.info(last_step)
-
-            log_id = "job={}".format(
-                obj.id)
-
-            log.info(("prepare={} csvs={}")
-                     .format(obj.id,
-                             ds_glob_path))
-
-            pipeline_files = find_all_pipeline_csvs(
-                                use_log_id=log_id,
-                                csv_glob_path=ds_glob_path)
-
-            log.info(("preparing={} clean={} full={} "
-                      "meta_suffix={} files={}")
-                     .format(obj.id,
-                             clean_file,
-                             full_file,
-                             meta_suffix,
-                             pipeline_files))
-
-            save_node = build_csv(
-                use_log_id=log_id,
-                pipeline_files=pipeline_files,
-                fulldata_file=full_file,
-                clean_file=clean_file,
-                post_proc_rules=post_proc,
-                label_rules=label_rules,
-                meta_suffix=meta_suffix)
-
-            if save_node["status"] == VALID:
-
-                log.info("successfully process datasets:")
-
-                obj.post_proc = save_node["post_proc_rules"]
-                obj.post_proc["features_to_process"] = \
-                    save_node["features_to_process"]
-                obj.post_proc["ignore_features"] = \
-                    save_node["ignore_features"]
-                obj.post_proc["feature_to_predict"] = \
-                    save_node["feature_to_predict"]
-                obj.label_rules = save_node["label_rules"]
-                obj.pipeline_files = save_node["pipeline_files"]
-                obj.full_file = save_node["fulldata_file"]
-                obj.clean_file = save_node["clean_file"]
-                obj.status = "finished"
-                obj.control_state = "finished"
-                obj.save()
-                log.info(("saved prepare={}")
-                         .format(obj.id))
-
-                if ev("SHOW_SUMMARY",
-                      "0") == "1":
-                    log.info(("Full csv: {}")
-                             .format(save_node["fulldata_file"]))
-                    log.info(("Full meta: {}")
-                             .format(save_node["fulldata_metadata_file"]))
-                    log.info(("Clean csv: {}")
-                             .format(save_node["clean_file"]))
-                    log.info(("Clean meta: {}")
-                             .format(save_node["clean_metadata_file"]))
-                    log.info("------------------------------------------")
-                    log.info(("Predicting Feature: {}")
-                             .format(save_node["feature_to_predict"]))
-                    log.info(("Features to Process: {}")
-                             .format(ppj(save_node["features_to_process"])))
-                    log.info(("Ignored Features: {}")
-                             .format(ppj(save_node["ignore_features"])))
-                    log.info("------------------------------------------")
-                # end of show summary
-
-                log.info("Full: {}".format(
-                    save_node["fulldata_file"]))
-                log.info("Cleaned (no-NaNs in columns): {}".format(
-                    save_node["clean_file"]))
-                data = obj.get_public()
+            if job_res["status"] == SUCCESS:
                 res = {
                     "status": SUCCESS,
                     "code": drf_status.HTTP_201_CREATED,
                     "error": "",
-                    "data": data
+                    "data": job_res["data"]
+                }
+            elif not get_result and job_res["status"] == NOTDONE:
+                res = {
+                    "status": SUCCESS,
+                    "code": drf_status.HTTP_201_CREATED,
+                    "error": "",
+                    "data": req_data["ml_prepare_data"]
                 }
             else:
-                last_step = ("failed to prepare csv status={} "
-                             "errors: {}").format(
-                                save_node["status"],
-                                save_node["err"])
-                log.error(last_step)
-                obj.status = "error"
-                obj.control_state = "error"
-                obj.save()
-                data["prepare"] = obj.get_public()
-                data["ready"] = {}
                 res = {
                     "status": ERR,
                     "code": drf_status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "error": last_step,
-                    "data": data
+                    "error": job_res["err"],
+                    "data": job_res["data"]
                 }
-                return res
-            # end of checking it started
-
+            # end of processing result
         except Exception as e:
             last_step = ("{} Failed with ex={}").format(
                             self.class_name,
@@ -398,12 +255,14 @@ class MLPrepareSerializer(serializers.Serializer):
 
     def update(self,
                request,
+               validated_data,
                pk=None):
         """update
 
         Update an MLPrepare
 
         :param request: http request
+        :param validated_data: dict of values
         :param pk: MLPrepare.id
         """
 
@@ -451,7 +310,7 @@ class MLPrepareSerializer(serializers.Serializer):
             pk):
         """get
 
-        Start a new MLPrepare
+        Get MLPrepare record
 
         :param request: http request
         :param pk: MLPrepare.id
@@ -1107,12 +966,14 @@ class MLJobsSerializer(serializers.Serializer):
 
     def update(self,
                request,
+               validated_data,
                pk=None):
         """update
 
         Update an MLJob
 
         :param request: http request
+        :param validated_data: dict of values
         :param pk: MLJob.id
         """
 
@@ -1375,12 +1236,14 @@ class MLJobResultsSerializer(serializers.Serializer):
 
     def update(self,
                request,
+               validated_data,
                pk=None):
         """update
 
         Update an MLJobResult
 
         :param request: http request
+        :param validated_data: dict of values
         :param pk: MLJobResult.id
         """
 
@@ -1428,7 +1291,7 @@ class MLJobResultsSerializer(serializers.Serializer):
             pk):
         """get
 
-        Start a new MLJobResult
+        Get MLResult record
 
         :param request: http request
         :param pk: MLJobResult.id

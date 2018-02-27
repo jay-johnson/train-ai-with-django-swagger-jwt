@@ -4,3 +4,4 @@ ERR = 2
 EX = 3
 NOTRUN = 4
 INVALID = 5
+NOTDONE = 6

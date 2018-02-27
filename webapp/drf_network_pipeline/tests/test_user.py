@@ -58,7 +58,7 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['password']), 1)
+        self.assertEqual(response.data, "password too short")
     # end of test_create_user_with_short_password
 
     def test_create_user_with_no_password(self):
@@ -73,13 +73,25 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['password']), 1)
+        self.assertEqual(response.data, "missing password")
     # end of test_create_user_with_no_password
 
     def test_create_user_with_too_long_username(self):
 
         long_name = \
             ("badnametoolongasdfjdsklafjdklsajf"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
+             "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
              "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
              "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
              "lkjdslakfjkldsajflkjdsalkjfldskaflksj"
@@ -96,7 +108,7 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['username']), 1)
+        self.assertEqual(response.data, "username too long")
     # end of test_create_user_with_too_long_username
 
     def test_create_user_with_no_username(self):
@@ -110,8 +122,7 @@ class AccountsTest(APITestCase):
         view = UserViewSet.as_view({"post": "create"})
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['username']), 1)
+        self.assertEqual(response.data, "missing username")
     # end of test_create_user_with_no_username
 
     def test_create_user_with_preexisting_username(self):
@@ -126,7 +137,8 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['username']), 1)
+        self.assertEqual(response.data, ("username 'testuser' is "
+                                         "already in use"))
     # end of test_create_user_with_preexisting_username
 
     def test_create_user_with_preexisting_email(self):
@@ -141,14 +153,16 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['email']), 1)
+        self.assertEqual(
+            response.data,
+            "email 'test@example.com' is already in use")
     # end of test_create_user_with_preexisting_email
 
     def test_create_user_with_invalid_email(self):
         data = {
             'username': 'foobarbaz',
             'email': 'testing',
-            'passsword': 'foobarbaz'
+            'password': 'foobarbaz'
         }
 
         request = self.factory.post(self.create_url, data, format='json')
@@ -156,7 +170,7 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['email']), 1)
+        self.assertEqual(response.data, "Please enter a valid email")
     # end of test_create_user_with_invalid_email
 
     def test_create_user_with_no_email(self):
@@ -171,7 +185,7 @@ class AccountsTest(APITestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(len(response.data['email']), 1)
+        self.assertEqual(response.data, "missing email address")
     # end of test_create_user_with_no_email
 
 # end of AccountsTest

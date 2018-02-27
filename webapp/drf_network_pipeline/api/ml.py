@@ -99,6 +99,7 @@ class MLPrepareViewSet(
                  .format(self.name))
         obj_res = self.serializer_class().update(
                     request=request,
+                    validated_data=request.data,
                     pk=pk)
 
         return Response(obj_res["data"],
@@ -224,6 +225,7 @@ class MLJobViewSet(
                  .format(self.name))
         obj_res = self.serializer_class().update(
                     request=request,
+                    validated_data=request.data,
                     pk=pk)
 
         return Response(obj_res["data"],
@@ -330,6 +332,7 @@ class MLJobResultViewSet(
                  .format(self.name))
         obj_res = self.serializer_class().update(
                     request=request,
+                    validated_data=request.data,
                     pk=pk)
 
         return Response(obj_res["data"],

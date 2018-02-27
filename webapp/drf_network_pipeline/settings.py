@@ -48,6 +48,7 @@ class Common(Configuration):
         "rest_framework_jwt",
         "django_extensions",
         "django_celery_results",
+        "cacheops",
         "debug_toolbar",
 
         "drf_network_pipeline.users",
@@ -96,7 +97,7 @@ class Common(Configuration):
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql_psycopg2",
-                "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+                "NAME": os.environ.get("POSTGRES_DB", "webapp"),
                 "USER": os.environ.get("POSTGRES_USER", "postgres"),
                 "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
                 "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
@@ -236,6 +237,9 @@ class Common(Configuration):
     CELERY_TASK_PUBLISH_RETRY = True
     CELERY_DISABLE_RATE_LIMITS = False
 
+    # timeout for getting task results
+    CELERY_GET_RESULT_TIMEOUT = 1.0
+
     # If you want to see results and try out tasks interactively,
     # change it to False
     # Or change this setting on tasks level
@@ -259,13 +263,44 @@ class Common(Configuration):
 
     # CELERY_REDIS_MAX_CONNECTIONS = 1
 
-    # Don"t use pickle as serializer, json is much safer
+    # Don't use pickle as serializer, json is much safer
     CELERY_TASK_SERIALIZER = "json"
     CELERY_ACCEPT_CONTENT = ["application/json"]
 
     CELERYD_HIJACK_ROOT_LOGGER = False
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_MAX_TASKS_PER_CHILD = 1000
+
+    # Django Cacheops
+    # https://github.com/Suor/django-cacheops
+    # https://github.com/Suor/django-cacheops/blob/master/LICENSE
+    CACHEOPS_ENABLED = bool(os.environ.get("CACHEOPS_ENABLED", "0") == "1")
+    if CACHEOPS_ENABLED:
+        CACHEOPS_REDIS = {
+            "host": os.getenv(
+                "REDIS_CACHE_HOST",
+                REDIS_HOST),
+            "port": int(os.getenv(
+                "REDIS_CACHE_PORT",
+                REDIS_PORT)),
+            "db": int(os.getenv(
+                "REDIS_CACHE_DB",
+                "8")),
+            "socket_timeout": int(os.getenv(
+                "REDIS_CACHE_TIMEOUT",
+                "3"))
+        }
+        CACHEOPS_DEFAULTS = {
+            "timeout": 60*60
+        }
+        CACHEOPS = {
+            "auth.user": {"ops": "get", "timeout": 60*15},
+            "auth.*": {"ops": ("fetch", "get")},
+            "auth.permission": {"ops": "all"},
+            "*.*": {},
+        }
+    # end of if CACHEOPS_ENABLED
+
 # end of Common
 
 

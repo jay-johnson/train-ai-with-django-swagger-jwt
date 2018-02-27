@@ -129,3 +129,5 @@ py3venv
 *.jpeg
 *.tiff
 *.gif
+
+nohup.out
