@@ -83,7 +83,7 @@ def handle_task_method(
             res_node = task_method(req_node)
     # end of if valid params or not
 
-    log.info(("TK - res_node={}")
+    log.info(("TK END - res_node={}")
              .format(
                 res_node))
     return res_node

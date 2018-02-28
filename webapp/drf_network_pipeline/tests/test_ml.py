@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_jwt import utils as jwt_utils
+from network_pipeline.utils import ppj
 from drf_network_pipeline.pipeline.models import MLPrepare
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
@@ -396,7 +397,6 @@ class MLJobTest(APITestCase):
         job_id = int(response.data["job"]["id"])
         result_data = response.data["results"]
         result_id = int(result_data["id"])
-        accuracy = result_data["acc_data"]["accuracy"]
         error_data = result_data["error_data"]
 
         request = self.factory.get(
@@ -405,14 +405,13 @@ class MLJobTest(APITestCase):
                     format="json")
         view = MLJobResultViewSet.as_view({"get": "retrieve"})
         get_response = view(request, pk=result_id)
+        print(ppj(get_response.data))
         self.assertEqual(
             get_response.data["user_name"], self.test_username)
         self.assertEqual(
             get_response.data["job_id"], job_id)
         self.assertEqual(
             get_response.data["id"], result_id)
-        self.assertEqual(
-            get_response.data["acc_data"]["accuracy"], accuracy)
         self.assertEqual(
             get_response.data["error_data"], error_data)
         self.assertContains(

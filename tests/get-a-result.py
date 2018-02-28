@@ -2,17 +2,24 @@
 
 import os
 import sys
-import logging
 import json
 import requests
-from network_pipeline.log.setup_logging import setup_logging
+import argparse
+from celery_loaders.log.setup_logging import build_colorized_logger
 from network_pipeline.utils import ppj
 
 
-setup_logging(config_name="logging.json")
 name = "get-a-result"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
+
+parser = argparse.ArgumentParser(description="get a MLJobResult")
+parser.add_argument(
+    "-i",
+    help="MLJobResult.id for your user",
+    required=False,
+    dest="result_id")
+args = parser.parse_args()
 
 url = os.getenv(
     "BASE_URL",
@@ -28,6 +35,10 @@ password = os.getenv(
 object_id = os.getenv(
     "JOB_RESULT_ID",
     "1")
+
+# allow cli args to set the id
+if args.result_id:
+    object_id = int(args.result_id)
 
 auth_url = "{}/api-token-auth/".format(url)
 resource_url = ("{}/mlresults/{}").format(

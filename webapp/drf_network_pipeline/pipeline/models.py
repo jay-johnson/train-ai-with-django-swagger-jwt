@@ -210,6 +210,9 @@ class MLJob(models.Model):
                 default="active")
     predict_feature = models.CharField(
                 max_length=512)
+    job_manifest = JSONField(
+                null=True,
+                default=None)
     training_data = JSONField(
                 null=True,
                 default=None)
@@ -249,6 +252,7 @@ class MLJob(models.Model):
             "status": self.status,
             "control_state": self.control_state,
             "predict_feature": self.predict_feature,
+            "job_manifest": self.job_manifest,
             "training_data": self.training_data,
             "pre_proc": self.pre_proc,
             "post_proc": self.post_proc,
@@ -298,6 +302,16 @@ class MLJobResult(models.Model):
                 choices=STATUS,
                 max_length=20,
                 default="initial")
+    test_size = models.FloatField(
+                default=0.2)
+    csv_file = models.CharField(
+                max_length=512,
+                null=True,
+                default=None)
+    meta_file = models.CharField(
+                max_length=512,
+                null=True,
+                default=None)
     acc_data = JSONField(
                 null=True,
                 default=None)
@@ -333,6 +347,9 @@ class MLJobResult(models.Model):
             "user_name": self.user.username,
             "job_id": None,
             "status": self.status,
+            "test_size": self.test_size,
+            "csv_file": self.csv_file,
+            "meta_file": self.meta_file,
             "version": self.version,
             "acc_data": self.acc_data,
             "error_data": self.error_data,

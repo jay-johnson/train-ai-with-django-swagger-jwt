@@ -1,15 +1,10 @@
-import os
-import uuid
 import json
-import pandas as pd
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework import status as drf_status
-from network_pipeline.consts import VALID
-from network_pipeline.build_training_request import build_training_request
 from celery_loaders.log.setup_logging import build_colorized_logger
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import FAILED
@@ -21,13 +16,11 @@ from drf_network_pipeline.pipeline.models import MLPrepare
 from drf_network_pipeline.pipeline.models import MLJobResult
 from drf_network_pipeline.job_utils.run_task import run_task
 from drf_network_pipeline.pipeline.tasks import task_ml_prepare
+from drf_network_pipeline.pipeline.tasks import task_ml_job
 from drf_network_pipeline.pipeline.create_ml_prepare_record import \
     create_ml_prepare_record
-from keras.models import Sequential
-from keras.layers import Dense
-import matplotlib
-matplotlib.use("Agg")  # noqa
-import matplotlib.pyplot as plt  # noqa
+from drf_network_pipeline.pipeline.create_ml_job_record import \
+    create_ml_job_record
 
 
 name = "ml-sz"
@@ -569,381 +562,110 @@ class MLJobsSerializer(serializers.Serializer):
                              user_id,
                              validated_data))
 
-            last_step = "parsing data"
-            title = validated_data["title"]
-            desc = validated_data["desc"]
-            ds_name = validated_data["ds_name"]
-            algo_name = validated_data["algo_name"]
-            ml_type = str(validated_data["ml_type"]).strip().lower()
-            version = validated_data["version"]
-            status = "initial"
-            control_state = "active"
-            predict_feature = validated_data["predict_feature"]
-            training_data = json.loads(validated_data["training_data"])
-            pre_proc = json.loads(validated_data["pre_proc"])
-            post_proc = json.loads(validated_data["post_proc"])
-            meta_data = json.loads(validated_data["meta_data"])
-            tracking_id = "ml_{}".format(str(uuid.uuid4()))
-            test_size = 0.20
-            epochs = 5
-            batch_size = 2
-            verbose = 1
+            # if the Full Stack is running with Celery
+            # then it is assumed the task will be published
+            # to the worker and only the MLJob and MLJobResult
+            # records will be returned for polling the status
+            # of the long-running training job
+            task_name = "ml_job"
+            get_result = True
+            ml_job_task = task_ml_job
+            if settings.CELERY_ENABLED:
+                ml_job_task = task_ml_job.delay
+                get_result = False
 
-            if "test_size" in training_data:
-                last_step = "parsing test_size"
-                test_size = float(training_data["test_size"])
-            if "epochs" in training_data:
-                last_step = "parsing test_size"
-                epochs = int(training_data["epochs"])
-            if "batch_size" in training_data:
-                last_step = "parsing batch_size"
-                batch_size = int(training_data["batch_size"])
-            if "verbose" in training_data:
-                last_step = "parsing verbose"
-                verbose = int(training_data["verbose"])
+            req_data = validated_data
+            req_data["user_id"] = user_id
 
-            image_file = None
-            if "image_file" in validated_data:
-                image_file = validated_data["image_file"]
-            # end of saving file naming
-
-            csv_file = validated_data["csv_file"]
-            meta_file = validated_data["meta_file"]
-
-            if not os.path.exists(csv_file):
-                last_step = ("Missing csv_file={}").format(
-                                csv_file)
-                log.error(last_step)
-                res = {
-                    "status": ERR,
-                    "code": drf_status.HTTP_400_BAD_REQUEST,
-                    "error": last_step,
-                    "data": data
-                }
+            create_res = create_ml_job_record(
+                            req_data=req_data)
+            user_obj = create_res.get(
+                "user_obj",
+                None)
+            ml_job_obj = create_res.get(
+                "ml_job_obj",
+                None)
+            ml_result_obj = create_res.get(
+                "ml_result_obj",
+                None)
+            if not user_obj:
+                res["error"] = ("{} - Failed to find User").format(
+                                    task_name)
+                res["status"] = ERR
+                res["code"] = drf_status.HTTP_400_BAD_REQUEST
+                res["error"] = create_res.get("err", "error not set")
+                res["data"] = None
+                log.error(res["error"])
                 return res
-            # end of check for csv file
-            if not os.path.exists(meta_file):
-                last_step = ("Missing meta_file={}").format(
-                                csv_file)
-                log.error(last_step)
-                res = {
-                    "status": ERR,
-                    "code": drf_status.HTTP_400_BAD_REQUEST,
-                    "error": last_step,
-                    "data": data
-                }
+            if not ml_job_obj:
+                res["error"] = ("{} - Failed to create MLJob").format(
+                                    task_name)
+                res["status"] = ERR
+                res["code"] = drf_status.HTTP_400_BAD_REQUEST
+                res["error"] = create_res.get("err", "error not set")
+                res["data"] = None
+                log.error(res["error"])
                 return res
-            # end of check for meta file
+            if not ml_result_obj:
+                res["error"] = ("{} - Failed to create MLJobResult").format(
+                                    task_name)
+                res["status"] = ERR
+                res["code"] = drf_status.HTTP_400_BAD_REQUEST
+                res["error"] = create_res.get("err", "error not set")
+                res["data"] = None
+                log.error(res["error"])
+                return res
 
-            job = MLJob(
-                    user=request.user,
-                    title=title,
-                    desc=desc,
-                    ds_name=ds_name,
-                    algo_name=algo_name,
-                    ml_type=ml_type,
-                    status=status,
-                    control_state=control_state,
-                    predict_feature=predict_feature,
-                    training_data=training_data,
-                    pre_proc=pre_proc,
-                    post_proc=post_proc,
-                    meta_data=meta_data,
-                    tracking_id=tracking_id,
-                    version=version)
+            req_data["user_data"] = {
+                "id": user_obj.id,
+                "email": user_obj.email,
+                "username": user_obj.username
+            }
+            req_data["ml_job_data"] = ml_job_obj.get_public()
+            req_data["ml_result_data"] = ml_result_obj.get_public()
 
-            last_step = "saving"
-            log.info("saving job")
-            job.save()
+            job_res = run_task(
+                task_method=ml_job_task,
+                task_name=task_name,
+                req_data=req_data,
+                get_result=get_result)
 
-            last_step = ("starting user={} job={} "
-                         "csv={} meta={}").format(
-                             user_id,
-                             job.id,
-                             csv_file,
-                             meta_file)
-            log.info(last_step)
+            log.info(("task={} res={}")
+                     .format(
+                        task_name,
+                        job_res))
 
-            ml_req = build_training_request(
-                    csv_file=csv_file,
-                    meta_file=meta_file,
-                    predict_feature=predict_feature,
-                    test_size=test_size)
-
-            job_results = None
-            if ml_req["status"] != VALID:
-                last_step = ("Stopping for status={} "
-                             "errors: {}").format(
-                                ml_req["status"],
-                                ml_req["err"])
-                log.error(last_step)
-                job.status = "error"
-                job.control_state = "error"
-                log.info(("saving job={}")
-                         .format(job.id))
-                job.save()
-                data["job"] = job.get_public()
-                error_data = {
-                    "status": ml_req["status"],
-                    "err": ml_req["err"]
+            if job_res["status"] == SUCCESS:
+                res = {
+                    "status": SUCCESS,
+                    "code": drf_status.HTTP_201_CREATED,
+                    "error": "",
+                    "data": {
+                        "job": req_data["ml_job_data"],
+                        "results": req_data["ml_result_data"]
+                    }
                 }
-                job_results = MLJobResult(
-                    user=job.user,
-                    job=job,
-                    status="finished",
-                    acc_data=None,
-                    error_data=error_data)
-                job_results.save()
-                data["results"] = job_results.get_public()
+            elif not get_result and job_res["status"] == NOTDONE:
+                res = {
+                    "status": SUCCESS,
+                    "code": drf_status.HTTP_201_CREATED,
+                    "error": "",
+                    "data": {
+                        "job": req_data["ml_job_data"],
+                        "results": req_data["ml_result_data"]
+                    }
+                }
+            else:
                 res = {
                     "status": ERR,
                     "code": drf_status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "error": last_step,
-                    "data": data
+                    "error": job_res["err"],
+                    "data": {
+                        "job": None,
+                        "results": None
+                    }
                 }
-                return res
-            else:
-                last_step = ("built_training_request={} "
-                             "features={} ignore={}").format(
-                                 ml_req["status"],
-                                 ml_req["features_to_process"],
-                                 ml_req["ignore_features"])
-
-                log.info(last_step)
-
-                log.info("resetting Keras backend")
-
-                scores = None
-                model = Sequential()
-                histories = []
-
-                if ml_type == "regression":
-                    log.info(("creating Keras - regression - "
-                              "sequential model ml_type={}")
-                             .format(ml_type))
-
-                    # create the model
-                    model.add(Dense(8,
-                                    input_dim=len(
-                                        ml_req["features_to_process"]),
-                                    kernel_initializer="normal",
-                                    activation="relu"))
-                    model.add(Dense(6,
-                                    kernel_initializer="normal",
-                                    activation="relu"))
-                    model.add(Dense(1,
-                                    kernel_initializer="normal",
-                                    activation="sigmoid"))
-
-                    loss = "mse"
-                    metrics = [
-                        "mse",
-                        "mae",
-                        "mape",
-                        "cosine"
-                    ]
-
-                    histories = [
-                        "mean_squared_error",
-                        "mean_absolute_error",
-                        "mean_absolute_percentage_error",
-                        "cosine_proximity"
-                    ]
-
-                    last_step = ("compiling model "
-                                 "loss={} metrics={}").format(
-                                    loss,
-                                    metrics)
-                    log.info(last_step)
-
-                    # compile the model
-                    model.compile(
-                            loss=loss,
-                            optimizer="adam",
-                            metrics=metrics)
-
-                else:
-                    log.info(("creating Keras - sequential model"
-                              "ml_type={}")
-                             .format(ml_type))
-
-                    # create the model
-                    model.add(Dense(8,
-                                    input_dim=len(
-                                        ml_req["features_to_process"]),
-                                    kernel_initializer="uniform",
-                                    activation="relu"))
-                    model.add(Dense(6,
-                                    kernel_initializer="uniform",
-                                    activation="relu"))
-                    model.add(Dense(1,
-                                    kernel_initializer="uniform",
-                                    activation="sigmoid"))
-
-                    histories = [
-                        "val_loss",
-                        "val_acc",
-                        "loss",
-                        "acc"
-                    ]
-
-                    last_step = "compiling model"
-                    log.info(last_step)
-
-                    # compile the model
-                    model.compile(
-                            loss="binary_crossentropy",
-                            optimizer="adam",
-                            metrics=["accuracy"])
-
-                # end of classification vs regression
-
-                last_step = ("fitting model - "
-                             "epochs={} batch={} "
-                             "verbose={} - please wait").format(
-                                epochs,
-                                batch_size,
-                                verbose)
-                log.info(last_step)
-
-                # fit the model
-                history = model.fit(
-                            ml_req["X_train"],
-                            ml_req["Y_train"],
-                            validation_data=(
-                                ml_req["X_test"],
-                                ml_req["Y_test"]),
-                            epochs=epochs,
-                            batch_size=batch_size,
-                            verbose=verbose)
-
-                # evaluate the model
-                scores = model.evaluate(ml_req["X_test"],
-                                        ml_req["Y_test"])
-
-                last_step = ("job={} accuracy={}").format(
-                                job.id,
-                                scores[1] * 100)
-                log.info(last_step)
-
-                db_query = (Q(user=user_id) & Q(id=job.id))
-                qset = MLJob.objects.select_related() \
-                            .filter(db_query)
-
-                if len(qset) > 0:
-                    last_step = "converting"
-                    log.info(last_step)
-                    data["job"] = qset[0].get_public()
-                    job.status = "finished"
-                    job.control_state = "finished"
-                    job.save()
-                    log.info(("saved job={}")
-                             .format(job.id))
-
-                    acc_data = {
-                        "accuracy": scores[1] * 100
-                    }
-                    error_data = None
-                    log.info(("converting job={} model to json")
-                             .format(job.id))
-                    model_json = model.to_json()
-                    log.info(("converting job={} model weights")
-                             .format(job.id))
-                    model_weights = {
-                        "weights": pd.Series(
-                            model.get_weights()).to_json(
-                                orient="values")
-                    }
-                    log.info(("building job={} results")
-                             .format(job.id))
-                    job_results = MLJobResult(
-                        user=job.user,
-                        job=job,
-                        status="finished",
-                        acc_data=acc_data,
-                        error_data=error_data,
-                        model_json=model_json,
-                        model_weights=model_weights,
-                        version=version)
-
-                    log.info(("saving job={} results")
-                             .format(job.id))
-                    job_results.save()
-
-                    try:
-                        if history and len(histories) > 0:
-                            log.info(("plotting history={} "
-                                      "histories={}")
-                                     .format(
-                                         history,
-                                         histories))
-                            should_save = False
-                            for h in histories:
-                                if h in history.history:
-                                    log.info(("plotting={}")
-                                             .format(h))
-                                    plt.plot(
-                                        history.history[h],
-                                        label=h)
-                                    should_save = True
-                                else:
-                                    log.error(("missing history={}")
-                                              .format(h))
-                            # for all histories
-
-                            if should_save:
-                                if not image_file:
-                                    image_file = ("{}/accuracy_job_"
-                                                  "{}_result_{}.png").format(
-                                                settings.IMAGE_SAVE_DIR,
-                                                job.id,
-                                                job_results.id,
-                                                str(uuid.uuid4()).replace(
-                                                    "-", ""))
-                                log.info(("saving plots as image={}")
-                                         .format(image_file))
-                                plt.legend(loc='best')
-                                plt.savefig(image_file)
-                                if not os.path.exists(image_file):
-                                    log.error(("Failed saving image={}")
-                                              .format(image_file))
-                                else:
-                                    job_results.acc_image_file = \
-                                            image_file
-                            # end of saving file
-
-                        # end of if there are hsitories to plot
-                    except Exception as e:
-                        if job and job_results:
-                            log.error(("Failed saving job={} "
-                                       "image_file={} ex={}")
-                                      .format(
-                                        job.id,
-                                        image_file,
-                                        e))
-                        else:
-                            log.error(("Failed saving "
-                                       "image_file={} ex={}")
-                                      .format(
-                                        image_file,
-                                        e))
-                    # end of try/ex
-
-                    log.info(("updating job={} results={}")
-                             .format(
-                                job.id,
-                                job_results.id))
-                    job_results.save()
-
-                    data["results"] = job_results.get_public()
-                    res = {
-                        "status": SUCCESS,
-                        "code": drf_status.HTTP_201_CREATED,
-                        "error": "",
-                        "data": data
-                    }
-            # end of checking it started
-
+            # end of processing result
         except Exception as e:
             last_step = ("{} Failed with ex={}").format(
                             self.class_name,

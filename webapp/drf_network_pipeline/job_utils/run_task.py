@@ -1,4 +1,5 @@
 from django.conf import settings
+from network_pipeline.utils import ppj
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import ERR
 from drf_network_pipeline.pipeline.consts import NOTRUN
@@ -58,6 +59,16 @@ def run_task(
             delay_timeout=delay_timeout,
             task_method=task_method)
 
+        if "celery_enabled" not in res_node:
+            log.error(("Invalid return node from task={} "
+                       "task_method={} with req_node={} "
+                       "returned data={}")
+                      .format(
+                          task_name,
+                          task_method,
+                          ppj(req_node),
+                          ppj(res_node)))
+
         if res_node["status"] == SUCCESS:
             log.info(("celery={} - running task with data={}")
                      .format(
@@ -89,7 +100,9 @@ def run_task(
             err=("Failed to run {} celery={} "
                  "with ex={}").format(
                     task_name,
-                    res_node["celery_enabled"],
+                    res_node.get(
+                        "celery_enabled",
+                        None),
                     e))
         log.error(res_node["err"])
     # try/ex handling Celery task
