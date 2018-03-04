@@ -5,8 +5,8 @@ import sys
 import json
 import requests
 import argparse
-from celery_loaders.log.setup_logging import build_colorized_logger
-from network_pipeline.utils import ppj
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.utils import ppj
 
 
 name = "get-a-result"
@@ -19,7 +19,18 @@ parser.add_argument(
     help="MLJobResult.id for your user",
     required=False,
     dest="result_id")
+parser.add_argument(
+    "-d",
+    help="debug",
+    required=False,
+    dest="debug",
+    action="store_true")
 args = parser.parse_args()
+
+debug = False
+
+if args.debug:
+    debug = True
 
 url = os.getenv(
     "BASE_URL",
@@ -102,7 +113,34 @@ else:
     record = {}
     if as_json:
         record = json.loads(get_response.text)
-        log.info(ppj(record))
+        model_json = json.loads(record.get("model_json", "{}"))
+        record["model_json"] = model_json
+        predictions = record["predictions_json"].get("predictions", [])
+        if len(predictions) < 20:
+            log.info(ppj(record))
+        else:
+            num_attacks = 0
+            num_not_attacks = 0
+            for node in predictions:
+                if node["label_name"] == "attack":
+                    num_attacks += 1
+                else:
+                    num_not_attacks += 1
+            if debug:
+                log.info(("predictions: {}")
+                         .format(
+                             predictions))
+            log.info(("Job={} result={} accuracy={} predictions={} "
+                      "attacks={} and not_attacks={}")
+                     .format(
+                        record["job_id"],
+                        record["id"],
+                        record["acc_data"].get(
+                            "accuracy",
+                            None),
+                        len(predictions),
+                        num_attacks,
+                        num_not_attacks))
 # end of post for running an ML Job
 
 sys.exit(0)

@@ -1,10 +1,10 @@
 import os
 import json
 import uuid
-from celery_loaders.log.setup_logging import build_colorized_logger
-from drf_network_pipeline.pipeline.consts import SUCCESS
-from drf_network_pipeline.pipeline.consts import ERR
-from drf_network_pipeline.pipeline.consts import FAILED
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.consts import SUCCESS
+from antinex_utils.consts import ERR
+from antinex_utils.consts import FAILED
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
 from drf_network_pipeline.job_utils.build_task_response import \
@@ -70,40 +70,80 @@ def create_ml_job_record(
         pre_proc = json.loads(req_data["pre_proc"])
         post_proc = json.loads(req_data["post_proc"])
         meta_data = json.loads(req_data["meta_data"])
+        model_weights_file = req_data.get(
+            "model_weights_file",
+            None)
+        model_weights_dir = req_data.get(
+            "model_weights_dir",
+            os.getenv("MODEL_WEIGHTS_DIR", "/tmp"))
+        seed = int(req_data.get(
+            "seed",
+            training_data.get("seed", "9")))
+        test_size = float(req_data.get(
+            "test_size",
+            training_data.get("test_size", "0.2")))
+        epochs = int(req_data.get(
+            "epochs",
+            training_data.get("epochs", "5")))
+        batch_size = int(req_data.get(
+            "batch_size",
+            training_data.get("batch_size", "32")))
+        verbose = int(req_data.get(
+            "verbose",
+            training_data.get("verbose", "1")))
+        loss = req_data.get(
+            "loss",
+            "binary_crossentropy")
+        optimizer = req_data.get(
+            "optimizer",
+            "adam")
+        metrics = req_data.get(
+            "metrics",
+            [
+                "accuracy"
+            ])
+        histories = req_data.get(
+            "histories",
+            [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ])
+        csv_file = req_data.get(
+            "csv_file",
+            None)
+        meta_file = req_data.get(
+            "meta_file",
+            None)
+        image_file = req_data.get(
+            "image_file",
+            None)
         tracking_id = "ml_{}".format(str(uuid.uuid4()))
-        test_size = 0.20
-        epochs = 5
-        batch_size = 2
-        verbose = 1
-        csv_file = req_data["csv_file"]
-        meta_file = req_data["meta_file"]
-
-        if "test_size" in training_data:
-            last_step = "parsing test_size"
-            test_size = float(training_data["test_size"])
-        if "epochs" in training_data:
-            last_step = "parsing test_size"
-            epochs = int(training_data["epochs"])
-        if "batch_size" in training_data:
-            last_step = "parsing batch_size"
-            batch_size = int(training_data["batch_size"])
-        if "verbose" in training_data:
-            last_step = "parsing verbose"
-            verbose = int(training_data["verbose"])
-
-        image_file = None
-        if "image_file" in req_data:
-            image_file = req_data["image_file"]
         # end of saving file naming
 
-        job_manifest = {
+        predict_manifest = {
+            "job_id": None,
+            "result_id": None,
             "test_size": test_size,
             "epochs": epochs,
             "batch_size": batch_size,
+            "loss": loss,
+            "metrics": metrics,
+            "optimizer": optimizer,
+            "histories": histories,
+            "seed": seed,
+            "training_data": training_data,
             "csv_file": csv_file,
             "meta_file": meta_file,
-            "image_file": image_file,
-            "verbose": verbose
+            "predict_feature": predict_feature,
+            "features_to_process": None,
+            "ignore_features": None,
+            "label_rules": None,
+            "post_proc_rules": None,
+            "model_weights_file": None,
+            "verbose": verbose,
+            "version": 1
         }
 
         if not os.path.exists(csv_file):
@@ -145,7 +185,7 @@ def create_ml_job_record(
                 status=status,
                 control_state=control_state,
                 predict_feature=predict_feature,
-                job_manifest=job_manifest,
+                predict_manifest=predict_manifest,
                 training_data=training_data,
                 pre_proc=pre_proc,
                 post_proc=post_proc,
@@ -178,18 +218,43 @@ def create_ml_job_record(
                 meta_file=meta_file,
                 test_size=test_size,
                 acc_data=acc_data,
+                acc_image_file=image_file,
+                model_json=None,
+                model_weights=None,
+                predictions_json=None,
                 error_data=None)
+        ml_result_obj.save()
+
+        if not model_weights_file:
+            model_weights_file = "{}/{}".format(
+                model_weights_dir,
+                "ml_weights_job_{}_result_{}.h5".format(
+                    ml_job_obj.id,
+                    ml_result_obj.id))
+        # end of building model weights file
+
+        # make sure to save this to the manifest too
+        predict_manifest["job_id"] = ml_job_obj.id
+        predict_manifest["result_id"] = ml_result_obj.id
+        predict_manifest["model_weights_file"] = \
+            model_weights_file
+        ml_job_obj.predict_manifest = predict_manifest
+        ml_job_obj.save()
+
+        ml_result_obj.model_weights_file = \
+            model_weights_file
         ml_result_obj.save()
 
         log.info(("create_ml_job_record - end "
                   "user.id={} ml_job.id={} ml_result.id={} "
-                  "csv_file={} meta_file={}")
+                  "csv_file={} meta_file={} weights_file={}")
                  .format(
                     user_id,
                     ml_job_obj.id,
                     ml_result_obj.id,
                     ml_result_obj.csv_file,
-                    ml_result_obj.meta_file))
+                    ml_result_obj.meta_file,
+                    ml_result_obj.model_weights_file))
 
         last_step = ""
         status = SUCCESS

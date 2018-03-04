@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework import status as drf_status
-from celery_loaders.log.setup_logging import build_colorized_logger
+from antinex_utils.log.setup_logging import build_colorized_logger
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import FAILED
 from drf_network_pipeline.pipeline.consts import ERR
@@ -204,6 +204,9 @@ class MLPrepareSerializer(serializers.Serializer):
                         prepare_task_name,
                         job_res))
 
+            # in sync mode the data is in the task
+            # response object, so send it back
+            # because the client is blocking on it
             if job_res["status"] == SUCCESS:
                 res = {
                     "status": SUCCESS,
@@ -211,6 +214,11 @@ class MLPrepareSerializer(serializers.Serializer):
                     "error": "",
                     "data": job_res["data"]
                 }
+            # if celery (full stack async mode)
+            # is working on this task,
+            # return the initial record data we have.
+            # from there the client will have to poll
+            # to get the final results
             elif not get_result and job_res["status"] == NOTDONE:
                 res = {
                     "status": SUCCESS,
@@ -635,16 +643,24 @@ class MLJobsSerializer(serializers.Serializer):
                         task_name,
                         job_res))
 
+            # in sync mode the data is in the task
+            # response object, so send it back
+            # because the client is blocking on it
             if job_res["status"] == SUCCESS:
                 res = {
                     "status": SUCCESS,
                     "code": drf_status.HTTP_201_CREATED,
                     "error": "",
                     "data": {
-                        "job": req_data["ml_job_data"],
-                        "results": req_data["ml_result_data"]
+                        "job": job_res["data"]["job"],
+                        "results": job_res["data"]["results"]
                     }
                 }
+            # if celery (full stack async mode)
+            # is working on this task,
+            # return the initial record data we have.
+            # from there the client will have to poll
+            # to get the final results
             elif not get_result and job_res["status"] == NOTDONE:
                 res = {
                     "status": SUCCESS,

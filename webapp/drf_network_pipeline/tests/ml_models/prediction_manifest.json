@@ -1,0 +1,79 @@
+{
+    "job_id": 1,
+    "result_id": 1,
+    "csv_file": "/tmp/cleaned_attack_scans.csv",
+    "meta_file": "/tmp/cleaned_metadata.json",
+    "model_weights_file": "./drf_network_pipeline/tests/ml_models/ml_weights_job_1_result_1.h5",
+    "test_size": 0.2,
+    "epochs": 5,
+    "batch_size": 32,
+    "seed": 42,
+    "loss": "binary_crossentropy",
+    "metrics": [
+        "accuracy"
+    ],
+    "optimizer": "adam",
+    "training_data": {},
+    "histories": [
+        "val_loss",
+        "val_acc",
+        "loss",
+        "acc"
+    ],
+    "verbose": 1,
+    "predict_feature": "label_value",
+    "features_to_process": [
+        "eth_type",
+        "idx",
+        "ip_ihl",
+        "ip_len",
+        "ip_tos",
+        "ip_version",
+        "tcp_dport",
+        "tcp_fields_options.MSS",
+        "tcp_fields_options.Timestamp",
+        "tcp_fields_options.WScale",
+        "tcp_seq",
+        "tcp_sport"
+    ],
+    "ignore_features": [
+        "label_name",
+        "ip_src",
+        "ip_dst",
+        "eth_src",
+        "eth_dst",
+        "src_file",
+        "raw_id",
+        "raw_load",
+        "raw_hex_load",
+        "raw_hex_field_load",
+        "pad_load"
+    ],
+    "label_rules": {
+        "label_values": [
+            0,
+            1
+        ],
+        "labels": [
+            "not_attack",
+            "attack"
+        ],
+        "set_if_above": 85
+    },
+    "post_proc_rules": {
+        "drop_columns": [
+            "src_file",
+            "raw_id",
+            "raw_load",
+            "raw_hex_load",
+            "raw_hex_field_load",
+            "pad_load",
+            "eth_dst",
+            "eth_src",
+            "ip_dst",
+            "ip_src"
+        ],
+        "predict_feature": "label_name"
+    },
+    "version": 1
+}

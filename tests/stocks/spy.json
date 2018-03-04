@@ -8,8 +8,9 @@
     "output_dir": "/tmp/",
     "ds_dir": "/opt/datasets",
     "ds_glob_path": "/opt/stocks/SPY/*.csv",
-    "pipeline_files": "",
+    "pipeline_files": "{}",
     "meta_data": "{}",
     "post_proc": "{ \"drop_columns\": [ \"src_file\", \"ticker\", \"date\", \"exp_date\" ] }",
+    "label_rules": "{}",
     "version": 1
 }

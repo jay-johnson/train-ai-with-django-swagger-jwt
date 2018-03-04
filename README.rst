@@ -624,6 +624,12 @@ Testing
 #.  Run a Single Test Case
 
     ::
+        
+        python manage.py test drf_network_pipeline.tests.test_ml.MLJobTest.test_ml_predict_helper_works
+
+    or
+
+    ::
 
         python manage.py test drf_network_pipeline.tests.test_user.AccountsTest.test_create_user_with_invalid_email
 

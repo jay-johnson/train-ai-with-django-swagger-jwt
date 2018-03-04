@@ -1,5 +1,5 @@
 from django.conf import settings
-from network_pipeline.utils import ppj
+from antinex_utils.utils import ppj
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import ERR
 from drf_network_pipeline.pipeline.consts import NOTRUN
@@ -10,7 +10,7 @@ from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
 from drf_network_pipeline.job_utils.handle_task_method import \
     handle_task_method
-from celery_loaders.log.setup_logging import build_colorized_logger
+from antinex_utils.log.setup_logging import build_colorized_logger
 
 
 name = "run-task"

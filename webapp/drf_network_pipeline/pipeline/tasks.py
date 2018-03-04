@@ -1,35 +1,26 @@
 from __future__ import absolute_import, unicode_literals
-import os
-import uuid
 from django.db.models import Q
-from django.conf import settings
 from celery import shared_task
-from celery_loaders.log.setup_logging import build_colorized_logger
-from celery_connectors.utils import ev
-from network_pipeline.utils import ppj
-from network_pipeline.consts import VALID
-from network_pipeline.build_training_request import build_training_request
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.utils import ev
+from antinex_utils.utils import ppj
+from antinex_utils.consts import VALID
 from drf_network_pipeline.pipeline.models import MLPrepare
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
-from drf_network_pipeline.pipeline.consts import SUCCESS
-from drf_network_pipeline.pipeline.consts import ERR
-from drf_network_pipeline.job_utils.build_task_response import \
-    build_task_response
-from drf_network_pipeline.pipeline.prepare_dataset_tools import \
-    build_csv
-from drf_network_pipeline.pipeline.prepare_dataset_tools import \
-    find_all_pipeline_csvs
+from antinex_utils.consts import SUCCESS
+from antinex_utils.consts import ERR
+from antinex_utils.prepare_dataset_tools import build_csv
+from antinex_utils.prepare_dataset_tools import find_all_pipeline_csvs
+from antinex_utils.build_training_request import build_training_request
+from antinex_utils.make_predictions import make_predictions
 from drf_network_pipeline.users.db_lookup_user import \
     db_lookup_user
 from drf_network_pipeline.pipeline.create_ml_prepare_record import \
     create_ml_prepare_record
-import pandas as pd
-from keras.models import Sequential
-from keras.layers import Dense
-import matplotlib
-matplotlib.use("Agg")  # noqa
-import matplotlib.pyplot as plt  # noqa
+from drf_network_pipeline.job_utils.build_task_response import \
+    build_task_response
+
 
 name = "ml_tasks"
 log = build_colorized_logger(name=name)
@@ -47,7 +38,7 @@ def task_ml_prepare(
               "req_node={}")
              .format(
                 req_node["task_name"],
-                req_node))
+                ppj(req_node)))
 
     ml_prepare_data = req_node["data"].get("ml_prepare_data", None)
 
@@ -143,7 +134,7 @@ def task_ml_prepare(
 
         if save_node["status"] == VALID:
 
-            log.info("successfully process datasets:")
+            log.info("successfully processed datasets:")
 
             ml_prepare_obj.post_proc = save_node["post_proc_rules"]
             ml_prepare_obj.post_proc["features_to_process"] = \
@@ -245,11 +236,14 @@ def task_ml_job(
               "req_node={}")
              .format(
                 req_node["task_name"],
-                req_node))
+                ppj(req_node)))
 
     user_data = req_node["data"].get("user_data", None)
     ml_job = req_node["data"].get("ml_job_data", None)
     ml_result = req_node["data"].get("ml_result_data", None)
+    model_desc = req_node["data"].get("model_desc", None)
+    label_rules = req_node["data"].get("label_rules", None)
+    predict_rows = req_node["data"].get("predict_rows", None)
 
     user_res = db_lookup_user(
                     user_id=user_data["id"])
@@ -259,6 +253,9 @@ def task_ml_job(
     ml_job_id = None
     ml_result_id = None
     ml_job_obj = None
+    found_predictions = None
+    found_accuracy = None
+
     if req_node["use_cache"]:
         ml_job_obj = MLJob.objects.select_related().filter(
             Q(id=int(ml_job["id"])) & Q(user=user_obj)).cache().first()
@@ -290,28 +287,53 @@ def task_ml_job(
         res["status"] = ERR
         res["error"] = ""
 
-        job_manifest = ml_job_obj.job_manifest
-        csv_file = job_manifest["csv_file"]
-        meta_file = job_manifest["meta_file"]
-        epochs = job_manifest["epochs"]
-        test_size = job_manifest["test_size"]
-        batch_size = job_manifest["batch_size"]
-        verbose = job_manifest["verbose"]
-        image_file = job_manifest["image_file"]
+        predict_manifest = ml_job_obj.predict_manifest
+        csv_file = predict_manifest.get("csv_file", None)
+        meta_file = predict_manifest.get("meta_file", None)
+        epochs = int(predict_manifest.get("epochs", "5"))
+        test_size = float(predict_manifest.get("test_size", "0.2"))
+        batch_size = int(predict_manifest.get("batch_size", "32"))
+        verbose = int(predict_manifest.get("verbose", "1"))
+        image_file = ml_result_obj.acc_image_file
         version = ml_job_obj.version
+        loss = predict_manifest.get(
+            "loss",
+            "binary_crossentropy")
+        optimizer = predict_manifest.get(
+            "optimizer",
+            "adam")
+        metrics = predict_manifest.get(
+            "metrics",
+            [
+                "accuracy"
+            ])
+        histories = predict_manifest.get(
+            "histories",
+            [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ])
 
         ml_job_id = ml_job_obj.id
         ml_result_id = ml_result_obj.id
 
         last_step = ("starting user={} "
-                     "job.id={} result.id={} "
+                     "job.id={} result.id={} predict={} "
+                     "model_desc={} "
                      "csv={} meta={}").format(
                         ml_job_obj.user.id,
                         ml_job_id,
                         ml_result_id,
+                        ml_job_obj.predict_feature,
+                        model_desc,
                         csv_file,
                         meta_file)
         log.info(last_step)
+
+        ml_job_obj.status = "analyzing"
+        ml_job_obj.save()
 
         ml_req = build_training_request(
                 csv_file=csv_file,
@@ -342,43 +364,39 @@ def task_ml_job(
             res["data"] = data
             return res
         else:
-            last_step = ("built_training_request={} "
-                         "features={} ignore={}").format(
+
+            predict_manifest["ignore_features"] = \
+                ml_req.get("ignore_features", [])
+            predict_manifest["features_to_process"] = \
+                ml_req.get("features_to_process", [])
+            if label_rules:
+                predict_manifest["label_rules"] = \
+                    label_rules
+            else:
+                predict_manifest["label_rules"] = \
+                    ml_req["meta_data"]["label_rules"]
+            predict_manifest["post_proc_rules"] = \
+                ml_req["meta_data"]["post_proc_rules"]
+            predict_manifest["version"] = version
+
+            last_step = ("job.id={} built_training_request={} "
+                         "predict={} features={} ignore={} "
+                         "label_rules={} post_proc={}").format(
+                            ml_job_obj.id,
                             ml_req["status"],
-                            ml_req["features_to_process"],
-                            ml_req["ignore_features"])
+                            predict_manifest["predict_feature"],
+                            predict_manifest["features_to_process"],
+                            predict_manifest["ignore_features"],
+                            predict_manifest["label_rules"],
+                            predict_manifest["post_proc_rules"])
 
             log.info(last_step)
-
-            log.info("resetting Keras backend")
-
-            scores = None
-            model = Sequential()
-            histories = []
 
             if ml_job_obj.ml_type == "regression":
                 log.info(("creating Keras - regression - "
                           "sequential model ml_type={}")
                          .format(
                              ml_job_obj.ml_type))
-
-                # create the model
-                model.add(
-                    Dense(
-                        8,
-                        input_dim=len(ml_req["features_to_process"]),
-                        kernel_initializer="normal",
-                        activation="relu"))
-                model.add(
-                    Dense(
-                        6,
-                        kernel_initializer="normal",
-                        activation="relu"))
-                model.add(
-                    Dense(
-                        1,
-                        kernel_initializer="normal",
-                        activation="sigmoid"))
 
                 loss = "mse"
                 metrics = [
@@ -394,83 +412,76 @@ def task_ml_job(
                     "mean_absolute_percentage_error",
                     "cosine_proximity"
                 ]
-
-                last_step = ("compiling model "
-                             "loss={} metrics={}").format(
-                                loss,
-                                metrics)
-                log.info(last_step)
-
-                # compile the model
-                model.compile(
-                        loss=loss,
-                        optimizer="adam",
-                        metrics=metrics)
-
             else:
                 log.info(("creating Keras - sequential model"
                           "ml_type={}")
                          .format(ml_job_obj.ml_type))
-
-                # create the model
-                model.add(
-                    Dense(
-                        8,
-                        input_dim=len(ml_req["features_to_process"]),
-                        kernel_initializer="uniform",
-                        activation="relu"))
-                model.add(
-                    Dense(
-                        6,
-                        kernel_initializer="uniform",
-                        activation="relu"))
-                model.add(
-                    Dense(
-                        1,
-                        kernel_initializer="uniform",
-                        activation="sigmoid"))
-
-                histories = [
-                    "val_loss",
-                    "val_acc",
-                    "loss",
-                    "acc"
-                ]
-
-                last_step = "compiling model"
-                log.info(last_step)
-
-                # compile the model
-                model.compile(
-                        loss="binary_crossentropy",
-                        optimizer="adam",
-                        metrics=["accuracy"])
-
             # end of classification vs regression
 
-            last_step = ("fitting model - "
-                         "epochs={} batch={} "
-                         "verbose={} - please wait").format(
-                            epochs,
-                            batch_size,
-                            verbose)
-            log.info(last_step)
+            ml_job_obj.predict_manifest["epochs"] = epochs
+            ml_job_obj.predict_manifest["batch_size"] = batch_size
+            ml_job_obj.predict_manifest["verbose"] = verbose
+            ml_job_obj.predict_manifest["loss"] = loss
+            ml_job_obj.predict_manifest["metrics"] = metrics
+            ml_job_obj.predict_manifest["optimizer"] = optimizer
+            ml_job_obj.predict_manifest["histories"] = histories
 
-            # fit the model
-            history = model.fit(
-                        ml_req["X_train"],
-                        ml_req["Y_train"],
-                        validation_data=(
-                            ml_req["X_test"],
-                            ml_req["Y_test"]),
-                        epochs=epochs,
-                        batch_size=batch_size,
-                        verbose=verbose)
+            ml_job_obj.predict_manifest = predict_manifest
+            ml_job_obj.status = "started"
+            ml_job_obj.save()
 
-            # evaluate the model
-            scores = model.evaluate(
-                        ml_req["X_test"],
-                        ml_req["Y_test"])
+            scores = None
+            prediction_req = {
+                "label": "job_{}_result_{}".format(
+                    ml_job_id,
+                    ml_result_id),
+                "predict_rows": predict_rows,
+                "manifest": ml_job_obj.predict_manifest,
+                "model_json": ml_result_obj.model_json,
+                "model_desc": model_desc,
+                "weights_json": ml_result_obj.model_weights,
+                "meta": req_node
+            }
+
+            prediction_res = make_predictions(
+                req=prediction_req)
+
+            if prediction_res["status"] != SUCCESS:
+                last_step = ("Stopping for prediction_status={} "
+                             "errors: {}").format(
+                                prediction_res["status"],
+                                prediction_res["err"])
+                log.error(last_step)
+                ml_job_obj.status = "error"
+                ml_job_obj.control_state = "error"
+                log.info(("saving job={}")
+                         .format(
+                                ml_job_id))
+                ml_job_obj.save()
+                data["job"] = ml_job_obj.get_public()
+                error_data = {
+                    "status": prediction_res["status"],
+                    "err": prediction_res["err"]
+                }
+                data["results"] = error_data
+                res["status"] = ERR
+                res["error"] = last_step
+                res["data"] = data
+                return res
+
+            res_data = prediction_res["data"]
+            model = res_data["model"]
+            model_weights = res_data["weights"]
+            scores = res_data["scores"]
+            acc_data = res_data["acc"]
+            error_data = res_data["err"]
+            predictions_json = {
+                "predictions": res_data["sample_predictions"]
+            }
+            found_predictions = res_data["sample_predictions"]
+            found_accuracy = acc_data.get(
+                "accuracy",
+                None)
 
             last_step = ("job={} accuracy={}").format(
                             ml_job_id,
@@ -493,14 +504,11 @@ def task_ml_job(
                      .format(
                         ml_job_id))
             model_json = model.to_json()
-            log.info(("converting job={} model weights")
+            log.info(("saving job={} weights_file={}")
                      .format(
-                        ml_job_id))
-            model_weights = {
-                "weights": pd.Series(
-                    model.get_weights()).to_json(
-                        orient="values")
-            }
+                        ml_job_id,
+                        ml_result_obj.model_weights_file))
+
             log.info(("building job={} results")
                      .format(
                         ml_job_id))
@@ -510,6 +518,8 @@ def task_ml_job(
             ml_result_obj.error_data = error_data
             ml_result_obj.model_json = model_json
             ml_result_obj.model_weights = model_weights
+            ml_result_obj.acc_image_file = image_file
+            ml_result_obj.predictions_json = predictions_json
             ml_result_obj.version = version
 
             log.info(("saving job={} results")
@@ -517,75 +527,13 @@ def task_ml_job(
                         ml_job_id))
             ml_result_obj.save()
 
-            try:
-                if history and len(histories) > 0:
-                    log.info(("plotting history={} "
-                              "histories={}")
-                             .format(
-                                history,
-                                histories))
-                    should_save = False
-                    for h in histories:
-                        if h in history.history:
-                            log.info(("plotting={}")
-                                     .format(
-                                        h))
-                            plt.plot(
-                                history.history[h],
-                                label=h)
-                            should_save = True
-                        else:
-                            log.error(("missing history={}")
-                                      .format(
-                                            h))
-                    # for all histories
-
-                    if should_save:
-                        if not image_file:
-                            image_file = ("{}/accuracy_job_"
-                                          "{}_result_{}.png").format(
-                                            settings.IMAGE_SAVE_DIR,
-                                            ml_job_id,
-                                            ml_result_id,
-                                            str(uuid.uuid4()).replace(
-                                                "-", ""))
-                        log.info(("saving plots as image={}")
-                                 .format(
-                                    image_file))
-                        plt.legend(loc='best')
-                        plt.savefig(image_file)
-                        if not os.path.exists(image_file):
-                            log.error(("Failed saving image={}")
-                                      .format(
-                                            image_file))
-                        else:
-                            ml_result_obj.acc_image_file = \
-                                    image_file
-                    # end of saving file
-
-                # end of if there are hsitories to plot
-            except Exception as e:
-                if ml_job_obj and ml_result_obj:
-                    log.error(("Failed saving job={} "
-                               "image_file={} ex={}")
-                              .format(
-                                ml_job_id,
-                                image_file,
-                                e))
-                else:
-                    log.error(("Failed saving "
-                               "image_file={} ex={}")
-                              .format(
-                                image_file,
-                                e))
-            # end of try/ex
-
             log.info(("updating job={} results={}")
                      .format(
                         ml_job_id,
                         ml_result_id))
             ml_result_obj.save()
 
+            data["job"] = ml_job_obj.get_public()
             data["results"] = ml_result_obj.get_public()
             res["status"] = SUCCESS
             res["error"] = ""
@@ -614,6 +562,138 @@ def task_ml_job(
     # end of try/ex
 
     log.info(("task - {} - done - "
+              "ml_job.id={} ml_result.id={} "
+              "accuracy={} predictions={}")
+             .format(
+                req_node["task_name"],
+                ml_job_id,
+                ml_result_id,
+                found_accuracy,
+                len(found_predictions)))
+
+    return res
+# end of task_ml_job
+
+
+@shared_task
+def task_ml_predict(
+        req_node):
+    """task_ml_predict
+
+    :param req_node: job utils dictionary for passing a dictionary
+    """
+
+    log.info(("task - {} - start "
+              "req_node={}")
+             .format(
+                req_node["task_name"],
+                ppj(req_node)))
+
+    user_data = req_node["data"].get("user_data", None)
+    ml_job = req_node["data"].get("ml_job_data", None)
+    ml_result = req_node["data"].get("ml_result_data", None)
+    predict_rows = req_node["data"].get("predict_rows", [])
+    model_desc = req_node["data"].get("model_desc", None)
+
+    user_res = db_lookup_user(
+                    user_id=user_data["id"])
+    user_obj = user_res.get(
+        "user_obj",
+        None)
+    ml_job_id = None
+    ml_result_id = None
+    ml_job_obj = None
+    if req_node["use_cache"]:
+        ml_job_obj = MLJob.objects.select_related().filter(
+            Q(id=int(ml_job["id"])) & Q(user=user_obj)).cache().first()
+    else:
+        ml_job_obj = MLJob.objects.select_related().filter(
+            Q(id=int(ml_job["id"])) & Q(user=user_obj)).first()
+    # end of finding the MLJob record
+
+    ml_result_obj = None
+    if req_node["use_cache"]:
+        ml_result_obj = MLJobResult.objects.select_related().filter(
+            Q(id=int(ml_result["id"]))
+            & Q(user=user_obj)).cache().first()
+    else:
+        ml_result_obj = MLJobResult.objects.select_related().filter(
+            Q(id=int(ml_result["id"])) & Q(user=user_obj)).first()
+    # end of finding the MLJobResult record
+
+    res = build_task_response(
+            use_cache=req_node["use_cache"],
+            celery_enabled=req_node["celery_enabled"],
+            cache_key=req_node["cache_key"])
+
+    last_step = "not started"
+    data = {}
+    data["job"] = {}
+    data["results"] = {}
+    try:
+
+        res["status"] = ERR
+        res["error"] = ""
+
+        predict_manifest = ml_job_obj.predict_manifest
+        csv_file = predict_manifest["csv_file"]
+        meta_file = predict_manifest["meta_file"]
+
+        ml_job_id = ml_job_obj.id
+        ml_result_id = ml_result_obj.id
+
+        last_step = ("starting predictions={} for user={} "
+                     "job.id={} result.id={} row={} "
+                     "csv={} meta={} "
+                     "manifest={}").format(
+                        len(predict_rows),
+                        ml_job_obj.user.id,
+                        ml_job_id,
+                        ml_result_id,
+                        predict_rows,
+                        csv_file,
+                        meta_file,
+                        predict_manifest)
+
+        log.info(last_step)
+
+        prediction_req = {
+            "label": "job_{}_result_{}".format(
+                ml_job_id,
+                ml_result_id),
+            "predict_rows": predict_rows,
+            "manifest": predict_manifest,
+            "model_json": ml_result_obj.model_json,
+            "model_desc": model_desc,
+            "weights_json": ml_result_obj.model_weights,
+            "meta": req_node
+        }
+
+        prediction_res = make_predictions(
+            req=prediction_req)
+
+        res["status"] = prediction_res["status"]
+        res["err"] = prediction_res["err"]
+        res["data"] = prediction_res["data"]
+    except Exception as e:
+        res["status"] = ERR
+        res["err"] = ("Failed task={} with "
+                      "ex={}").format(
+                          req_node["task_name"],
+                          e)
+        if ml_job_obj:
+            data["job"] = ml_job_obj.get_public()
+        else:
+            data["job"] = None
+
+        if ml_result_obj:
+            data["results"] = ml_result_obj.get_public()
+        else:
+            data["results"] = None
+        log.error(res["err"])
+    # end of try/ex
+
+    log.info(("task - {} - done - "
               "ml_job.id={} ml_result.id={} data={}")
              .format(
                 req_node["task_name"],
@@ -622,4 +702,4 @@ def task_ml_job(
                 res["data"]))
 
     return res
-# end of task_ml_job
+# end of task_ml_predict

@@ -1,6 +1,7 @@
 import os
 import uuid
 import json
+import pandas as pd
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -10,13 +11,16 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_jwt import utils as jwt_utils
-from network_pipeline.utils import ppj
+from antinex_utils.utils import ppj
 from drf_network_pipeline.pipeline.models import MLPrepare
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
 from drf_network_pipeline.api.ml import MLPrepareViewSet
 from drf_network_pipeline.api.ml import MLJobViewSet
 from drf_network_pipeline.api.ml import MLJobResultViewSet
+from drf_network_pipeline.pipeline.consts import ERR
+from drf_network_pipeline.pipeline.consts import SUCCESS
+from antinex_utils.make_predictions import make_predictions
 
 
 User = get_user_model()  # noqa
@@ -67,6 +71,10 @@ class MLJobTest(APITestCase):
         self.ml_get_result_url = "/mlresults/"
         self.ml_prep_url = "/ml_prepare/"
         self.jwt_auth = None
+        self.use_antinex = bool(
+            os.getenv("TEST_ANTINEX", "0") == "1")
+        self.antinex_path = ("/opt/antinex-datasets/v1/webapps/"
+                             "django/training-ready")
     # end setUp
 
     def login_user(self):
@@ -210,10 +218,78 @@ class MLJobTest(APITestCase):
         if ds_name == "smart":
             data["training_data"] = "{\"epochs\": 10}"
 
+        if self.use_antinex:
+            real_ds = ("{}/v1_django_cleaned.csv").format(
+                        self.antinex_path)
+            real_meta = ("{}/cleaned_v1_django_metadata.json.csv").format(
+                        self.antinex_path)
+            if os.path.exists(real_ds) and os.path.exists(real_meta):
+                data["csv_file"] = real_ds
+                data["meta_file"] = real_meta
+        # end of loading antinex datasets
+
         data = self.check_dataset_files_exist(data)
 
         return data
     # end of build_ml_job_dataset
+
+    def build_model_desc(
+            self,
+            data_file=("./drf_network_pipeline/"
+                       "tests/datasets/cleaned_attack_scans.csv")):
+        """build_prediction_rows
+
+        :param data_file: file with model and weights
+        """
+        data = None
+        return data
+    # end of build_model_desc
+
+    def build_model_and_weights(
+            self,
+            data_file=("./drf_network_pipeline/"
+                       "tests/ml_models/model_and_weights.json")):
+        """build_model_and_weights
+
+        :param data_file: file with model and weights
+        """
+        file_contents = open(data_file).read()
+        data = json.loads(file_contents)
+        return data
+    # end of build_model_and_weights
+
+    def build_prediction_manifest(
+            self,
+            data_file=("./drf_network_pipeline/"
+                       "tests/ml_models/prediction_manifest.json")):
+        """build_prediction_manifest
+
+        :param data_file: file with model and weights
+        """
+        file_contents = open(data_file).read()
+        data = json.loads(file_contents)
+        return data
+    # end of build_prediction_manifest
+
+    def build_prediction_rows(
+            self,
+            data_file=("./drf_network_pipeline/"
+                       "tests/datasets/cleaned_attack_scans.csv")):
+        """build_prediction_rows
+
+        :param data_file: file with model and weights
+        """
+        if self.use_antinex:
+            real_ds = ("{}/v1_django_cleaned.csv").format(
+                        self.antinex_path)
+            if os.path.exists(real_ds):
+                data_file = real_ds
+        # end of loading antinex datasets
+
+        csv_data = pd.read_csv(data_file)
+        data = csv_data.to_json()
+        return data
+    # end of build_prediction_rows
 
     def test_not_logged_in_blocked_ml_job_create(self):
         """
@@ -675,5 +751,96 @@ class MLJobTest(APITestCase):
             self.assertEqual(
                 response_node["tracking_id"], db_node.tracking_id)
     # end of test_get_recent_ml_prepares
+
+    def test_ml_predict_missing_predictions(self):
+        """
+        Test ML Predict helper fails if no predictions are provided
+        """
+        test_label = str("mlpredict_{}").format(
+                str(uuid.uuid4()))
+        model_desc = self.build_model_desc()
+        model_and_weights = self.build_model_and_weights()
+        prediction_manifest = self.build_prediction_manifest()
+        predict_rows = None
+        del prediction_manifest["csv_file"]
+        data = {
+            "label": test_label,
+            "predict_rows": predict_rows,
+            "manifest": prediction_manifest,
+            "model_desc": model_desc,
+            "model_json": model_and_weights["model"],
+            "weights_json": model_and_weights["weights"],
+            "weights_file": "/tmp/{}".format(test_label)
+        }
+
+        res = make_predictions(data)
+        self.assertEqual(
+            res["status"],
+            ERR)
+        self.assertEqual(
+            res["data"],
+            None)
+    # end of test_ml_predict_missing_predictions
+
+    def test_ml_predict_missing_manifest(self):
+        """
+        Test ML Predict helper fails missing data
+        """
+        test_label = str("mlpredict_{}").format(
+                str(uuid.uuid4()))
+        model_desc = self.build_model_desc()
+        model_and_weights = self.build_model_and_weights()
+        prediction_manifest = None
+        predict_rows = self.build_prediction_rows()
+        data = {
+            "label": test_label,
+            "predict_rows": predict_rows,
+            "manifest": prediction_manifest,
+            "model_desc": model_desc,
+            "model_json": model_and_weights["model"],
+            "weights_json": model_and_weights["weights"],
+            "weights_file": "/tmp/{}".format(test_label)
+        }
+
+        res = make_predictions(data)
+        self.assertEqual(
+            res["status"],
+            ERR)
+        self.assertEqual(
+            res["data"],
+            None)
+    # end of test_ml_predict_missing_manifest
+
+    def test_ml_predict_helper_works(self):
+        """
+        Test ML Predict helper works
+        """
+        test_label = str("mlpredict_{}").format(
+                str(uuid.uuid4()))
+        use_csv = "/tmp/cleaned_attack_scans.csv"
+        model_desc = self.build_model_desc()
+        model_and_weights = self.build_model_and_weights()
+        prediction_manifest = self.build_prediction_manifest()
+        predict_rows = self.build_prediction_rows(
+            data_file=use_csv)
+        self.maxDiff = None
+        data = {
+            "label": test_label,
+            "predict_rows": predict_rows,
+            "manifest": prediction_manifest,
+            "model_desc": model_desc,
+            "model_json": model_and_weights["model"],
+            "weights_json": model_and_weights["weights"]
+        }
+
+        res = make_predictions(data)
+        self.assertEqual(
+            res["err"],
+            "")
+        self.assertEqual(
+            res["status"],
+            SUCCESS)
+        self.assertTrue(len(res["data"]) > 0)
+    # end of test_ml_predict_helper_works
 
 # end of MLJobTest

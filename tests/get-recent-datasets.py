@@ -2,16 +2,14 @@
 
 import os
 import sys
-import logging
 import json
 import requests
-from network_pipeline.log.setup_logging import setup_logging
-from network_pipeline.utils import ppj
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.utils import ppj
 
 
-setup_logging(config_name="logging.json")
 name = "get-recent-datasets"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
 
 url = os.getenv(

@@ -2,16 +2,24 @@
 
 import os
 import sys
-import logging
 import json
+import argparse
 import requests
-from network_pipeline.log.setup_logging import setup_logging
-from network_pipeline.utils import ppj
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.utils import ppj
 
 
-setup_logging(config_name="logging.json")
 name = "get-a-prepared-dataset"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
+
+
+parser = argparse.ArgumentParser(description="get a MLJobResult")
+parser.add_argument(
+    "-i",
+    help="MLJob.id for your user",
+    required=False,
+    dest="result_id")
+args = parser.parse_args()
 
 
 url = os.getenv(
@@ -28,6 +36,10 @@ password = os.getenv(
 object_id = os.getenv(
     "PREPARE_JOB_ID",
     "1")
+
+# allow cli args to set the id
+if args.result_id:
+    object_id = int(args.result_id)
 
 auth_url = "{}/api-token-auth/".format(url)
 resource_url = ("{}/mlprepare/{}").format(

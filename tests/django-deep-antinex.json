@@ -1,0 +1,105 @@
+{
+    "csv_file": "/opt/antinex-datasets/v1/webapps/django/training-ready/v1_django_cleaned.csv",
+    "meta_file": "/opt/antinex-datasets/v1/webapps/django/training-ready/cleaned_v1_django_metadata.json",
+    "title": "AntiNex Django Defensive Neural Network",
+    "desc": "build a deep neural network to defend django applications",
+    "ml_type": "classification",
+    "seed": 42,
+    "test_size": 0.2,
+    "batch_size": 32,
+    "epochs": 20,
+    "loss": "binary_crossentropy",
+    "optimizer": "adam",
+    "model_desc": {
+        "layers": [
+            {
+                "num_neurons": 50,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 45,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 40,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 35,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 30,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 25,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 20,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 15,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 10,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 9,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 7,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 5,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 3,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 1,
+                "init": "uniform",
+                "activation": "sigmoid"
+            }
+        ]
+    },
+    "metrics": [
+        "accuracy"
+    ],
+    "histories": [
+        "val_loss",
+        "val_acc",
+        "loss",
+        "acc"
+    ],
+    "ds_name": "cleaned",
+    "algo_name": "dnn",
+    "predict_feature": "label_value",
+    "training_data": "{}",
+    "pre_proc": "{}",
+    "post_proc": "{}",
+    "meta_data": "{ \"label_rules\": { \"set_if_above\": 85, \"labels\": [\"not_attack\", \"attack\"], \"label_values\": [0, 1]  } }",
+    "label_rules": { "set_if_above": 85, "labels": ["not_attack", "attack"], "label_values": [0, 1]  },
+    "version": 1
+}

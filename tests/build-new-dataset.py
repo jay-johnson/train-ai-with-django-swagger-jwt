@@ -2,21 +2,37 @@
 
 import os
 import sys
-import logging
-import uuid
 import json
+import argparse
 import requests
-from network_pipeline.log.setup_logging import setup_logging
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.utils import ppj
 
 
-setup_logging(config_name="logging.json")
 name = "build-new-ds"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
+
+parser = argparse.ArgumentParser(description="Train a Keras DNN")
+parser.add_argument(
+    "-f",
+    help="file to use default ./prepare-new-dataset.json",
+    required=False,
+    dest="data_file")
+args = parser.parse_args()
 
 test_data_file = os.getenv(
     "TEST_DATA",
     "./prepare-new-dataset.json")
+if args.data_file:
+    if os.path.exists(args.data_file):
+        test_data_file = args.data_file
+    else:
+        log.error("Missing data_file: -f {}".format(
+            args.data_file))
+        sys.exit(1)
+# end of assigning data file
+
 url = os.getenv(
     "BASE_URL",
     "http://localhost:8080")
@@ -42,20 +58,6 @@ test_data = json.loads(open(test_data_file, "r").read())
 test_data["output_dir"] = output_dir
 if test_data["output_dir"][-1] != "/":
     test_data["output_dir"] += "/"
-if len(sys.argv) > 2:
-    full_file = str(sys.argv[1])
-    clean_file = str(sys.argv[2])
-    test_data["full_file"] = full_file
-    test_data["clean_file"] = clean_file
-    test_data["meta_suffix"] = "meta-{}.json".format(
-        str(uuid.uuid4()).replace("-", ""))
-    using_named_files = True
-# end of full + clean file custom args
-
-if len(sys.argv) > 3:
-    meta_suffix = str(sys.argv[3])
-    test_data["meta_suffix"] = meta_suffix
-# end of meta_suffix parsing
 
 # allow changing the output dir when
 # not in custom naming mode
@@ -108,7 +110,7 @@ use_headers = {
     "Authorization": "JWT {}".format(user_token)
 }
 
-log.info(("Running ML Job url={} "
+log.info(("Building ML Dataset with url={} "
           "test_data={}")
          .format(resource_url,
                  test_data))
@@ -132,7 +134,7 @@ else:
     record = {}
     if as_json:
         record = json.loads(post_response.text)
-        log.info(record)
+        log.info(ppj(record))
     if using_named_files or custom_output_dir:
         print("")
         print("Train a Neural Network with:")

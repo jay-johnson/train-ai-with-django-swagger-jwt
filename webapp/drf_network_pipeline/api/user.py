@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
 from drf_network_pipeline.sz.user import UserSerializer
-from celery_loaders.log.setup_logging import build_colorized_logger
+from antinex_utils.log.setup_logging import build_colorized_logger
 
 
 name = "user-api"

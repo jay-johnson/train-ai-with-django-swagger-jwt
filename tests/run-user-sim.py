@@ -2,22 +2,20 @@
 
 import os
 import sys
-import logging
 import uuid
 import json
 import random
 import time
 import requests
-from network_pipeline.log.setup_logging import setup_logging
+from antinex_utils.log.setup_logging import build_colorized_logger
 
 
 useralias = "user1"
 if len(sys.argv) > 1:
     useralias = str(sys.argv[1]).lower()
 
-setup_logging(config_name="logging.json")
 name = "{}-sim".format(useralias)
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
 
 def build_request_data(useralias,

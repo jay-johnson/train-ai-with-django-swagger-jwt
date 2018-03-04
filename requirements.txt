@@ -1,3 +1,4 @@
+antinex-utils
 celery-connectors
 celery-loaders
 celery[redis]
@@ -20,11 +21,11 @@ djangorestframework
 djangorestframework-jwt
 flake8
 gunicorn
+h5py
 jsonfield
 inotify
 keras
 matplotlib
-network-pipeline
 newrelic
 pandas
 numpy
@@ -33,6 +34,7 @@ pycodestyle
 pydocstyle
 requests
 scikit-learn
+tables
 tensorflow
 uwsgi
 virtualenvwrapper

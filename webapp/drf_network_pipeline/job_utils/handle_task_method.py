@@ -1,7 +1,7 @@
 from django.conf import settings
 from drf_network_pipeline.pipeline.consts import ERR
 from drf_network_pipeline.pipeline.consts import NOTDONE
-from celery_loaders.log.setup_logging import build_colorized_logger
+from antinex_utils.log.setup_logging import build_colorized_logger
 
 
 name = "handle_task_method"

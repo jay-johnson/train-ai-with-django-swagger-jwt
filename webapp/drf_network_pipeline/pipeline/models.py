@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import PROTECT
-from drf_network_pipeline.pipeline.utils import \
-        convert_to_date
+from antinex_utils.utils import convert_to_date
 
 # with postgres use this for the JSONField type:
 if os.environ.get("POSTGRES_DB", "") != "":  # noqa
@@ -148,6 +147,8 @@ class MLJob(models.Model):
         ('training', 'training'),
         ('predicting', 'predicting'),
         ('analyzing', 'analyzing'),
+        ('compiling', 'compiling'),
+        ('evaluating', 'evaluating'),
         ('plotting', 'plotting'),
         ('uploading', 'uploading'),
         ('caching', 'caching'),
@@ -210,7 +211,7 @@ class MLJob(models.Model):
                 default="active")
     predict_feature = models.CharField(
                 max_length=512)
-    job_manifest = JSONField(
+    predict_manifest = JSONField(
                 null=True,
                 default=None)
     training_data = JSONField(
@@ -252,7 +253,7 @@ class MLJob(models.Model):
             "status": self.status,
             "control_state": self.control_state,
             "predict_feature": self.predict_feature,
-            "job_manifest": self.job_manifest,
+            "predict_manifest": self.predict_manifest,
             "training_data": self.training_data,
             "pre_proc": self.pre_proc,
             "post_proc": self.post_proc,
@@ -324,8 +325,15 @@ class MLJobResult(models.Model):
     model_weights = JSONField(
                 null=True,
                 default=None)
+    model_weights_file = models.CharField(
+                max_length=512,
+                null=True,
+                default=None)
     acc_image_file = models.CharField(
                 max_length=256,
+                null=True,
+                default=None)
+    predictions_json = JSONField(
                 null=True,
                 default=None)
     version = models.IntegerField(
@@ -356,6 +364,7 @@ class MLJobResult(models.Model):
             "model_json": None,
             "model_weights": None,
             "acc_image_file": self.acc_image_file,
+            "predictions_json": self.predictions_json,
             "created": convert_to_date(self.created),
             "updated": convert_to_date(self.updated),
             "deleted": convert_to_date(self.deleted)

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
-from celery_loaders.log.setup_logging import build_colorized_logger
+from antinex_utils.log.setup_logging import build_colorized_logger
 from django.conf import settings
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import FAILED

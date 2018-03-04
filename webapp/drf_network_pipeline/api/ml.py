@@ -1,7 +1,6 @@
-import logging
 from rest_framework import viewsets
 from rest_framework import permissions
-from network_pipeline.log.setup_logging import setup_logging
+from antinex_utils.log.setup_logging import build_colorized_logger
 from rest_framework.response import Response
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
@@ -11,9 +10,8 @@ from drf_network_pipeline.sz.ml import MLJobsSerializer
 from drf_network_pipeline.sz.ml import MLJobResultsSerializer
 
 
-setup_logging()
 name = "ml"
-log = logging.getLogger(name)
+log = build_colorized_logger(name=name)
 
 
 class MLPrepareViewSet(
@@ -37,7 +35,7 @@ class MLPrepareViewSet(
         Here is a sample Prepare dataset
         ```
         {
-            "title": "Keras DNN 1.0.9",
+            "title": "Keras DNN 1.0.10",
             "desc": "Tensorflow backend with simulated data",
             "ds_name": "new_recording",
             "full_file": "/tmp/fulldata_attack_scans.csv",
@@ -167,7 +165,7 @@ class MLJobViewSet(
         {
             "csv_file": "/tmp/cleaned_attack_scans.csv",
             "meta_file": "/tmp/cleaned_metadata.json",
-            "title": "Keras DNN 1.0.9",
+            "title": "Keras DNN 1.0.10",
             "desc": "Tensorflow backend with simulated data",
             "ds_name": "cleaned",
             "algo_name": "dnn",

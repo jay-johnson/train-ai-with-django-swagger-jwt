@@ -9,21 +9,21 @@ from antinex_utils.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 
-name = "create-keras-dnn"
+name = "antinex-train-and-predict"
 log = build_colorized_logger(name=name)
 
 
-parser = argparse.ArgumentParser(description="Train a Keras DNN")
+parser = argparse.ArgumentParser(description="Train a Deep Neural Network")
 parser.add_argument(
     "-f",
-    help="file to use default ./test-keras-dnn.json",
+    help="file to use default ./django-antinex.json",
     required=False,
     dest="data_file")
 args = parser.parse_args()
 
 test_data_file = os.getenv(
     "TEST_DATA",
-    "./test-keras-dnn.json")
+    "./django-antinex.json")
 if args.data_file:
     if os.path.exists(args.data_file):
         test_data_file = args.data_file
@@ -50,12 +50,6 @@ if not os.path.exists(test_data_file):
 # end of checking the path to the test json file
 
 test_data = json.loads(open(test_data_file, "r").read())
-if len(sys.argv) > 2:
-    full_file = str(sys.argv[1])
-    meta_file = str(sys.argv[2])
-    test_data["csv_file"] = full_file
-    test_data["meta_file"] = meta_file
-# end of full + clean file custom args
 
 auth_url = "{}/api-token-auth/".format(url)
 resource_url = "{}/ml/".format(url)

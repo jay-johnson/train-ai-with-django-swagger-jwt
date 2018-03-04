@@ -1,10 +1,10 @@
 from __future__ import absolute_import, unicode_literals
 import json
 import uuid
-from celery_loaders.log.setup_logging import build_colorized_logger
-from drf_network_pipeline.pipeline.consts import SUCCESS
-from drf_network_pipeline.pipeline.consts import ERR
-from drf_network_pipeline.pipeline.consts import FAILED
+from antinex_utils.log.setup_logging import build_colorized_logger
+from antinex_utils.consts import SUCCESS
+from antinex_utils.consts import ERR
+from antinex_utils.consts import FAILED
 from drf_network_pipeline.pipeline.models import MLPrepare
 from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
