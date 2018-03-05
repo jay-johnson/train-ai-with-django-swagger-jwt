@@ -393,7 +393,7 @@ def task_ml_job(
             log.info(last_step)
 
             if ml_job_obj.ml_type == "regression":
-                log.info(("creating Keras - regression - "
+                log.info(("using Keras - regression - "
                           "sequential model ml_type={}")
                          .format(
                              ml_job_obj.ml_type))
@@ -413,7 +413,7 @@ def task_ml_job(
                     "cosine_proximity"
                 ]
             else:
-                log.info(("creating Keras - sequential model"
+                log.info(("using Keras - sequential model"
                           "ml_type={}")
                          .format(ml_job_obj.ml_type))
             # end of classification vs regression

@@ -88,6 +88,9 @@ def create_ml_job_record(
         batch_size = int(req_data.get(
             "batch_size",
             training_data.get("batch_size", "32")))
+        num_splits = int(req_data.get(
+            "num_splits",
+            training_data.get("num_splits", "5")))
         verbose = int(req_data.get(
             "verbose",
             training_data.get("verbose", "1")))
@@ -125,9 +128,11 @@ def create_ml_job_record(
         predict_manifest = {
             "job_id": None,
             "result_id": None,
+            "ml_type": ml_type,
             "test_size": test_size,
             "epochs": epochs,
             "batch_size": batch_size,
+            "num_splits": num_splits,
             "loss": loss,
             "metrics": metrics,
             "optimizer": optimizer,

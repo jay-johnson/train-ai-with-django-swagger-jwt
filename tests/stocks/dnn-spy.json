@@ -1,13 +1,52 @@
 {
     "csv_file": "/tmp/cleaned_spy.csv",
     "meta_file": "/tmp/cleaned_spy_metadata.json",
+    "predict_feature": "close",
     "title": "Keras DNN - SPY",
     "desc": "Tensorflow backend with simulated data",
+    "ml_type": "regression",
+    "seed": 42,
+    "test_size": 0.2,
+    "batch_size": 32,
+    "epochs": 2,
+    "num_splits": 2,
+    "loss": "mse",
+    "optimizer": "adam",
+    "model_desc": {
+        "layers": [
+            {
+                "num_neurons": 50,
+                "init": "normal",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 20,
+                "init": "normal",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 1,
+                "init": "uniform",
+                "activation": null
+            }
+        ]
+    },
+    "metrics": [
+        "mse",
+        "mae",
+        "mape",
+        "cosine"
+    ],
+    "histories": [
+        "val_loss",
+        "val_acc",
+        "loss",
+        "acc"
+    ],
+    "ds_name": "cleaned",
     "ds_name": "SPY",
     "algo_name": "SPY DNN",
-    "ml_type": "regression",
     "image_file": "/media/sf_shared/spy_dnn_plots.png",
-    "predict_feature": "close",
     "training_data": "{}",
     "pre_proc": "{}",
     "post_proc": "{}",

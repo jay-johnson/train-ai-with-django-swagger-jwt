@@ -7,7 +7,8 @@
     "seed": 42,
     "test_size": 0.2,
     "batch_size": 32,
-    "epochs": 20,
+    "epochs": 5,
+    "num_splits": 5,
     "loss": "binary_crossentropy",
     "optimizer": "adam",
     "model_desc": {

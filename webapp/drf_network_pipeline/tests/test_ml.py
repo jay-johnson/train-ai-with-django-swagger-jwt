@@ -49,7 +49,7 @@ class MLJobTest(APITestCase):
                             desc="ML Job Desc",
                             ds_name="test dataset",
                             algo_name="test algo",
-                            ml_type="keras-ai-tf",
+                            ml_type="classification",
                             status="initial",
                             control_state="active",
                             predict_feature="label_value",
@@ -59,6 +59,58 @@ class MLJobTest(APITestCase):
                             meta_data=self.meta_data,
                             tracking_id="job test",
                             version=1)
+        self.predict_manifest = {
+            "job_id": self.test_ml_job.id,
+            "result_id": None,
+            "ml_type": "classification",
+            "test_size": 0.2,
+            "epochs": 1,
+            "batch_size": 1,
+            "num_splits": 1,
+            "loss": "binary_crossentropy",
+            "metrics": [
+                "accuracy"
+            ],
+            "optimizer": "adam",
+            "histories": [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ],
+            "seed": 9,
+            "training_data": {},
+            "csv_file": ("drf_network_pipeline/tests/datasets/"
+                         "cleaned_attack_scans.csv"),
+            "meta_file": ("drf_network_pipeline/tests/datasets/"
+                          "cleaned_metadata.json"),
+            "predict_feature": "label_value",
+            "features_to_process": [
+                "eth_type",
+                "idx",
+                "ip_ihl",
+                "ip_len",
+                "ip_tos",
+                "ip_version",
+                "label_value",
+                "tcp_dport",
+                "tcp_fields_options",
+                "MSS",
+                "tcp_fields_options",
+                "Timestamp",
+                "tcp_fields_options",
+                "WScale",
+                "tcp_seq",
+                "tcp_sport"
+            ],
+            "ignore_features": None,
+            "label_rules": None,
+            "post_proc_rules": None,
+            "model_weights_file": None,
+            "verbose": 1,
+            "version": 1
+        }
+        self.test_ml_job.predict_manifest = self.predict_manifest
 
         self.client = CoreAPIClient()
 
@@ -71,6 +123,15 @@ class MLJobTest(APITestCase):
         self.ml_get_result_url = "/mlresults/"
         self.ml_prep_url = "/ml_prepare/"
         self.jwt_auth = None
+
+        """
+        make sure to clone the dataset repo locally to test with them:
+        git clone https://github.com/jay-johnson/antinex-datasets.git \
+            /opt/antinex-datasets
+        export TEST_ANTINEX=1
+
+        By default the tests use the included, slim dataset versions
+        """
         self.use_antinex = bool(
             os.getenv("TEST_ANTINEX", "0") == "1")
         self.antinex_path = ("/opt/antinex-datasets/v1/webapps/"
@@ -199,14 +260,14 @@ class MLJobTest(APITestCase):
         :param ds_name: type of ML Job to run
         """
         data = {
-            "csv_file": "/tmp/cleaned_attack_scans.csv",
-            "meta_file": "/tmp/cleaned_metadata.json",
+            "csv_file": self.predict_manifest["csv_file"],
+            "meta_file": self.predict_manifest["meta_file"],
             "title": "Keras DNN - network-pipeline - {}".format(
                 str(uuid.uuid4())),
             "desc": "Tensorflow backend with simulated data",
             "ds_name": "cleaned",
             "algo_name": "dnn",
-            "ml_type": "keras-ai-tf",
+            "ml_type": "classification",
             "predict_feature": "label_value",
             "training_data": "{\"epochs\": 1}",
             "pre_proc": "{}",

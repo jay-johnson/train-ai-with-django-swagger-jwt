@@ -22,7 +22,7 @@ echo "Sourcing: ../envs/${env_name}.env"
 source ../envs/${env_name}.env
 echo ""
 
-export TEST_DATA="./stocks/spy.json"
-./build-new-dataset.py
-export TEST_DATA="./stocks/dnn-spy.json"
-./create-keras-dnn.py
+echo "Building dataset"
+./build-new-dataset.py -f stocks/spy.json
+echo "Creating dnn"
+./create-keras-dnn.py -f stocks/dnn-spy.json

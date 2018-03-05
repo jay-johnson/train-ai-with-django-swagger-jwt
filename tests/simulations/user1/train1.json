@@ -5,7 +5,7 @@
     "desc": "Tensorflow backend with simulated data",
     "ds_name": "cleaned",
     "algo_name": "dnn",
-    "ml_type": "keras-ai-tf",
+    "ml_type": "classification",
     "predict_feature": "label_value",
     "training_data": "{}",
     "pre_proc": "{}",

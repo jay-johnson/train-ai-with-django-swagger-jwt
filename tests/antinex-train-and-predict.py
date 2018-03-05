@@ -12,6 +12,12 @@ from antinex_utils.utils import ppj
 name = "antinex-train-and-predict"
 log = build_colorized_logger(name=name)
 
+"""
+make sure to clone the antinex-datasets repo locally:
+
+git clone https://github.com/jay-johnson/antinex-datasets.git \
+    /opt/antinex-datasets
+"""
 
 parser = argparse.ArgumentParser(description="Train a Deep Neural Network")
 parser.add_argument(
