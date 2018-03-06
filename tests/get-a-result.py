@@ -115,32 +115,24 @@ else:
         record = json.loads(get_response.text)
         model_json = json.loads(record.get("model_json", "{}"))
         record["model_json"] = model_json
-        predictions = record["predictions_json"].get("predictions", [])
+        predictions = record.get(
+            "predictions_json",
+            {}).get("predictions", [])
         if len(predictions) < 20:
             log.info(ppj(record))
         else:
-            num_attacks = 0
-            num_not_attacks = 0
-            for node in predictions:
-                if node["label_name"] == "attack":
-                    num_attacks += 1
-                else:
-                    num_not_attacks += 1
             if debug:
                 log.info(("predictions: {}")
                          .format(
                              predictions))
-            log.info(("Job={} result={} accuracy={} predictions={} "
-                      "attacks={} and not_attacks={}")
+            log.info(("Job={} result={} accuracy={} predictions={}")
                      .format(
                         record["job_id"],
                         record["id"],
                         record["acc_data"].get(
                             "accuracy",
                             None),
-                        len(predictions),
-                        num_attacks,
-                        num_not_attacks))
+                        len(predictions)))
 # end of post for running an ML Job
 
 sys.exit(0)
