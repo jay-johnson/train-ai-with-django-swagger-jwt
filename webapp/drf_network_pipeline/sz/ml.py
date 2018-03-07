@@ -1,4 +1,3 @@
-import json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -202,7 +201,7 @@ class MLPrepareSerializer(serializers.Serializer):
             log.info(("task={} res={}")
                      .format(
                         prepare_task_name,
-                        job_res))
+                        str(job_res)[0:30]))
 
             # in sync mode the data is in the task
             # response object, so send it back
@@ -248,8 +247,9 @@ class MLPrepareSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} create res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of create
@@ -300,8 +300,9 @@ class MLPrepareSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} update res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of update
@@ -373,8 +374,9 @@ class MLPrepareSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} get res={}")
-                 .format(self.class_name,
-                         json.dumps(res)[0:32]))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of get
@@ -423,8 +425,9 @@ class MLPrepareSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} delete res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of delete
@@ -641,7 +644,7 @@ class MLJobsSerializer(serializers.Serializer):
             log.info(("task={} res={}")
                      .format(
                         task_name,
-                        job_res))
+                        str(job_res)[0:30]))
 
             # in sync mode the data is in the task
             # response object, so send it back
@@ -696,8 +699,9 @@ class MLJobsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} create res={}")
-                 .format(self.class_name,
-                         json.dumps(res)[0:32]))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of create
@@ -748,8 +752,9 @@ class MLJobsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} update res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of update
@@ -822,8 +827,9 @@ class MLJobsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} get res={}")
-                 .format(self.class_name,
-                         json.dumps(res)[0:32]))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of get
@@ -872,8 +878,9 @@ class MLJobsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} delete res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of delete
@@ -966,8 +973,9 @@ class MLJobResultsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} create res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of create
@@ -1018,8 +1026,9 @@ class MLJobResultsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} update res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of update
@@ -1093,8 +1102,9 @@ class MLJobResultsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} get res={}")
-                 .format(self.class_name,
-                         json.dumps(res)[0:32]))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of get
@@ -1143,8 +1153,9 @@ class MLJobResultsSerializer(serializers.Serializer):
         # end of try/ex
 
         log.info(("{} delete res={}")
-                 .format(self.class_name,
-                         res))
+                 .format(
+                    self.class_name,
+                    str(res)[0:30]))
 
         return res
     # end of delete
