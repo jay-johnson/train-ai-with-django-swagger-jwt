@@ -851,12 +851,8 @@ class MLJobTest(APITestCase):
                 str(uuid.uuid4()))
         model_desc = self.build_model_desc()
         model_and_weights = self.build_model_and_weights()
-        prediction_manifest = None
-        predict_rows = self.build_prediction_rows()
         data = {
             "label": test_label,
-            "predict_rows": predict_rows,
-            "manifest": prediction_manifest,
             "model_desc": model_desc,
             "model_json": model_and_weights["model"],
             "weights_json": model_and_weights["weights"],
