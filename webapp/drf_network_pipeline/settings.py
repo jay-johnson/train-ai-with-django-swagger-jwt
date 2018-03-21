@@ -309,7 +309,7 @@ class Common(Configuration):
     # bypass the django train + predict and only use the worker
     # note - no predictions will be stored in the database
     ANTINEX_WORKER_ONLY = bool(os.getenv(
-        "ANTINEX_WORKER_ONLY", "1") == "1")
+        "ANTINEX_WORKER_ONLY", "0") == "1")
 
     ANTINEX_AUTH_URL = os.getenv(
         "ANTINEX_AUTH_URL", "redis://localhost:6379/6")
