@@ -703,7 +703,10 @@ def task_ml_job(
             acc_data = res_data["acc"]
             error_data = res_data["err"]
             predictions_json = {
-                "predictions": res_data["sample_predictions"]
+                "predictions": json.loads(
+                    pd.Series(
+                        res_data["sample_predictions"]).to_json(
+                            orient="records"))
             }
             found_predictions = res_data["sample_predictions"]
             found_accuracy = acc_data.get(
