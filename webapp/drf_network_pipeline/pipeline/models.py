@@ -154,6 +154,7 @@ class MLJob(models.Model):
         ('caching', 'caching'),
         ('waiting', 'waiting'),
         ('completed', 'completed'),
+        ('launched', 'launched'),
         ('setup', 'setup'),
         ('emailing', 'emailing'),
         ('pending', 'pending'),
@@ -281,6 +282,8 @@ class MLJobResult(models.Model):
         ('cancel', 'cancel'),
         ('delete', 'delete'),
         ('finished', 'finished'),
+        ('completed', 'completed'),
+        ('launched', 'launched'),
         ('error', 'error'),
         ('failed', 'failed'),
     )

@@ -115,9 +115,12 @@ else:
         record = json.loads(get_response.text)
         model_json = record.get("model_json", "{}")
         record["model_json"] = model_json
-        predictions = record.get(
+        predictions = []
+        predictions_dict = record.get(
             "predictions_json",
-            {}).get("predictions", [])
+            None)
+        if predictions_dict:
+            predictions = predictions_dict.get("predictions", [])
         if len(predictions) < 20:
             log.info(ppj(record))
         else:

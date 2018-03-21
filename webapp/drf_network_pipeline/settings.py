@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/{{ docs_version }}/ref/settings/
 """
 import os
+import ssl
 from configurations import Configuration
 from configurations import values
 
@@ -300,6 +301,85 @@ class Common(Configuration):
             "*.*": {},
         }
     # end of if CACHEOPS_ENABLED
+
+    # AntiNex Worker settings - Optional
+    ANTINEX_WORKER_ENABLED = bool(os.getenv(
+        "ANTINEX_WORKER_ENABLED", "0") == "1")
+
+    # bypass the django train + predict and only use the worker
+    # note - no predictions will be stored in the database
+    ANTINEX_WORKER_ONLY = bool(os.getenv(
+        "ANTINEX_WORKER_ONLY", "1") == "1")
+
+    ANTINEX_AUTH_URL = os.getenv(
+        "ANTINEX_AUTH_URL", "redis://localhost:6379/6")
+
+    # AntiNex routing
+    ANTINEX_EXCHANGE_NAME = os.getenv(
+        "ANTINEX_EXCHANGE_NAME", "webapp.predict.requests")
+    ANTINEX_EXCHANGE_TYPE = os.getenv(
+        "ANTINEX_EXCHANGE_TYPE", "topic")
+    ANTINEX_ROUTING_KEY = os.getenv(
+        "ANTINEX_ROUTING_KEY", "webapp.predict.requests")
+    ANTINEX_QUEUE_NAME = os.getenv(
+        "ANTINEX_QUEUE_NAME", "webapp.predict.requests")
+
+    # By default persist messages to disk
+    ANTINEX_PERSISTENT_MESSAGES = 2
+    ANTINEX_NON_PERSISTENT_MESSAGES = 1
+    ANTINEX_DELIVERY_MODE = ANTINEX_PERSISTENT_MESSAGES
+    antinex_default_delivery_method = os.getenv(
+        "ANTINEX_DELIVERY_MODE",
+        "persistent").lower()
+    if antinex_default_delivery_method != "persistent":
+        ANTINEX_DELIVERY_MODE = ANTINEX_NON_PERSISTENT_MESSAGES
+
+    # AntiNex SSL Configuration - Not Required for Redis
+    ANTINEX_WORKER_SSL_ENABLED = bool(os.getenv(
+        "ANTINEX_WORKER_SSL_ENABLED", "0") == "1")
+
+    antinex_default_ca_certs = "/etc/pki/ca-trust/source/anchors/antinex.ca"
+    antinex_default_keyfile = "/etc/pki/tls/private/antinex.io.crt"
+    antinex_default_certfile = "/etc/pki/tls/certs/antinex.io.pem"
+
+    ANTINEX_CA_CERTS = os.getenv(
+        "ANTINEX_CA_CERTS", None)
+    ANTINEX_KEYFILE = os.getenv(
+        "ANTINEX_KEYFILE", None)
+    ANTINEX_CERTFILE = os.getenv(
+        "ANTINEX_CERTFILE", None)
+    ANTINEX_TLS_PROTOCOL = ssl.PROTOCOL_TLSv1_2
+    ANTINEX_CERT_REQS = ssl.CERT_REQUIRED
+
+    antinex_tls_protocol_str = os.getenv(
+        "ANTINEX_TLS_PROTOCOL", "tls1.2")
+    if antinex_tls_protocol_str == "tls1":
+        ANTINEX_TLS_PROTOCOL = ssl.PROTOCOL_TLSv1
+    elif antinex_tls_protocol_str == "tls1.1":
+        ANTINEX_TLS_PROTOCOL = ssl.PROTOCOL_TLSv1_1
+
+    antinex_cert_reqs_str = os.getenv(
+        "ANTINEX_CERT_REQS", "CERT_REQUIRED").lower()
+    if antinex_cert_reqs_str == "cert_none":
+        ANTINEX_CERT_REQS = ssl.CERT_NONE
+    elif antinex_cert_reqs_str == "cert_optional":
+        ANTINEX_CERT_REQS = ssl.CERT_OPTIONAL
+
+    ANTINEX_SSL_OPTIONS = {}
+    if ANTINEX_WORKER_SSL_ENABLED:
+        ANTINEX_SSL_OPTIONS = {
+            "ssl_version": ANTINEX_TLS_PROTOCOL,
+            "cert_reqs": ANTINEX_CERT_REQS
+        }
+        if ANTINEX_CA_CERTS:
+            ANTINEX_SSL_OPTIONS["ca_certs"] = ANTINEX_CA_CERTS
+        if ANTINEX_KEYFILE:
+            ANTINEX_SSL_OPTIONS["keyfile"] = ANTINEX_KEYFILE
+        if ANTINEX_CERTFILE:
+            ANTINEX_SSL_OPTIONS["certfile"] = ANTINEX_CERTFILE
+    # end of setting if ssl is enabled
+
+    # end of AntiNex Worker settings
 
 # end of Common
 

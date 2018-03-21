@@ -171,6 +171,9 @@ def create_ml_job_record(
         image_file = req_data.get(
             "image_file",
             None)
+        publish_to_core = req_data.get(
+            "publish_to_core",
+            None)
         tracking_id = "ml_{}".format(str(uuid.uuid4()))
         # end of saving file naming
 
@@ -190,6 +193,7 @@ def create_ml_job_record(
             "training_data": training_data,
             "csv_file": csv_file,
             "meta_file": meta_file,
+            "use_model_name": label,
             "dataset": dataset,
             "predict_rows": predict_rows,
             "apply_scaler": apply_scaler,
@@ -201,6 +205,7 @@ def create_ml_job_record(
             "label_rules": label_rules,
             "post_proc_rules": None,
             "model_weights_file": None,
+            "publish_to_core": publish_to_core,
             "verbose": verbose,
             "version": 1
         }

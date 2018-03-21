@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import json
+import pandas as pd
+from django.conf import settings
 from django.db.models import Q
 from celery import shared_task
 from antinex_utils.log.setup_logging import build_colorized_logger
@@ -21,6 +23,10 @@ from drf_network_pipeline.pipeline.create_ml_prepare_record import \
     create_ml_prepare_record
 from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
+from kombu import Connection
+from kombu import Producer
+from kombu import Exchange
+from kombu import Queue
 
 
 name = "ml_tasks"
@@ -226,6 +232,144 @@ def task_ml_prepare(
 
 
 @shared_task
+def task_publish_to_core(
+        req_node):
+    """task_publish_to_core
+
+    :param req_node: dictionary to send to the AntiNex Core Worker
+    """
+
+    if settings.ANTINEX_WORKER_ENABLED:
+
+        dataset = req_node["body"].get("dataset", None)
+        predict_rows = req_node["body"].get("predict_rows", None)
+
+        if not dataset and not predict_rows:
+            log.error(("Invalid antinex body={} - "
+                       "missing dataset and predict_rows")
+                      .format(
+                        req_node))
+            return None
+        # end of checking for supported requests to the core
+
+        log.info(("task_publish_to_core - start req={}").format(
+                    str(req_node)[0:32]))
+
+        if not predict_rows:
+            log.info(("building predict_rows from dataset={}")
+                     .format(
+                        dataset))
+            predict_rows = []
+            predict_rows_df = pd.read_csv(dataset)
+            for idx, org_row in predict_rows_df.iterrows():
+                new_row = json.loads(org_row.to_json())
+                new_row["idx"] = len(predict_rows) + 1
+                predict_rows.append(new_row)
+            # end of building predict rows
+
+            req_node["body"]["apply_scaler"] = True
+            req_node["body"]["predict_rows"] = pd.DataFrame(
+                predict_rows).to_json()
+            # req_node["body"].pop("dataset", None)
+        # end of validating
+
+        req_node["body"]["ml_type"] = \
+            req_node["body"]["manifest"]["ml_type"]
+
+        log.debug(("NEXCORE - ssl={} exchange={} routing_key={}")
+                  .format(
+                    settings.ANTINEX_SSL_OPTIONS,
+                    settings.ANTINEX_EXCHANGE_NAME,
+                    settings.ANTINEX_ROUTING_KEY))
+
+        try:
+            conn = None
+            if settings.ANTINEX_WORKER_SSL_ENABLED:
+                log.debug("connecting with ssl")
+                conn = Connection(
+                    settings.ANTINEX_AUTH_URL,
+                    login_method="EXTERNAL",
+                    ssl=settings.ANTINEX_SSL_OPTIONS)
+            else:
+                log.debug("connecting without ssl")
+                conn = Connection(
+                    settings.ANTINEX_AUTH_URL)
+            # end of connecting
+
+            conn.connect()
+
+            log.debug("getting channel")
+            channel = conn.channel()
+
+            core_exchange = Exchange(
+                settings.ANTINEX_EXCHANGE_NAME,
+                type=settings.ANTINEX_EXCHANGE_TYPE,
+                durable=True)
+
+            log.debug("creating producer")
+            producer = Producer(
+                channel=channel,
+                auto_declare=True,
+                serializer="json")
+
+            try:
+                log.debug("declaring exchange")
+                producer.declare()
+            except Exception as k:
+                log.error(("declare exchange failed with ex={}")
+                          .format(
+                            k))
+            # end of try to declare exchange which can fail if it exists
+
+            core_queue = Queue(
+                settings.ANTINEX_QUEUE_NAME,
+                core_exchange,
+                routing_key=settings.ANTINEX_ROUTING_KEY,
+                durable=True)
+
+            try:
+                log.debug("declaring queue")
+                core_queue.maybe_bind(conn)
+                core_queue.declare()
+            except Exception as k:
+                log.error(("declare queue={} routing_key={} failed with ex={}")
+                          .format(
+                            settings.ANTINEX_QUEUE_NAME,
+                            settings.ANTINEX_ROUTING_KEY,
+                            k))
+            # end of try to declare queue which can fail if it exists
+
+            log.info(("publishing exchange={} routing_key={} persist={}")
+                     .format(
+                        core_exchange.name,
+                        settings.ANTINEX_ROUTING_KEY,
+                        settings.ANTINEX_DELIVERY_MODE))
+
+            producer.publish(
+                body=req_node["body"],
+                exchange=core_exchange.name,
+                routing_key=settings.ANTINEX_ROUTING_KEY,
+                auto_declare=True,
+                serializer="json",
+                delivery_mode=settings.ANTINEX_DELIVERY_MODE)
+
+        except Exception as e:
+            log.info(("Failed to publish to core req={} with ex={}")
+                     .format(
+                        req_node,
+                        e))
+        # try/ex
+
+        log.info(("task_publish_to_core - done"))
+    else:
+        log.debug("core - disabled")
+    # publish to the core if enabled
+
+    return None
+# end of task_publish_to_core
+
+
+@shared_task
 def task_ml_job(
         req_node):
     """task_ml_job
@@ -254,7 +398,7 @@ def task_ml_job(
     ml_job_id = None
     ml_result_id = None
     ml_job_obj = None
-    found_predictions = None
+    found_predictions = []
     found_accuracy = None
 
     if req_node["use_cache"]:
@@ -516,97 +660,99 @@ def task_ml_job(
         if meta_file:
             prediction_req["meta_file"] = meta_file
 
-        log.info(("start make_predictions req={}").format(
-            ppj(prediction_req)))
+        # if you just want to use the core without django training:
+        if settings.ANTINEX_WORKER_ONLY:
+            ml_job_obj.status = "launched"
+            ml_job_obj.control_state = "launched"
+            ml_job_obj.save()
+            ml_result_obj.status = "launched"
+        else:
+            log.info(("start make_predictions req={}").format(
+                ppj(prediction_req)))
 
-        prediction_res = make_predictions(
-            req=prediction_req)
+            prediction_res = make_predictions(
+                req=prediction_req)
 
-        if prediction_res["status"] != SUCCESS:
-            last_step = ("Stopping for prediction_status={} "
-                         "errors: {}").format(
-                            prediction_res["status"],
-                            prediction_res["err"])
-            log.error(last_step)
-            ml_job_obj.status = "error"
-            ml_job_obj.control_state = "error"
-            log.info(("saving job={}")
+            if prediction_res["status"] != SUCCESS:
+                last_step = ("Stopping for prediction_status={} "
+                             "errors: {}").format(
+                                prediction_res["status"],
+                                prediction_res["err"])
+                log.error(last_step)
+                ml_job_obj.status = "error"
+                ml_job_obj.control_state = "error"
+                log.info(("saving job={}")
+                         .format(
+                            ml_job_id))
+                ml_job_obj.save()
+                data["job"] = ml_job_obj.get_public()
+                error_data = {
+                    "status": prediction_res["status"],
+                    "err": prediction_res["err"]
+                }
+                data["results"] = error_data
+                res["status"] = ERR
+                res["error"] = last_step
+                res["data"] = data
+                return res
+
+            res_data = prediction_res["data"]
+            model = res_data["model"]
+            model_weights = res_data["weights"]
+            scores = res_data["scores"]
+            acc_data = res_data["acc"]
+            error_data = res_data["err"]
+            predictions_json = {
+                "predictions": res_data["sample_predictions"]
+            }
+            found_predictions = res_data["sample_predictions"]
+            found_accuracy = acc_data.get(
+                "accuracy",
+                None)
+
+            last_step = ("job={} accuracy={}").format(
+                            ml_job_id,
+                            scores[1] * 100)
+            log.info(last_step)
+
+            ml_job_obj.status = "finished"
+            ml_job_obj.control_state = "finished"
+            ml_job_obj.save()
+            log.info(("saved job={}")
                      .format(
                         ml_job_id))
-            ml_job_obj.save()
+
             data["job"] = ml_job_obj.get_public()
-            error_data = {
-                "status": prediction_res["status"],
-                "err": prediction_res["err"]
+            acc_data = {
+                "accuracy": scores[1] * 100
             }
-            data["results"] = error_data
-            res["status"] = ERR
-            res["error"] = last_step
-            res["data"] = data
-            return res
-
-        res_data = prediction_res["data"]
-        model = res_data["model"]
-        model_weights = res_data["weights"]
-        scores = res_data["scores"]
-        acc_data = res_data["acc"]
-        error_data = res_data["err"]
-        predictions_json = {
-            "predictions": res_data["sample_predictions"]
-        }
-        found_predictions = res_data["sample_predictions"]
-        found_accuracy = acc_data.get(
-            "accuracy",
-            None)
-
-        last_step = ("job={} accuracy={}").format(
+            error_data = None
+            log.info(("converting job={} model to json")
+                     .format(
+                        ml_job_id))
+            model_json = json.loads(model.to_json())
+            log.info(("saving job={} weights_file={}")
+                     .format(
                         ml_job_id,
-                        scores[1] * 100)
-        log.info(last_step)
+                        ml_result_obj.model_weights_file))
 
-        ml_job_obj.status = "finished"
-        ml_job_obj.control_state = "finished"
-        ml_job_obj.save()
-        log.info(("saved job={}")
-                 .format(
-                    ml_job_id))
+            log.info(("building job={} results")
+                     .format(
+                        ml_job_id))
 
-        data["job"] = ml_job_obj.get_public()
-        acc_data = {
-            "accuracy": scores[1] * 100
-        }
-        error_data = None
-        log.info(("converting job={} model to json")
-                 .format(
-                    ml_job_id))
-        model_json = json.loads(model.to_json())
-        log.info(("saving job={} weights_file={}")
-                 .format(
-                    ml_job_id,
-                    ml_result_obj.model_weights_file))
-
-        log.info(("building job={} results")
-                 .format(
-                    ml_job_id))
-
-        ml_result_obj.status = "finished"
-        ml_result_obj.acc_data = acc_data
-        ml_result_obj.error_data = error_data
-        ml_result_obj.model_json = model_json
-        ml_result_obj.model_weights = model_weights
-        ml_result_obj.acc_image_file = image_file
-        ml_result_obj.predictions_json = predictions_json
-        ml_result_obj.version = version
+            ml_result_obj.status = "finished"
+            ml_result_obj.acc_data = acc_data
+            ml_result_obj.error_data = error_data
+            ml_result_obj.model_json = model_json
+            ml_result_obj.model_weights = model_weights
+            ml_result_obj.acc_image_file = image_file
+            ml_result_obj.predictions_json = predictions_json
+            ml_result_obj.version = version
+        # end of handing off to core worker without a database connection
 
         log.info(("saving job={} results")
                  .format(
                     ml_job_id))
-        ml_result_obj.save()
-
-        log.info(("updating job={} results={}")
-                 .format(
-                    ml_job_id,
-                    ml_result_id))
         ml_result_obj.save()
 
         data["job"] = ml_job_obj.get_public()
@@ -614,6 +760,28 @@ def task_ml_job(
         res["status"] = SUCCESS
         res["error"] = ""
         res["data"] = data
+
+        if settings.ANTINEX_WORKER_ENABLED:
+
+            # use pre-trained models in memory by label
+            use_model_name = ml_job_obj.predict_manifest.get(
+                "use_model_name",
+                None)
+            if use_model_name:
+                prediction_req["label"] = use_model_name
+
+            log.info(("publishing to core use_model_name={}")
+                     .format(
+                        use_model_name))
+
+            publish_req = {
+                "body": prediction_req
+            }
+            if settings.CELERY_ENABLED:
+                task_publish_to_core.delay(publish_req)
+            else:
+                task_publish_to_core(publish_req)
+        # send to core
 
     except Exception as e:
         res["status"] = ERR
@@ -645,133 +813,3 @@ def task_ml_job(
 
     return res
 # end of task_ml_job
-
-
-@shared_task
-def task_ml_predict(
-        req_node):
-    """task_ml_predict
-
-    :param req_node: job utils dictionary for passing a dictionary
-    """
-
-    log.info(("task - {} - start "
-              "req_node={}")
-             .format(
-                req_node["task_name"],
-                ppj(req_node)))
-
-    user_data = req_node["data"].get("user_data", None)
-    ml_job = req_node["data"].get("ml_job_data", None)
-    ml_result = req_node["data"].get("ml_result_data", None)
-    predict_rows = req_node["data"].get("predict_rows", [])
-    model_desc = req_node["data"].get("model_desc", None)
-
-    user_res = db_lookup_user(
-                    user_id=user_data["id"])
-    user_obj = user_res.get(
-        "user_obj",
-        None)
-    ml_job_id = None
-    ml_result_id = None
-    ml_job_obj = None
-    if req_node["use_cache"]:
-        ml_job_obj = MLJob.objects.select_related().filter(
-            Q(id=int(ml_job["id"])) & Q(user=user_obj)).cache().first()
-    else:
-        ml_job_obj = MLJob.objects.select_related().filter(
-            Q(id=int(ml_job["id"])) & Q(user=user_obj)).first()
-    # end of finding the MLJob record
-
-    ml_result_obj = None
-    if req_node["use_cache"]:
-        ml_result_obj = MLJobResult.objects.select_related().filter(
-            Q(id=int(ml_result["id"]))
-            & Q(user=user_obj)).cache().first()
-    else:
-        ml_result_obj = MLJobResult.objects.select_related().filter(
-            Q(id=int(ml_result["id"])) & Q(user=user_obj)).first()
-    # end of finding the MLJobResult record
-
-    res = build_task_response(
-            use_cache=req_node["use_cache"],
-            celery_enabled=req_node["celery_enabled"],
-            cache_key=req_node["cache_key"])
-
-    last_step = "not started"
-    data = {}
-    data["job"] = {}
-    data["results"] = {}
-    try:
-
-        res["status"] = ERR
-        res["error"] = ""
-
-        predict_manifest = ml_job_obj.predict_manifest
-        csv_file = predict_manifest["csv_file"]
-        meta_file = predict_manifest["meta_file"]
-
-        ml_job_id = ml_job_obj.id
-        ml_result_id = ml_result_obj.id
-
-        last_step = ("starting predictions={} for user={} "
-                     "job.id={} result.id={} row={} "
-                     "csv={} meta={} "
-                     "manifest={}").format(
-                        len(predict_rows),
-                        ml_job_obj.user.id,
-                        ml_job_id,
-                        ml_result_id,
-                        predict_rows,
-                        csv_file,
-                        meta_file,
-                        predict_manifest)
-
-        log.info(last_step)
-
-        prediction_req = {
-            "label": "job_{}_result_{}".format(
-                ml_job_id,
-                ml_result_id),
-            "predict_rows": predict_rows,
-            "manifest": predict_manifest,
-            "model_json": ml_result_obj.model_json,
-            "model_desc": model_desc,
-            "weights_json": ml_result_obj.model_weights,
-            "meta": req_node
-        }
-
-        prediction_res = make_predictions(
-            req=prediction_req)
-
-        res["status"] = prediction_res["status"]
-        res["err"] = prediction_res["err"]
-        res["data"] = prediction_res["data"]
-    except Exception as e:
-        res["status"] = ERR
-        res["err"] = ("Failed task={} with "
-                      "ex={}").format(
-                          req_node["task_name"],
-                          e)
-        if ml_job_obj:
-            data["job"] = ml_job_obj.get_public()
-        else:
-            data["job"] = None
-
-        if ml_result_obj:
-            data["results"] = ml_result_obj.get_public()
-        else:
-            data["results"] = None
-        log.error(res["err"])
-    # end of try/ex
-
-    log.info(("task - {} - done - "
-              "ml_job.id={} ml_result.id={} data={}")
-             .format(
-                req_node["task_name"],
-                ml_job_id,
-                ml_result_id,
-                res["data"]))
-
-    return res
-# end of task_ml_predict

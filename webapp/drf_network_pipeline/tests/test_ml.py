@@ -136,6 +136,9 @@ class MLJobTest(APITestCase):
             os.getenv("TEST_ANTINEX", "0") == "1")
         self.antinex_path = ("/opt/antinex-datasets/v1/webapps/"
                              "django/training-ready")
+
+        # disable worker publishing hook for tests
+        settings.ANTINEX_WORKER_ENABLED = False
     # end setUp
 
     def login_user(self):
