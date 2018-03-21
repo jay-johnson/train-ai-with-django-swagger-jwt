@@ -1,7 +1,11 @@
 Django REST Framework + Celery + JWT + Swagger + Keras + Tensorflow
 ===================================================================
 
-Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow.
+Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow. 
+
+Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring).
+
+.. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
 .. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
     :width: 200px
@@ -183,9 +187,9 @@ Start the Worker
 
 Start the Celery worker in a new terminal to process published Django work tasks for heavyweight, time-intensive operations.
 
-    ::
+::
 
-        ./run-worker.sh
+    ./run-worker.sh
 
 Verify the Celery Worker Processes a Task without Django
 --------------------------------------------------------
@@ -266,6 +270,34 @@ Train a Keras Deep Neural Network with Tensorflow
 .. raw:: html
 
     <a href="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In?autoplay=1" target="_blank"><img src="https://asciinema.org/a/FdtNSkcRK7VFktg5NGVAQA1In.png"/></a>
+
+Create a Highly Accurate Deep Neural Network for Protecting Django
+------------------------------------------------------------------
+
+This is the same API request the core uses to build the Django DNN with an accuracy of **99.8%**:
+
+https://github.com/jay-johnson/antinex-core#accuracy-and-prediction-report
+
+::
+
+    ./create-keras-dnn.py -f ./scaler-full-django-antinex-simple.json 
+
+    Please wait... this can take a few minutes
+
+    ...
+
+    2018-03-21 06:04:48,314 - ml_tasks - INFO - saving job=83 results
+    2018-03-21 06:04:50,387 - ml_tasks - INFO - updating job=83 results=83
+    2018-03-21 06:04:53,957 - ml_tasks - INFO - task - ml_job - done - ml_job.id=83 ml_result.id=83 accuracy=99.81788079470199 predictions=30200
+
+Train and Predict with just a Dictionary List of Records
+--------------------------------------------------------
+
+This will send a list of records to the API to train and make predictions. This mimics the live-prediction capability in the core for reusing pre-trained DNNs to make predictions faster. I use it to send the newest records to predict, so I do not have to generate lots of csv files everywhere + all-the-time.
+
+::
+
+    ./create-keras-dnn.py -f ./predict-rows-scaler-full-django.json 
 
 Get a Prepared Dataset
 ----------------------
@@ -399,15 +431,6 @@ Please note, if you use filenames and set the ``OUTPUT_DIR`` environment variabl
     Train a Neural Network with:
     ./create-keras-dnn.py /opt/jay/jay_2018-02-05-22-02-521671337_readytouse.csv /opt/jay/cleaned_meta-2b961845162a4d6e9e382c6f540302fe.json
 
-Train a Keras Neural Network with the Named Dataset
----------------------------------------------------
-
-You can either use the suggested **Train a Neural Network with** command after creation or use your own csv dataset ending in **_readytouse.csv** (or whatever suffix you used to name the scrubbed and cleaned csv dataset) with a valid metadata json file.
-
-::
-
-    ./create-keras-dnn.py /tmp/jay_2018-02-05-21-02-274468596_readytouse.csv /tmp/cleaned_meta-54525d8da8a54e9d9005a29c63f2918b.json 
-
 Swagger
 =======
 
@@ -501,23 +524,176 @@ http://0.0.0.0:8080/swagger/#!/ml/ml_create
 
 Paste in the following values and click **Try it Out**:
 
-::
+#.  Build the Django DNN for Predicting Network Attacks
 
-    {
-        "csv_file": "/tmp/cleaned_attack_scans.csv",
-        "meta_file": "/tmp/cleaned_metadata.json",
-        "title": "Keras DNN - network-pipeline==1.0.9",
-        "desc": "Tensorflow backend with simulated data",
-        "ds_name": "cleaned",
-        "algo_name": "dnn",
-        "ml_type": "keras",
-        "predict_feature": "label_value",
-        "training_data": "{}",
-        "pre_proc": "{}",
-        "post_proc": "{}",
-        "meta_data": "{}",
-        "version": 1
-    }
+    ::
+
+        {
+            "label": "Full-Django-AntiNex-Simple-Scaler-DNN",
+            "dataset": "/opt/antinex-datasets/v1/webapps/django/training-ready/v1_django_cleaned.csv",
+            "ml_type": "classification",
+            "predict_feature": "label_value",
+            "features_to_process": [
+                <list of comma separated column names>
+            ],
+            "ignore_features": [
+                <optional list of comma separated column names>
+            ],
+            "sort_values": [
+                <optional list of comma separated column names>
+            ],
+            "seed": 42,
+            "test_size": 0.2,
+            "batch_size": 32,
+            "epochs": 15,
+            "num_splits": 2,
+            "loss": "binary_crossentropy",
+            "optimizer": "adam",
+            "metrics": [
+                "accuracy"
+            ],
+            "histories": [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ],
+            "model_desc": {
+                "layers": [
+                    {
+                        "num_neurons": 200,
+                        "init": "uniform",
+                        "activation": "relu"
+                    },
+                    {
+                        "num_neurons": 1,
+                        "init": "uniform",
+                        "activation": "sigmoid"
+                    }
+                ]
+            },
+            "label_rules": {
+                "labels": [
+                    "not_attack",
+                    "not_attack",
+                    "attack"
+                ],
+                "label_values": [
+                    -1,
+                    0,
+                    1
+                ]
+            },
+            "version": 1
+        }
+
+#.  Prototyping with a List of Records
+
+    I use this script to convert a configurable number of records from the bottom of a csv file which helps build these type of prediction json files:
+
+    https://github.com/jay-johnson/antinex-core/blob/master/antinex_core/scripts/convert-bottom-rows-to-json.py
+
+    ::
+
+         ./create-keras-dnn.py -f ./readme-predict-demo-1.json 
+
+    Here are the contents of ```./tests/readme-predict-demo-1.json``
+
+    ::
+
+        {
+            "label": "Prediction-Model-Prototyping",
+            "predict_rows": [
+                {
+                    "_dataset_index": 1,
+                    "label_value": 1,
+                    "more_keys": 54.0
+                },
+                {
+                    "_dataset_index": 2,
+                    "label_value": 1,
+                    "more_keys": 24.0
+                },
+                {
+                    "_dataset_index": 2,
+                    "label_value": 0,
+                    "more_keys": 33.0
+                }
+            ],
+            "ml_type": "classification",
+            "predict_feature": "label_value",
+            "features_to_process": [
+                "more_keys"
+            ],
+            "ignore_features": [
+            ],
+            "sort_values": [
+            ],
+            "seed": 42,
+            "test_size": 0.2,
+            "batch_size": 32,
+            "epochs": 15,
+            "num_splits": 2,
+            "loss": "binary_crossentropy",
+            "optimizer": "adam",
+            "metrics": [
+                "accuracy"
+            ],
+            "histories": [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ],
+            "model_desc": {
+                "layers": [
+                    {
+                        "num_neurons": 200,
+                        "init": "uniform",
+                        "activation": "relu"
+                    },
+                    {
+                        "num_neurons": 1,
+                        "init": "uniform",
+                        "activation": "sigmoid"
+                    }
+                ]
+            },
+            "label_rules": {
+                "labels": [
+                    "not_attack",
+                    "not_attack",
+                    "attack"
+                ],
+                "label_values": [
+                    -1,
+                    0,
+                    1
+                ]
+            },
+            "version": 1
+        }
+
+
+#.  Deprecated - Using just CSV files
+
+    ::
+
+        {
+            "csv_file": "/tmp/cleaned_attack_scans.csv",
+            "meta_file": "/tmp/cleaned_metadata.json",
+            "title": "Keras DNN - network-pipeline==1.0.9",
+            "desc": "Tensorflow backend with simulated data",
+            "ds_name": "cleaned",
+            "algo_name": "dnn",
+            "ml_type": "keras",
+            "predict_feature": "label_value",
+            "training_data": "{}",
+            "pre_proc": "{}",
+            "post_proc": "{}",
+            "meta_data": "{}",
+            "version": 1
+        }
 
 Run Tests
 ---------

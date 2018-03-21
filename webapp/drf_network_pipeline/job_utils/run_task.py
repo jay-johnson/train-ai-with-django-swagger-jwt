@@ -73,12 +73,12 @@ def run_task(
             log.info(("celery={} - running task with data={}")
                      .format(
                         res_node["celery_enabled"],
-                        res_node["data"]))
+                        str(res_node["data"])[0:32]))
         elif not get_result and res_node["status"] == NOTDONE:
             log.info(("celery={} - running task with data={}")
                      .format(
                         res_node["celery_enabled"],
-                        res_node["data"]))
+                        str(res_node["data"])[0:32]))
         else:
             res_node["data"] = None
             res_node["status"] = res_node["status"]

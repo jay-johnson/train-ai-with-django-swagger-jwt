@@ -42,7 +42,7 @@ def handle_task_method(
     else:
         log.info(("TK START - req_node={}")
                  .format(
-                    req_node))
+                     str(req_node)[0:30]))
 
         if req_node["celery_enabled"]:
             task_job = task_method(req_node)
@@ -85,6 +85,6 @@ def handle_task_method(
 
     log.info(("TK END - res_node={}")
              .format(
-                res_node))
+                 str(res_node)[0:32]))
     return res_node
 # end of handle_task_method

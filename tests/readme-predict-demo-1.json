@@ -1,0 +1,72 @@
+{
+    "label": "Prediction-Model-Prototyping",
+    "predict_rows": [
+        {
+            "_dataset_index": 1,
+            "label_value": 1,
+            "more_keys": 54.0
+        },
+        {
+            "_dataset_index": 2,
+            "label_value": 1,
+            "more_keys": 24.0
+        },
+        {
+            "_dataset_index": 2,
+            "label_value": 0,
+            "more_keys": 33.0
+        }
+    ],
+    "ml_type": "classification",
+    "predict_feature": "label_value",
+    "features_to_process": [
+        "more_keys"
+    ],
+    "ignore_features": [
+    ],
+    "sort_values": [
+    ],
+    "seed": 42,
+    "test_size": 0.2,
+    "batch_size": 32,
+    "epochs": 15,
+    "num_splits": 2,
+    "loss": "binary_crossentropy",
+    "optimizer": "adam",
+    "metrics": [
+        "accuracy"
+    ],
+    "histories": [
+        "val_loss",
+        "val_acc",
+        "loss",
+        "acc"
+    ],
+    "model_desc": {
+        "layers": [
+            {
+                "num_neurons": 200,
+                "init": "uniform",
+                "activation": "relu"
+            },
+            {
+                "num_neurons": 1,
+                "init": "uniform",
+                "activation": "sigmoid"
+            }
+        ]
+    },
+    "label_rules": {
+        "labels": [
+            "not_attack",
+            "not_attack",
+            "attack"
+        ],
+        "label_values": [
+            -1,
+            0,
+            1
+        ]
+    },
+    "version": 1
+}

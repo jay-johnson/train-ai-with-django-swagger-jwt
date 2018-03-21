@@ -15,7 +15,7 @@
     "model_desc": {
         "layers": [
             {
-                "num_neurons": 50,
+                "num_neurons": 250,
                 "init": "normal",
                 "activation": "relu"
             },

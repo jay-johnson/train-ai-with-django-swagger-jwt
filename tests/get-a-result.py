@@ -113,7 +113,7 @@ else:
     record = {}
     if as_json:
         record = json.loads(get_response.text)
-        model_json = json.loads(record.get("model_json", "{}"))
+        model_json = record.get("model_json", "{}")
         record["model_json"] = model_json
         predictions = record.get(
             "predictions_json",

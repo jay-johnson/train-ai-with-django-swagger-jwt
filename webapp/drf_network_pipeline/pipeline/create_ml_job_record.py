@@ -57,19 +57,47 @@ def create_ml_job_record(
         user_obj = user_res.get("user_obj", None)
 
         last_step = "parsing data"
-        title = req_data["title"]
-        desc = req_data["desc"]
-        ds_name = req_data["ds_name"]
-        algo_name = req_data["algo_name"]
-        ml_type = str(req_data["ml_type"]).strip().lower()
-        version = req_data["version"]
+        label = req_data.get(
+            "label",
+            "")
+        title = req_data.get(
+            "title",
+            label)
+        desc = req_data.get(
+            "desc",
+            None)
+        ds_name = req_data.get(
+            "ds_name",
+            label)
+        algo_name = req_data.get(
+            "algo_name",
+            label)
+        ml_type = str(req_data.get(
+            "ml_type",
+            "classification")).strip().lower()
+        apply_scaler = req_data.get(
+            "apply_scaler",
+            True)
+        version = int(req_data.get(
+            "version",
+            1))
         status = "initial"
         control_state = "active"
-        predict_feature = req_data["predict_feature"]
-        training_data = json.loads(req_data["training_data"])
-        pre_proc = json.loads(req_data["pre_proc"])
-        post_proc = json.loads(req_data["post_proc"])
-        meta_data = json.loads(req_data["meta_data"])
+        predict_feature = req_data.get(
+            "predict_feature",
+            "label_value")
+        training_data = json.loads(req_data.get(
+            "training_data",
+            "{}"))
+        pre_proc = json.loads(req_data.get(
+            "pre_proc",
+            "{}"))
+        post_proc = json.loads(req_data.get(
+            "post_proc",
+            "{}"))
+        meta_data = json.loads(req_data.get(
+            "meta_data",
+            "{}"))
         model_weights_file = req_data.get(
             "model_weights_file",
             None)
@@ -119,6 +147,27 @@ def create_ml_job_record(
         meta_file = req_data.get(
             "meta_file",
             None)
+        dataset = req_data.get(
+            "dataset",
+            None)
+        predict_rows = req_data.get(
+            "predict_rows",
+            None)
+        features_to_process = req_data.get(
+            "features_to_process",
+            None)
+        ignore_features = req_data.get(
+            "ignore_features",
+            None)
+        sort_values = req_data.get(
+            "sort_values",
+            None)
+        model_desc = req_data.get(
+            "model_desc",
+            None)
+        label_rules = req_data.get(
+            "label_rules",
+            None)
         image_file = req_data.get(
             "image_file",
             None)
@@ -141,43 +190,52 @@ def create_ml_job_record(
             "training_data": training_data,
             "csv_file": csv_file,
             "meta_file": meta_file,
+            "dataset": dataset,
+            "predict_rows": predict_rows,
+            "apply_scaler": apply_scaler,
             "predict_feature": predict_feature,
-            "features_to_process": None,
-            "ignore_features": None,
-            "label_rules": None,
+            "features_to_process": features_to_process,
+            "ignore_features": ignore_features,
+            "sort_values": sort_values,
+            "model_desc": model_desc,
+            "label_rules": label_rules,
             "post_proc_rules": None,
             "model_weights_file": None,
             "verbose": verbose,
             "version": 1
         }
 
-        if not os.path.exists(csv_file):
-            last_step = ("Missing csv_file={}").format(
-                            csv_file)
-            log.error(last_step)
-            res = {
-                "status": ERR,
-                "error": last_step,
-                "user_obj": user_obj,
-                "ml_prepare_obj": None,
-                "ml_job_obj": None,
-                "ml_result_obj": None
-            }
-            return res
+        if csv_file:
+            if not os.path.exists(csv_file):
+                last_step = ("Missing csv_file={}").format(
+                                csv_file)
+                log.error(last_step)
+                res = {
+                    "status": ERR,
+                    "error": last_step,
+                    "user_obj": user_obj,
+                    "ml_prepare_obj": None,
+                    "ml_job_obj": None,
+                    "ml_result_obj": None
+                }
+                return res
+            # check if set
         # end of check for csv file
-        if not os.path.exists(meta_file):
-            last_step = ("Missing meta_file={}").format(
-                            csv_file)
-            log.error(last_step)
-            res = {
-                "status": ERR,
-                "error": last_step,
-                "user_obj": user_obj,
-                "ml_prepare_obj": None,
-                "ml_job_obj": None,
-                "ml_result_obj": None
-            }
-            return res
+        if meta_file:
+            if not os.path.exists(meta_file):
+                last_step = ("Missing meta_file={}").format(
+                                meta_file)
+                log.error(last_step)
+                res = {
+                    "status": ERR,
+                    "error": last_step,
+                    "user_obj": user_obj,
+                    "ml_prepare_obj": None,
+                    "ml_job_obj": None,
+                    "ml_result_obj": None
+                }
+                return res
+            # check if set
         # end of check for meta file
 
         ml_job_obj = MLJob(

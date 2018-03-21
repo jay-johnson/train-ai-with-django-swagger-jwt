@@ -1,4 +1,5 @@
 from __future__ import absolute_import, unicode_literals
+import json
 from django.db.models import Q
 from celery import shared_task
 from antinex_utils.log.setup_logging import build_colorized_logger
@@ -294,20 +295,43 @@ def task_ml_job(
         test_size = float(predict_manifest.get("test_size", "0.2"))
         batch_size = int(predict_manifest.get("batch_size", "32"))
         verbose = int(predict_manifest.get("verbose", "1"))
-        image_file = ml_result_obj.acc_image_file
-        version = ml_job_obj.version
-        loss = predict_manifest.get(
+
+        dataset = ml_job_obj.predict_manifest.get(
+            "dataset",
+            None)
+        predict_rows = ml_job_obj.predict_manifest.get(
+            "predict_rows",
+            None)
+        predict_feature = ml_job_obj.predict_manifest.get(
+            "predict_feature",
+            None)
+        features_to_process = ml_job_obj.predict_manifest.get(
+            "features_to_process",
+            None)
+        ignore_features = ml_job_obj.predict_manifest.get(
+            "ignore_features",
+            None)
+        apply_scaler = ml_job_obj.predict_manifest.get(
+            "apply_scaler",
+            True)
+        sort_values = ml_job_obj.predict_manifest.get(
+            "sort_values",
+            None)
+        max_records = int(ml_job_obj.predict_manifest.get(
+            "max_records",
+            "100000"))
+        loss = ml_job_obj.predict_manifest.get(
             "loss",
             "binary_crossentropy")
-        optimizer = predict_manifest.get(
-            "optimizer",
-            "adam")
-        metrics = predict_manifest.get(
+        metrics = ml_job_obj.predict_manifest.get(
             "metrics",
             [
                 "accuracy"
             ])
-        histories = predict_manifest.get(
+        optimizer = ml_job_obj.predict_manifest.get(
+            "optimizer",
+            "adam")
+        histories = ml_job_obj.predict_manifest.get(
             "histories",
             [
                 "val_loss",
@@ -315,6 +339,21 @@ def task_ml_job(
                 "loss",
                 "acc"
             ])
+
+        needs_local_builder = True
+        if ((dataset or predict_rows) and features_to_process):
+            log.info(("using antinex builder dataset={} predict_rows={} "
+                      "features_to_process={}")
+                     .format(
+                        dataset,
+                        predict_rows,
+                        features_to_process))
+
+            needs_local_builder = False
+        # flag for bypassing build inside django instead of antinex-utils
+
+        image_file = ml_result_obj.acc_image_file
+        version = ml_job_obj.version
 
         ml_job_id = ml_job_obj.id
         ml_result_id = ml_result_obj.id
@@ -335,122 +374,21 @@ def task_ml_job(
         ml_job_obj.status = "analyzing"
         ml_job_obj.save()
 
-        ml_req = build_training_request(
+        if needs_local_builder:
+
+            log.info("starting local build_training_request")
+
+            ml_req = build_training_request(
                 csv_file=csv_file,
                 meta_file=meta_file,
                 predict_feature=ml_job_obj.predict_feature,
                 test_size=test_size)
 
-        if ml_req["status"] != VALID:
-            last_step = ("Stopping for status={} "
-                         "errors: {}").format(
-                            ml_req["status"],
-                            ml_req["err"])
-            log.error(last_step)
-            ml_job_obj.status = "error"
-            ml_job_obj.control_state = "error"
-            log.info(("saving job={}")
-                     .format(
-                            ml_job_id))
-            ml_job_obj.save()
-            data["job"] = ml_job_obj.get_public()
-            error_data = {
-                "status": ml_req["status"],
-                "err": ml_req["err"]
-            }
-            data["results"] = error_data
-            res["status"] = ERR
-            res["error"] = last_step
-            res["data"] = data
-            return res
-        else:
-
-            predict_manifest["ignore_features"] = \
-                ml_req.get("ignore_features", [])
-            predict_manifest["features_to_process"] = \
-                ml_req.get("features_to_process", [])
-            if label_rules:
-                predict_manifest["label_rules"] = \
-                    label_rules
-            else:
-                predict_manifest["label_rules"] = \
-                    ml_req["meta_data"]["label_rules"]
-            predict_manifest["post_proc_rules"] = \
-                ml_req["meta_data"]["post_proc_rules"]
-            predict_manifest["version"] = version
-
-            last_step = ("job.id={} built_training_request={} "
-                         "predict={} features={} ignore={} "
-                         "label_rules={} post_proc={}").format(
-                            ml_job_obj.id,
-                            ml_req["status"],
-                            predict_manifest["predict_feature"],
-                            predict_manifest["features_to_process"],
-                            predict_manifest["ignore_features"],
-                            predict_manifest["label_rules"],
-                            predict_manifest["post_proc_rules"])
-
-            log.info(last_step)
-
-            if ml_job_obj.ml_type == "regression":
-                log.info(("using Keras - regression - "
-                          "sequential model ml_type={}")
-                         .format(
-                             ml_job_obj.ml_type))
-
-                loss = "mse"
-                metrics = [
-                    "mse",
-                    "mae",
-                    "mape",
-                    "cosine"
-                ]
-
-                histories = [
-                    "mean_squared_error",
-                    "mean_absolute_error",
-                    "mean_absolute_percentage_error",
-                    "cosine_proximity"
-                ]
-            else:
-                log.info(("using Keras - sequential model"
-                          "ml_type={}")
-                         .format(ml_job_obj.ml_type))
-            # end of classification vs regression
-
-            ml_job_obj.predict_manifest["epochs"] = epochs
-            ml_job_obj.predict_manifest["batch_size"] = batch_size
-            ml_job_obj.predict_manifest["verbose"] = verbose
-            ml_job_obj.predict_manifest["loss"] = loss
-            ml_job_obj.predict_manifest["metrics"] = metrics
-            ml_job_obj.predict_manifest["optimizer"] = optimizer
-            ml_job_obj.predict_manifest["histories"] = histories
-
-            ml_job_obj.predict_manifest = predict_manifest
-            ml_job_obj.status = "started"
-            ml_job_obj.save()
-
-            scores = None
-            prediction_req = {
-                "label": "job_{}_result_{}".format(
-                    ml_job_id,
-                    ml_result_id),
-                "predict_rows": predict_rows,
-                "manifest": ml_job_obj.predict_manifest,
-                "model_json": ml_result_obj.model_json,
-                "model_desc": model_desc,
-                "weights_json": ml_result_obj.model_weights,
-                "meta": req_node
-            }
-
-            prediction_res = make_predictions(
-                req=prediction_req)
-
-            if prediction_res["status"] != SUCCESS:
-                last_step = ("Stopping for prediction_status={} "
+            if ml_req["status"] != VALID:
+                last_step = ("Stopping for status={} "
                              "errors: {}").format(
-                                prediction_res["status"],
-                                prediction_res["err"])
+                                ml_req["status"],
+                                ml_req["err"])
                 log.error(last_step)
                 ml_job_obj.status = "error"
                 ml_job_obj.control_state = "error"
@@ -460,89 +398,223 @@ def task_ml_job(
                 ml_job_obj.save()
                 data["job"] = ml_job_obj.get_public()
                 error_data = {
-                    "status": prediction_res["status"],
-                    "err": prediction_res["err"]
+                    "status": ml_req["status"],
+                    "err": ml_req["err"]
                 }
                 data["results"] = error_data
                 res["status"] = ERR
                 res["error"] = last_step
                 res["data"] = data
                 return res
+            else:
 
-            res_data = prediction_res["data"]
-            model = res_data["model"]
-            model_weights = res_data["weights"]
-            scores = res_data["scores"]
-            acc_data = res_data["acc"]
-            error_data = res_data["err"]
-            predictions_json = {
-                "predictions": res_data["sample_predictions"]
-            }
-            found_predictions = res_data["sample_predictions"]
-            found_accuracy = acc_data.get(
-                "accuracy",
-                None)
+                predict_manifest["ignore_features"] = \
+                    ml_req.get("ignore_features", [])
+                predict_manifest["features_to_process"] = \
+                    ml_req.get("features_to_process", [])
+                if label_rules:
+                    predict_manifest["label_rules"] = \
+                        label_rules
+                else:
+                    predict_manifest["label_rules"] = \
+                        ml_req["meta_data"]["label_rules"]
+                predict_manifest["post_proc_rules"] = \
+                    ml_req["meta_data"]["post_proc_rules"]
+                predict_manifest["version"] = version
 
-            last_step = ("job={} accuracy={}").format(
-                            ml_job_id,
-                            scores[1] * 100)
-            log.info(last_step)
+                last_step = ("job.id={} built_training_request={} "
+                             "predict={} features={} ignore={} "
+                             "label_rules={} post_proc={}").format(
+                                ml_job_obj.id,
+                                ml_req["status"],
+                                predict_manifest["predict_feature"],
+                                predict_manifest["features_to_process"],
+                                predict_manifest["ignore_features"],
+                                predict_manifest["label_rules"],
+                                predict_manifest["post_proc_rules"])
 
-            ml_job_obj.status = "finished"
-            ml_job_obj.control_state = "finished"
+                log.info(last_step)
+
+                if ml_job_obj.ml_type == "regression":
+                    log.info(("using Keras - regression - "
+                             "sequential model ml_type={}")
+                             .format(
+                                ml_job_obj.ml_type))
+
+                    loss = "mse"
+                    metrics = [
+                        "mse",
+                        "mae",
+                        "mape",
+                        "cosine"
+                    ]
+
+                    histories = [
+                        "mean_squared_error",
+                        "mean_absolute_error",
+                        "mean_absolute_percentage_error",
+                        "cosine_proximity"
+                    ]
+                else:
+                    log.info(("using Keras - sequential model "
+                              "ml_type={}")
+                             .format(ml_job_obj.ml_type))
+                # end of classification vs regression
+
+                ml_job_obj.predict_manifest["epochs"] = epochs
+                ml_job_obj.predict_manifest["batch_size"] = batch_size
+                ml_job_obj.predict_manifest["verbose"] = verbose
+                ml_job_obj.predict_manifest["loss"] = loss
+                ml_job_obj.predict_manifest["metrics"] = metrics
+                ml_job_obj.predict_manifest["optimizer"] = optimizer
+                ml_job_obj.predict_manifest["histories"] = histories
+                ml_job_obj.predict_manifest = predict_manifest
+
+        # end of updating without antinex-utils
+        # end of if needs_local_builder:
+
+        ml_job_obj.status = "started"
+        ml_job_obj.save()
+
+        scores = None
+        prediction_req = {
+            "label": "job_{}_result_{}".format(
+                ml_job_id,
+                ml_result_id),
+            "manifest": ml_job_obj.predict_manifest,
+            "model_json": ml_result_obj.model_json,
+            "model_desc": model_desc,
+            "weights_json": ml_result_obj.model_weights,
+        }
+
+        if dataset:
+            prediction_req["dataset"] = dataset
+        if max_records:
+            prediction_req["max_records"] = max_records
+        if predict_rows:
+            prediction_req["predict_rows"] = json.dumps(predict_rows)
+        if features_to_process:
+            prediction_req["features_to_process"] = features_to_process
+        if ignore_features:
+            prediction_req["ignore_features"] = ignore_features
+        if apply_scaler:
+            prediction_req["apply_scaler"] = apply_scaler
+        if sort_values:
+            prediction_req["sort_values"] = sort_values
+        if loss:
+            prediction_req["loss"] = loss
+        if metrics:
+            prediction_req["metrics"] = metrics
+        if optimizer:
+            prediction_req["optimizer"] = optimizer
+        if histories:
+            prediction_req["histories"] = histories
+        if predict_feature:
+            prediction_req["predict_feature"] = predict_feature
+        if csv_file:
+            prediction_req["csv_file"] = csv_file
+        if meta_file:
+            prediction_req["meta_file"] = meta_file
+
+        log.info(("start make_predictions req={}").format(
+            ppj(prediction_req)))
+
+        prediction_res = make_predictions(
+            req=prediction_req)
+
+        if prediction_res["status"] != SUCCESS:
+            last_step = ("Stopping for prediction_status={} "
+                         "errors: {}").format(
+                            prediction_res["status"],
+                            prediction_res["err"])
+            log.error(last_step)
+            ml_job_obj.status = "error"
+            ml_job_obj.control_state = "error"
+            log.info(("saving job={}")
+                     .format(
+                        ml_job_id))
             ml_job_obj.save()
-            log.info(("saved job={}")
-                     .format(
-                        ml_job_id))
-
             data["job"] = ml_job_obj.get_public()
-            acc_data = {
-                "accuracy": scores[1] * 100
+            error_data = {
+                "status": prediction_res["status"],
+                "err": prediction_res["err"]
             }
-            error_data = None
-            log.info(("converting job={} model to json")
-                     .format(
-                        ml_job_id))
-            model_json = model.to_json()
-            log.info(("saving job={} weights_file={}")
-                     .format(
-                        ml_job_id,
-                        ml_result_obj.model_weights_file))
-
-            log.info(("building job={} results")
-                     .format(
-                        ml_job_id))
-
-            ml_result_obj.status = "finished"
-            ml_result_obj.acc_data = acc_data
-            ml_result_obj.error_data = error_data
-            ml_result_obj.model_json = model_json
-            ml_result_obj.model_weights = model_weights
-            ml_result_obj.acc_image_file = image_file
-            ml_result_obj.predictions_json = predictions_json
-            ml_result_obj.version = version
-
-            log.info(("saving job={} results")
-                     .format(
-                        ml_job_id))
-            ml_result_obj.save()
-
-            log.info(("updating job={} results={}")
-                     .format(
-                        ml_job_id,
-                        ml_result_id))
-            ml_result_obj.save()
-
-            data["job"] = ml_job_obj.get_public()
-            data["results"] = ml_result_obj.get_public()
-            res["status"] = SUCCESS
-            res["error"] = ""
+            data["results"] = error_data
+            res["status"] = ERR
+            res["error"] = last_step
             res["data"] = data
-            # end of checking it started
+            return res
 
-        # end of checking it started
+        res_data = prediction_res["data"]
+        model = res_data["model"]
+        model_weights = res_data["weights"]
+        scores = res_data["scores"]
+        acc_data = res_data["acc"]
+        error_data = res_data["err"]
+        predictions_json = {
+            "predictions": res_data["sample_predictions"]
+        }
+        found_predictions = res_data["sample_predictions"]
+        found_accuracy = acc_data.get(
+            "accuracy",
+            None)
 
+        last_step = ("job={} accuracy={}").format(
+                        ml_job_id,
+                        scores[1] * 100)
+        log.info(last_step)
+
+        ml_job_obj.status = "finished"
+        ml_job_obj.control_state = "finished"
+        ml_job_obj.save()
+        log.info(("saved job={}")
+                 .format(
+                    ml_job_id))
+
+        data["job"] = ml_job_obj.get_public()
+        acc_data = {
+            "accuracy": scores[1] * 100
+        }
+        error_data = None
+        log.info(("converting job={} model to json")
+                 .format(
+                    ml_job_id))
+        model_json = json.loads(model.to_json())
+        log.info(("saving job={} weights_file={}")
+                 .format(
+                    ml_job_id,
+                    ml_result_obj.model_weights_file))
+
+        log.info(("building job={} results")
+                 .format(
+                    ml_job_id))
+
+        ml_result_obj.status = "finished"
+        ml_result_obj.acc_data = acc_data
+        ml_result_obj.error_data = error_data
+        ml_result_obj.model_json = model_json
+        ml_result_obj.model_weights = model_weights
+        ml_result_obj.acc_image_file = image_file
+        ml_result_obj.predictions_json = predictions_json
+        ml_result_obj.version = version
+
+        log.info(("saving job={} results")
+                 .format(
+                    ml_job_id))
+        ml_result_obj.save()
+
+        log.info(("updating job={} results={}")
+                 .format(
+                    ml_job_id,
+                    ml_result_id))
+        ml_result_obj.save()
+
+        data["job"] = ml_job_obj.get_public()
+        data["results"] = ml_result_obj.get_public()
+        res["status"] = SUCCESS
+        res["error"] = ""
         res["data"] = data
+
     except Exception as e:
         res["status"] = ERR
         res["err"] = ("Failed task={} with "

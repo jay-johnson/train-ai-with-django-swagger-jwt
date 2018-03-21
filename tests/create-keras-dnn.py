@@ -13,7 +13,9 @@ name = "create-keras-dnn"
 log = build_colorized_logger(name=name)
 
 
-parser = argparse.ArgumentParser(description="Train a Keras DNN")
+parser = argparse.ArgumentParser(
+    description=("Train a Deep Neural Network "
+                 "with Django + Keras + Tensorflow + Celery + Redis"))
 parser.add_argument(
     "-f",
     help="file to use default ./test-keras-dnn.json",
@@ -62,10 +64,14 @@ login_data = {
 }
 
 # Login as the user:
-log.info("Logging in user url={}".format(auth_url))
-post_response = requests.post(auth_url,
-                              data=json.dumps(login_data),
-                              headers=use_headers)
+log.info(("Logging in user url={}")
+         .format(
+            auth_url))
+
+post_response = requests.post(
+    auth_url,
+    data=json.dumps(login_data),
+    headers=use_headers)
 
 user_token = ""
 if post_response.status_code == 200:
