@@ -278,6 +278,10 @@ This is the same API request the core uses to build the Django DNN with an accur
 
 https://github.com/jay-johnson/antinex-core#accuracy-and-prediction-report
 
+with Notebook:
+
+https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Protecting-Django.ipynb
+
 ::
 
     ./create-keras-dnn.py -f ./scaler-full-django-antinex-simple.json 
