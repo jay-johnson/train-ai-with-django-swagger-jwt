@@ -597,7 +597,7 @@ Paste in the following values and click **Try it Out**:
 
          ./create-keras-dnn.py -f ./readme-predict-demo-1.json 
 
-    Here are the contents of ```./tests/readme-predict-demo-1.json``
+    Here are the contents of ``./tests/readme-predict-demo-1.json``
 
     ::
 
