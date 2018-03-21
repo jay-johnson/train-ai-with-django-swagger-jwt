@@ -3,7 +3,7 @@ Django REST Framework + Celery + JWT + Swagger + Keras + Tensorflow
 
 Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow. 
 
-Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring).
+Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
 
 .. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
@@ -63,12 +63,45 @@ This was tested on Ubuntu 17.10.
     cd train-ai-with-django-swagger-jwt
     ./install.sh
 
-Full Stack - Django + Celery + Postgres + Redis + pgAdmin
-=========================================================
+Getting Started With Docker
+===========================
 
-You can run without these optional steps if you just want to get started using the default SQLite database.
+You can run without these optional steps and just use the default SQLite database. If you want to use docker and download all the containers, you can use the ``compose.yml`` file to start all of the containers and download the latest ``ai-core`` docker image which is ~2.5 GB on disk (https://hub.docker.com/r/jayjohnson/ai-core/).
 
-If you are interested, you can run the full stack of docker containers for simulating a more production-ready environment. Here's the containers these steps will start:
+To start all run:
+
+::
+
+    ./run-all.sh
+
+Verify the containers started
+
+::
+
+    docker ps
+    CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                    NAMES
+    2506f9793c21        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   33 seconds ago      Up 33 seconds                                worker
+    a9e80d0b16c1        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                api
+    35611733edd0        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                core
+    d7f96b5f8882        jayjohnson/ai-core:latest   "/opt/antinex-core/d…"   35 seconds ago      Up 34 seconds                                jupyter
+    f344b1cfa5cd        redis:4.0.5-alpine          "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:6379->6379/tcp   redis
+    976c31bfbb8c        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   35 seconds ago      Up 34 seconds       0.0.0.0:83->5050/tcp     pgadmin
+    f9139346c278        postgres:10.2-alpine        "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:5432->5432/tcp   postgres
+
+Quick links
+-----------
+
+If you are running all the containers, you can use these links to move around:
+
+- `Use Swagger to Train a new Deep Neural Network`_ (login with ``root`` and ``123321``)
+- `Jupyter Notebook showing how the Deep Neural Networks are Trained`_ (login with ``admin`` and ``ALT + r`` to view the slideshow)
+- `Jupyter Notebook Slideshow`_ (login with ``admin``)
+
+.. _Use Swagger to Train a new Deep Neural Network: http://localhost:8080/swagger/#!/ml/ml_create
+.. _Jupyter Notebook showing how the Deep Neural Networks are Trained: http://localhost:8888/notebooks/AntiNex-Protecting-Django.ipynb
+.. _Jupyter Notebook Slideshow: http://localhost:8889/Slides-AntiNex-Protecting-Django.slides.html#/
+
+If you are interested in running locally without the large container image, you can run the broker and database stack with docker containers for simulating a more production-ready environment. Here's the containers these steps will start:
 
 #.  Postgres 10
 #.  Redis (Pub/Sub, Caching and Celery Tasks)
