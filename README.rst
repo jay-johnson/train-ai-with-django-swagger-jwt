@@ -66,7 +66,10 @@ This was tested on Ubuntu 17.10.
 Getting Started With Docker
 ===========================
 
-You can run without these optional steps and just use the default SQLite database. If you want to use docker and download all the containers, you can use the ``compose.yml`` file to start all of the containers and download the latest ``ai-core`` docker image which is ~2.5 GB on disk (https://hub.docker.com/r/jayjohnson/ai-core/).
+You can run without these optional steps and just use the default SQLite database. If you want to use docker and download all the containers, you can use the ``compose.yml`` file to start all of the containers and download the latest ``ai-core`` docker image which is ~2.5 GB on disk (built with `Dockerfile`_ and stored on `Docker Hub`_).
+
+.. _Dockerfile: https://github.com/jay-johnson/antinex-core/blob/master/docker/Dockerfile
+.. _Docker Hub: https://hub.docker.com/r/jayjohnson/ai-core/
 
 To start all run:
 
