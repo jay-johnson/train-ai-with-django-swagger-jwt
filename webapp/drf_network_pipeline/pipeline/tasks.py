@@ -245,9 +245,9 @@ def task_publish_to_core(
         predict_rows = req_node["body"].get("predict_rows", None)
 
         if not dataset and not predict_rows:
-            log.error(("Invalid antinex body={} - "
-                       "missing dataset and predict_rows")
-                      .format(
+            log.info(("skipping antinex core publish body={} - "
+                      "is missing dataset and predict_rows")
+                     .format(
                         req_node))
             return None
         # end of checking for supported requests to the core

@@ -63,6 +63,8 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
                  /opt/antinex-core/run-antinex-core.sh'"
 
@@ -79,6 +81,8 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
                  /opt/antinex-api/run-django.sh'"
 
@@ -94,5 +98,7 @@ services:
       - api
       - postgres
       - redis
+    volumes:
+      - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
                  /opt/antinex-api/run-worker.sh'"
