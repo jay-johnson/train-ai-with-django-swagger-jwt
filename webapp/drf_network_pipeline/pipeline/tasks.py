@@ -682,6 +682,8 @@ def task_ml_job(
         if meta_file:
             prediction_req["meta_file"] = meta_file
 
+        already_made_predictions = False
+
         # if you just want to use the core without django training:
         if publish_to_core or settings.ANTINEX_WORKER_ONLY:
             log.info(("model_name={} only publish={} worker={}")
@@ -725,6 +727,7 @@ def task_ml_job(
                 res["data"] = data
                 return res
 
+            already_made_predictions = True
             res_data = prediction_res["data"]
             model = res_data["model"]
             model_weights = res_data["weights"]
@@ -793,7 +796,7 @@ def task_ml_job(
         res["error"] = ""
         res["data"] = data
 
-        if settings.ANTINEX_WORKER_ENABLED:
+        if settings.ANTINEX_WORKER_ENABLED and not already_made_predictions:
 
             if use_model_name:
                 prediction_req["label"] = use_model_name
