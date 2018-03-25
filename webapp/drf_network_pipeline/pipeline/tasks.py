@@ -682,7 +682,7 @@ def task_ml_job(
         if meta_file:
             prediction_req["meta_file"] = meta_file
 
-        already_made_predictions = False
+        already_predicted = False
 
         # if you just want to use the core without django training:
         if publish_to_core or settings.ANTINEX_WORKER_ONLY:
@@ -727,7 +727,7 @@ def task_ml_job(
                 res["data"] = data
                 return res
 
-            already_made_predictions = True
+            already_predicted = True
             res_data = prediction_res["data"]
             model = res_data["model"]
             model_weights = res_data["weights"]
@@ -796,14 +796,17 @@ def task_ml_job(
         res["error"] = ""
         res["data"] = data
 
-        if settings.ANTINEX_WORKER_ENABLED and not already_made_predictions:
+        if settings.ANTINEX_WORKER_ENABLED and not already_predicted:
 
             if use_model_name:
                 prediction_req["label"] = use_model_name
 
-            log.info(("publishing to core use_model_name={}")
+            log.info(("publishing to core use_model_name={} "
+                     "worker={} already_predicted={}")
                      .format(
-                        use_model_name))
+                        use_model_name,
+                        settings.ANTINEX_WORKER_ENABLED,
+                        already_predicted))
 
             publish_req = {
                 "body": prediction_req
@@ -813,6 +816,11 @@ def task_ml_job(
                 task_ml_process_worker_results.delay()
             else:
                 task_publish_to_core(publish_req)
+        else:
+            log.info(("skip - worker={} already_predicted={}")
+                     .format(
+                        settings.ANTINEX_WORKER_ENABLED,
+                        already_predicted))
         # send to core
 
     except Exception as e:
