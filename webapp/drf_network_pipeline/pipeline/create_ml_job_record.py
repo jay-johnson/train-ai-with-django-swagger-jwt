@@ -11,6 +11,8 @@ from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
 from drf_network_pipeline.users.db_lookup_user import \
     db_lookup_user
+from drf_network_pipeline.pipeline.build_worker_result_node import \
+    build_worker_result_node
 
 
 name = "create_ml_job"
@@ -205,10 +207,14 @@ def create_ml_job_record(
             "label_rules": label_rules,
             "post_proc_rules": None,
             "model_weights_file": None,
-            "publish_to_core": publish_to_core,
             "verbose": verbose,
             "version": 1
         }
+
+        # if this is only being published to the core workers
+        if publish_to_core:
+            predict_manifest["publish_to_core"] = True
+        # end of building core response node
 
         if csv_file:
             if not os.path.exists(csv_file):
@@ -306,6 +312,15 @@ def create_ml_job_record(
         predict_manifest["result_id"] = ml_result_obj.id
         predict_manifest["model_weights_file"] = \
             model_weights_file
+
+        job_manifest = {
+            "job_id": ml_job_obj.id,
+            "result_id": ml_result_obj.id,
+            "job_type": "train-and-predict"
+        }
+        predict_manifest["worker_result_node"] = build_worker_result_node(
+            req=job_manifest)
+
         ml_job_obj.predict_manifest = predict_manifest
         ml_job_obj.save()
 

@@ -303,6 +303,9 @@ class Common(Configuration):
     # end of if CACHEOPS_ENABLED
 
     # AntiNex Worker settings - Optional
+    ANTINEX_API_NAME = os.getenv(
+        "ANTINEX_API_SOURCE_NAME",
+        "drf")
     ANTINEX_WORKER_ENABLED = bool(os.getenv(
         "ANTINEX_WORKER_ENABLED", "0") == "1")
 
@@ -313,6 +316,8 @@ class Common(Configuration):
 
     ANTINEX_AUTH_URL = os.getenv(
         "ANTINEX_AUTH_URL", "redis://localhost:6379/6")
+    ANTINEX_RESULT_AUTH_URL = os.getenv(
+        "ANTINEX_RESULT_AUTH_URL", "redis://localhost:6379/")
 
     # AntiNex routing
     ANTINEX_EXCHANGE_NAME = os.getenv(
@@ -323,16 +328,26 @@ class Common(Configuration):
         "ANTINEX_ROUTING_KEY", "webapp.predict.requests")
     ANTINEX_QUEUE_NAME = os.getenv(
         "ANTINEX_QUEUE_NAME", "webapp.predict.requests")
+    ANTINEX_RESULT_EXCHANGE_NAME = os.getenv(
+        "ANTINEX_RESULT_EXCHANGE_NAME", "webapp.predict.results")
+    ANTINEX_RESULT_EXCHANGE_TYPE = os.getenv(
+        "ANTINEX_RESULT_EXCHANGE_TYPE", "topic")
+    ANTINEX_RESULT_ROUTING_KEY = os.getenv(
+        "ANTINEX_RESULT_ROUTING_KEY", "webapp.predict.results")
+    ANTINEX_RESULT_QUEUE_NAME = os.getenv(
+        "ANTINEX_RESULT_QUEUE_NAME", "webapp.predict.results")
 
     # By default persist messages to disk
     ANTINEX_PERSISTENT_MESSAGES = 2
     ANTINEX_NON_PERSISTENT_MESSAGES = 1
     ANTINEX_DELIVERY_MODE = ANTINEX_PERSISTENT_MESSAGES
+    ANTINEX_RESULT_DELIVERY_MODE = ANTINEX_PERSISTENT_MESSAGES
     antinex_default_delivery_method = os.getenv(
         "ANTINEX_DELIVERY_MODE",
         "persistent").lower()
     if antinex_default_delivery_method != "persistent":
         ANTINEX_DELIVERY_MODE = ANTINEX_NON_PERSISTENT_MESSAGES
+        ANTINEX_RESULT_DELIVERY_MODE = ANTINEX_NON_PERSISTENT_MESSAGES
 
     # AntiNex SSL Configuration - Not Required for Redis
     ANTINEX_WORKER_SSL_ENABLED = bool(os.getenv(
@@ -366,6 +381,7 @@ class Common(Configuration):
         ANTINEX_CERT_REQS = ssl.CERT_OPTIONAL
 
     ANTINEX_SSL_OPTIONS = {}
+    ANTINEX_RESULT_SSL_OPTIONS = {}
     if ANTINEX_WORKER_SSL_ENABLED:
         ANTINEX_SSL_OPTIONS = {
             "ssl_version": ANTINEX_TLS_PROTOCOL,
@@ -378,6 +394,8 @@ class Common(Configuration):
         if ANTINEX_CERTFILE:
             ANTINEX_SSL_OPTIONS["certfile"] = ANTINEX_CERTFILE
     # end of setting if ssl is enabled
+
+    ANTINEX_RESULT_SSL_OPTIONS = ANTINEX_SSL_OPTIONS
 
     # end of AntiNex Worker settings
 

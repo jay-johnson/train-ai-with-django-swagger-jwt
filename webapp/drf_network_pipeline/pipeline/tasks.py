@@ -21,6 +21,8 @@ from drf_network_pipeline.users.db_lookup_user import \
     db_lookup_user
 from drf_network_pipeline.pipeline.create_ml_prepare_record import \
     create_ml_prepare_record
+from drf_network_pipeline.pipeline.process_worker_results import \
+    process_worker_results
 from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
 from kombu import Connection
@@ -241,6 +243,7 @@ def task_publish_to_core(
 
     if settings.ANTINEX_WORKER_ENABLED:
 
+        conn = None
         dataset = req_node["body"].get("dataset", None)
         predict_rows = req_node["body"].get("predict_rows", None)
 
@@ -283,7 +286,6 @@ def task_publish_to_core(
                     settings.ANTINEX_ROUTING_KEY))
 
         try:
-            conn = None
             if settings.ANTINEX_WORKER_SSL_ENABLED:
                 log.debug("connecting with ssl")
                 conn = Connection(
@@ -360,6 +362,9 @@ def task_publish_to_core(
                         e))
         # try/ex
 
+        if conn:
+            conn.close()
+
         log.info(("task_publish_to_core - done"))
     else:
         log.debug("core - disabled")
@@ -367,6 +372,16 @@ def task_publish_to_core(
 
     return None
 # end of task_publish_to_core
+
+
+@shared_task
+def task_ml_process_worker_results():
+    if settings.ANTINEX_WORKER_ENABLED:
+        log.info("processing worker results")
+        process_worker_results()
+    else:
+        log.info("no worker to get results")
+# end of task_ml_process_worker_results
 
 
 @shared_task
@@ -440,6 +455,10 @@ def task_ml_job(
         batch_size = int(predict_manifest.get("batch_size", "32"))
         verbose = int(predict_manifest.get("verbose", "1"))
 
+        # use pre-trained models in memory by label
+        use_model_name = ml_job_obj.predict_manifest.get(
+            "use_model_name",
+            None)
         dataset = ml_job_obj.predict_manifest.get(
             "dataset",
             None)
@@ -454,6 +473,9 @@ def task_ml_job(
             None)
         ignore_features = ml_job_obj.predict_manifest.get(
             "ignore_features",
+            None)
+        publish_to_core = ml_job_obj.predict_manifest.get(
+            "publish_to_core",
             None)
         apply_scaler = ml_job_obj.predict_manifest.get(
             "apply_scaler",
@@ -661,11 +683,18 @@ def task_ml_job(
             prediction_req["meta_file"] = meta_file
 
         # if you just want to use the core without django training:
-        if settings.ANTINEX_WORKER_ONLY:
+        if publish_to_core or settings.ANTINEX_WORKER_ONLY:
+            log.info(("model_name={} only publish={} worker={}")
+                     .format(
+                        use_model_name,
+                        publish_to_core,
+                        settings.ANTINEX_WORKER_ONLY))
             ml_job_obj.status = "launched"
             ml_job_obj.control_state = "launched"
             ml_job_obj.save()
             ml_result_obj.status = "launched"
+            ml_result_obj.control_state = "launched"
+            ml_result_obj.save()
         else:
             log.info(("start make_predictions req={}").format(
                 ppj(prediction_req)))
@@ -766,10 +795,6 @@ def task_ml_job(
 
         if settings.ANTINEX_WORKER_ENABLED:
 
-            # use pre-trained models in memory by label
-            use_model_name = ml_job_obj.predict_manifest.get(
-                "use_model_name",
-                None)
             if use_model_name:
                 prediction_req["label"] = use_model_name
 
@@ -782,6 +807,7 @@ def task_ml_job(
             }
             if settings.CELERY_ENABLED:
                 task_publish_to_core.delay(publish_req)
+                task_ml_process_worker_results.delay()
             else:
                 task_publish_to_core(publish_req)
         # send to core
