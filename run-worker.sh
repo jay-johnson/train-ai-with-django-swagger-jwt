@@ -58,6 +58,6 @@ if [[ "${num_workers}" == "1" ]]; then
 else
     echo "Starting Workers=${worker_module}"
     echo "celery worker multi -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name}"
-    celery worker multi -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name}
+    celery worker multi start -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name}
 fi
 echo ""
