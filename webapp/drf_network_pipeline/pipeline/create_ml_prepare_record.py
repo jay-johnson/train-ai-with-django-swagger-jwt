@@ -102,18 +102,30 @@ def create_ml_prepare_record(
             ds_glob_path = req_data["ds_glob_path"]
         if req_data["pipeline_files"]:
             last_step = "parsing pipeline_files"
-            pipeline_files = json.loads(req_data["pipeline_files"])
+            try:
+                pipeline_files = json.loads(req_data["pipeline_files"])
+            except Exception:
+                pipeline_files = req_data["pipeline_files"]
         if "post_proc" in req_data:
             if req_data["post_proc"]:
                 last_step = "parsing post_proc"
-                post_proc = json.loads(req_data["post_proc"])
+                try:
+                    post_proc = json.loads(req_data["post_proc"])
+                except Exception:
+                    post_proc = req_data["post_proc"]
         if req_data["meta_data"]:
             last_step = "parsing meta_data"
-            meta_data = json.loads(req_data["meta_data"])
+            try:
+                meta_data = json.loads(req_data["meta_data"])
+            except Exception:
+                meta_data = req_data["meta_data"]
         if "label_rules" in req_data:
             if req_data["label_rules"]:
                 last_step = "parsing label_rules"
-                label_rules = json.loads(req_data["label_rules"])
+                try:
+                    label_rules = json.loads(req_data["label_rules"])
+                except Exception:
+                    label_rules = req_data["label_rules"]
         if req_data["version"]:
             version = int(req_data["version"])
 

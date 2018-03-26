@@ -35,8 +35,8 @@ class MLPrepareViewSet(
         Here is a sample Prepare dataset
         ```
         {
-            "title": "Keras DNN 1.0.10",
-            "desc": "Tensorflow backend with simulated data",
+            "title": "Prepare new Dataset from recordings",
+            "desc": "",
             "ds_name": "new_recording",
             "full_file": "/tmp/fulldata_attack_scans.csv",
             "clean_file": "/tmp/cleaned_attack_scans.csv",
@@ -44,10 +44,36 @@ class MLPrepareViewSet(
             "output_dir": "/tmp/",
             "ds_dir": "/opt/datasets",
             "ds_glob_path": "/opt/datasets/*/*.csv",
-            "pipeline_files": "{}",
-            "meta_data": "{}",
-            "post_proc": "{}",
-            "label_rules": "{}",
+            "pipeline_files": {
+                "attack_files": []
+            },
+            "meta_data": {},
+            "post_proc": {
+                "drop_columns": [
+                    "src_file",
+                    "raw_id",
+                    "raw_load",
+                    "raw_hex_load",
+                    "raw_hex_field_load",
+                    "pad_load",
+                    "eth_dst",
+                    "eth_src",
+                    "ip_dst",
+                    "ip_src"
+                ],
+                "predict_feature": "label_name"
+            },
+            "label_rules": {
+                "set_if_above": 85,
+                "labels": [
+                    "not_attack",
+                    "attack"
+                ],
+                "label_values": [
+                    0,
+                    1
+                ]
+            },
             "version": 1
         }
         ```
