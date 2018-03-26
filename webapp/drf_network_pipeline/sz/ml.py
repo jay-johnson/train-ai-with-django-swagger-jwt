@@ -73,7 +73,12 @@ class MLPrepareSerializer(serializers.Serializer):
     pipeline_files = serializers.CharField(
                 max_length=None,
                 min_length=None,
-                allow_blank=False,
+                allow_blank=True,
+                trim_whitespace=True)
+    meta_data = serializers.CharField(
+                max_length=None,
+                min_length=None,
+                allow_blank=True,
                 trim_whitespace=True)
     post_proc = serializers.CharField(
                 max_length=None,
@@ -84,11 +89,6 @@ class MLPrepareSerializer(serializers.Serializer):
                 max_length=None,
                 min_length=None,
                 required=False,
-                allow_blank=False,
-                trim_whitespace=True)
-    meta_data = serializers.CharField(
-                max_length=None,
-                min_length=None,
                 allow_blank=False,
                 trim_whitespace=True)
     version = serializers.IntegerField(
