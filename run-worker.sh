@@ -34,6 +34,7 @@ echo ""
 
 num_workers=4
 log_level=DEBUG
+log_file=/tmp/worker.log
 worker_module=drf_network_pipeline
 worker_name="default@%h"
 
@@ -42,6 +43,9 @@ if [[ "${NUM_WORKERS}" != "" ]]; then
 fi
 if [[ "${LOG_LEVEL}" != "" ]]; then
     log_level=$LOG_LEVEL
+fi
+if [[ "${LOG_FILE}" != "" ]]; then
+    log_file=$LOG_FILE
 fi
 if [[ "${WORKER_MODULE}" != "" ]]; then
     worker_module=$WORKER_MODULE
@@ -58,6 +62,6 @@ if [[ "${num_workers}" == "1" ]]; then
 else
     echo "Starting Workers=${worker_module}"
     echo "celery worker multi -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name}"
-    celery worker multi start -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name}
+    celery multi start -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file}
 fi
 echo ""
