@@ -72,10 +72,10 @@ def create_ml_prepare_record(
         output_dir = None
         ds_dir = None
         ds_glob_path = None
-        pipeline_files = None
-        post_proc = None
-        label_rules = None
-        meta_data = None
+        pipeline_files = {}
+        post_proc = {}
+        label_rules = {}
+        meta_data = {}
         version = 1
 
         if req_data["title"]:
