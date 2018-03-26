@@ -233,8 +233,8 @@ def process_worker_results(
         log.info(last_step)
 
         not_done = True
-        time_to_wait = 0.1
-        num_attempts = 5
+        time_to_wait = 1.0
+        num_attempts = 1
         cur_attempt = 1
         while not_done:
             if cur_attempt > num_attempts:
@@ -276,7 +276,7 @@ def process_worker_results(
     # end of try/ex
 
     if conn:
-        conn.close()
+        conn.release()
 
     return status
 # end of process_worker_results

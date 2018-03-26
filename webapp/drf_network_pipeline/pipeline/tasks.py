@@ -363,7 +363,7 @@ def task_publish_to_core(
         # try/ex
 
         if conn:
-            conn.close()
+            conn.release()
 
         log.info(("task_publish_to_core - done"))
     else:
