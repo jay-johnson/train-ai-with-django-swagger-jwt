@@ -63,5 +63,7 @@ else
     echo "Starting Workers=${worker_module}"
     echo "celery worker multi -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name}"
     celery multi start -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file}
+    touch /opt/worker-keep-alive
+    tail -f /opt/worker-keep-alive
 fi
 echo ""
