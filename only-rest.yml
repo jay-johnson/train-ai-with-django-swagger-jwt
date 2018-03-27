@@ -101,27 +101,3 @@ services:
       - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
                  /opt/antinex-api/run-worker.sh'"
-  
-  # Network Pipeline Packet Processor
-  # auto-publishes to the Django Rest Framework 
-  # for making predictions on network traffic
-  # using pre-trained deep neural networks
-  # running in the AntiNex Core
-  pipeline:
-    container_name: "pipeline"
-    hostname: pipeline
-    image: jayjohnson/ai-core:latest
-    network_mode: "host"
-    env_file:
-      - ./envs/pipeline-dev.env
-    depends_on:
-      - api
-      - core
-      - postgres
-      - redis
-    volumes:
-      - /tmp:/tmp
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-pipeline && 
-                 . ~/.venvs/venvdrfpipeline/bin/activate &&
-                 /opt/antinex-pipeline/network_pipeline/scripts/packets-redis.py'"
-
