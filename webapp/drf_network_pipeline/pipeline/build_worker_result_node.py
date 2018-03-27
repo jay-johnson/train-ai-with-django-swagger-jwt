@@ -19,6 +19,7 @@ def build_worker_result_node(
             "routing_key": settings.ANTINEX_RESULT_ROUTING_KEY,
             "queue": settings.ANTINEX_RESULT_QUEUE_NAME,
             "delivery_mode": settings.ANTINEX_RESULT_DELIVERY_MODE,
+            "task_name": settings.ANTINEX_RESULT_TASK_NAME,
             "manifest": req
         }
     # end of setting up the general api for responses back from the core

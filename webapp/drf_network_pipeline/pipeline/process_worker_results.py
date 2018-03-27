@@ -1,9 +1,4 @@
-import socket
 from django.db.models import Q
-from kombu import Connection
-from kombu import Exchange
-from kombu import Queue
-from kombu import Consumer
 from antinex_utils.consts import SUCCESS
 from antinex_utils.consts import ERROR
 from antinex_utils.log.setup_logging import build_colorized_logger
@@ -18,19 +13,15 @@ log = build_colorized_logger(name=name)
 
 
 def handle_worker_results_message(
-        body,
-        message):
+        body=None):
     """handle_worker_results_message
-    :param body: contents of the message
-    :param message: message object
+    :param body: contents from the results
     """
     label = "APIRES"
     last_step = ""
     try:
-        last_step = ("{} received worker results from routing_key={} "
-                     "body={}").format(
+        last_step = ("{} received worker results body={}").format(
                         label,
-                        message.delivery_info["routing_key"],
                         str(body)[0:32])
         log.info(last_step)
 
@@ -101,15 +92,14 @@ def handle_worker_results_message(
                     e))
     # try/ex handling for updating the db
 
-    message.ack()
 # end of handle_worker_results_message
 
 
 def process_worker_results(
-        req=None):
+        res_node=None):
     """process_worker_results
 
-    :param req: incoming request dictionary - not used right now
+    :param res_node: incoming request dictionary - not used right now
     """
 
     status = SUCCESS
@@ -122,145 +112,14 @@ def process_worker_results(
     label = "APIRES"
     last_step = "not-started"
 
-    conn = None
-
     try:
 
         last_step = ("{} - start").format(
             label)
         log.info(last_step)
 
-        auth_url = api_node["auth_url"]
-        ssl_options = api_node["ssl_options"]
-        exchange_name = api_node["exchange"]
-        exchange_type = api_node["exchange_type"]
-        routing_key = api_node["routing_key"]
-        queue_name = api_node["queue"]
-
-        last_step = ("{} - connecting").format(
-            label)
-        log.info(last_step)
-
-        if len(ssl_options) > 0:
-            conn = Connection(
-                auth_url,
-                login_method="EXTERNAL",
-                ssl=ssl_options,
-                heartbeat=120)
-        else:
-            conn = Connection(
-                auth_url,
-                heartbeat=120)
-        # end of connecting
-
-        conn.connect()
-
-        last_step = ("{} - getting channel").format(
-            label)
-        log.info(last_step)
-
-        channel = conn.channel()
-
-        last_step = ("{} - setting up exchange={}").format(
-            label,
-            exchange_name)
-        log.info(last_step)
-
-        res_exchange = Exchange(
-            exchange_name,
-            type=exchange_type,
-            durable=True)
-
-        last_step = ("{} - declaring exchange={}").format(
-            label,
-            exchange_name)
-        log.info(last_step)
-
-        # noqa http://docs.celeryproject.org/projects/kombu/en/latest/reference/kombu.html#exchange
-        try:
-            bound_exchange = res_exchange(channel)
-            bound_exchange.declare()
-        except Exception as f:
-            log.info(("exchange={} declare failed with ex={}")
-                     .format(
-                        exchange_name,
-                        f))
-        # end of try/ex for exchange
-
-        last_step = ("{} - setting up queue={} routing_key={}").format(
-            label,
-            queue_name,
-            routing_key)
-        log.info(last_step)
-
-        consume_this_queue = Queue(
-            queue_name,
-            res_exchange,
-            routing_key=routing_key,
-            durable=True)
-
-        last_step = ("{} - binding and declaring queue={}").format(
-            label,
-            queue_name,
-            routing_key)
-        log.info(last_step)
-
-        try:
-            consume_this_queue.maybe_bind(conn)
-            consume_this_queue.declare()
-        except Exception as f:
-            log.info(("queue={} declare failed with ex={}")
-                     .format(
-                        queue_name,
-                        f))
-        # end of try/ex for exchange
-
-        last_step = ("{} - setting up consumer for queue={}").format(
-            label,
-            queue_name)
-        log.info(last_step)
-
-        consumer = Consumer(
-            conn,
-            queues=[consume_this_queue],
-            auto_declare=True,
-            callbacks=[handle_worker_results_message],
-            accept=["json"])
-
-        last_step = ("{} - consuming from queue={}").format(
-            label,
-            queue_name)
-        log.info(last_step)
-
-        not_done = True
-        time_to_wait = 1.0
-        num_attempts = 1
-        cur_attempt = 1
-        while not_done:
-            if cur_attempt > num_attempts:
-                log.info(("{} - max attempts")
-                         .format(
-                            label))
-                not_done = False
-                break
-            cur_attempt += 1
-            try:
-                log.info(("{} consuming")
-                         .format(
-                            label))
-                consumer.consume()
-                conn.drain_events(
-                    timeout=time_to_wait)
-            except socket.timeout:
-                conn.heartbeat_check()
-                not_done = False
-            except Exception as f:
-                log.error(("{} consumer hit ex={}")
-                          .format(
-                            label,
-                            f))
-                not_done = False
-        # while not done consuming
+        handle_worker_results_message(
+            body=res_node)
 
         log.info(("{} done")
                  .format(
@@ -274,9 +133,6 @@ def process_worker_results(
                     e))
         status = ERROR
     # end of try/ex
-
-    if conn:
-        conn.release()
 
     return status
 # end of process_worker_results

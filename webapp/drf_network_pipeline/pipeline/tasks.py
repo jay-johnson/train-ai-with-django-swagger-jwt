@@ -35,11 +35,19 @@ name = "ml_tasks"
 log = build_colorized_logger(name=name)
 
 
-@shared_task
+# allow tasks to be sent straight to the worker
+@shared_task(
+    name=("drf_network_pipeline.pipeline.tasks."
+          "task_ml_prepare"),
+    queue=("drf_network_pipeline.pipeline.tasks."
+           "task_ml_prepare"),
+    bind=True)
 def task_ml_prepare(
-        req_node):
+        self=None,
+        req_node=None):
     """task_ml_prepare
 
+    :param self: parent task object for bind=True
     :param req_node: job utils dictionary for passing a dictionary
     """
 
@@ -233,30 +241,38 @@ def task_ml_prepare(
 # end of task_ml_prepare
 
 
-@shared_task
+# allow tasks to be sent straight to the worker
+@shared_task(
+    name=("drf_network_pipeline.pipeline.tasks."
+          "task_publish_to_core"),
+    queue=("drf_network_pipeline.pipeline.tasks."
+           "task_publish_to_core"),
+    bind=True,
+    ignore_result=True)
 def task_publish_to_core(
-        req_node):
+        self=None,
+        publish_node=None):
     """task_publish_to_core
 
-    :param req_node: dictionary to send to the AntiNex Core Worker
+    :param self: parent task object for bind=True
+    :param publish_node: dictionary to send to the AntiNex Core Worker
     """
-
     if settings.ANTINEX_WORKER_ENABLED:
 
         conn = None
-        dataset = req_node["body"].get("dataset", None)
-        predict_rows = req_node["body"].get("predict_rows", None)
+        dataset = publish_node["body"].get("dataset", None)
+        predict_rows = publish_node["body"].get("predict_rows", None)
 
         if not dataset and not predict_rows:
             log.info(("skipping antinex core publish body={} - "
                       "is missing dataset and predict_rows")
                      .format(
-                        req_node))
+                        publish_node))
             return None
         # end of checking for supported requests to the core
 
         log.info(("task_publish_to_core - start req={}").format(
-                    str(req_node)[0:32]))
+                    str(publish_node)[0:32]))
 
         if not predict_rows:
             log.info(("building predict_rows from dataset={}")
@@ -270,14 +286,13 @@ def task_publish_to_core(
                 predict_rows.append(new_row)
             # end of building predict rows
 
-            req_node["body"]["apply_scaler"] = True
-            req_node["body"]["predict_rows"] = pd.DataFrame(
+            publish_node["body"]["apply_scaler"] = True
+            publish_node["body"]["predict_rows"] = pd.DataFrame(
                 predict_rows).to_json()
-            # req_node["body"].pop("dataset", None)
         # end of validating
 
-        req_node["body"]["ml_type"] = \
-            req_node["body"]["manifest"]["ml_type"]
+        publish_node["body"]["ml_type"] = \
+            publish_node["body"]["manifest"]["ml_type"]
 
         log.debug(("NEXCORE - ssl={} exchange={} routing_key={}")
                   .format(
@@ -348,7 +363,7 @@ def task_publish_to_core(
                         settings.ANTINEX_DELIVERY_MODE))
 
             producer.publish(
-                body=req_node["body"],
+                body=publish_node["body"],
                 exchange=core_exchange.name,
                 routing_key=settings.ANTINEX_ROUTING_KEY,
                 auto_declare=True,
@@ -358,7 +373,7 @@ def task_publish_to_core(
         except Exception as e:
             log.info(("Failed to publish to core req={} with ex={}")
                      .format(
-                        req_node,
+                        publish_node,
                         e))
         # try/ex
 
@@ -374,21 +389,47 @@ def task_publish_to_core(
 # end of task_publish_to_core
 
 
-@shared_task
-def task_ml_process_worker_results():
+# allow tasks to be sent straight to the worker
+@shared_task(
+    name=("drf_network_pipeline.pipeline.tasks."
+          "task_ml_process_results"),
+    queue=("drf_network_pipeline.pipeline.tasks."
+           "task_ml_process_results"),
+    bind=True,
+    ignore_result=True)
+def task_ml_process_results(
+        self=None,
+        res_node=None):
+    """task_ml_process_results
+
+    Core workers send results back to the REST API worker here
+
+    :param self: parent task object for bind=True
+    :param res_node: results dictionary from the core
+    """
     if settings.ANTINEX_WORKER_ENABLED:
         log.info("processing worker results")
-        process_worker_results()
+        process_worker_results(
+            res_node=res_node)
     else:
         log.info("no worker to get results")
-# end of task_ml_process_worker_results
+    return None
+# end of task_ml_process_results
 
 
-@shared_task
+# allow tasks to be sent straight to the worker
+@shared_task(
+    name=("drf_network_pipeline.pipeline.tasks."
+          "task_ml_job"),
+    queue=("drf_network_pipeline.pipeline.tasks."
+           "task_ml_job"),
+    bind=True)
 def task_ml_job(
-        req_node):
+        self=None,
+        req_node=None):
     """task_ml_job
 
+    :param self: parent task object for bind=True
     :param req_node: job utils dictionary for passing a dictionary
     """
 
@@ -812,10 +853,11 @@ def task_ml_job(
                 "body": prediction_req
             }
             if settings.CELERY_ENABLED:
-                task_publish_to_core.delay(publish_req)
-                task_ml_process_worker_results.delay()
+                task_publish_to_core.delay(
+                    publish_node=publish_req)
             else:
-                task_publish_to_core(publish_req)
+                task_publish_to_core(
+                    publish_node=publish_req)
         else:
             log.info(("skip - worker={} already_predicted={}")
                      .format(

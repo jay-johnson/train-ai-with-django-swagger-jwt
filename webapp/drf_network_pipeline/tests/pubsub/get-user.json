@@ -1,0 +1,7 @@
+{
+    "data": {
+        "user_id": 1
+    },
+    "celery_enabled": true,
+    "cache_key": "test_task_get_user"
+}

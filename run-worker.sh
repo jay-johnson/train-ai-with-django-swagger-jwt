@@ -54,14 +54,16 @@ if [[ "${WORKER_NAME}" != "" ]]; then
     worker_name=$WORKER_NAME
 fi
 
+custom_queues="celery,drf_network_pipeline.users.tasks.task_get_user,drf_network_pipeline.pipeline.tasks.task_ml_process_results,drf_network_pipeline.pipeline.tasks.task_publish_to_core,drf_network_pipeline.pipeline.tasks.task_ml_prepare,drf_network_pipeline.pipeline.tasks.task_ml_job"
+
 echo ""
 if [[ "${num_workers}" == "1" ]]; then
     echo "Starting Worker=${worker_module}"
-    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name}"
-    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name}
+    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} -Q ${custom_queues}"
+    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} -Q $custom_queues
 else
     echo "Starting Workers=${worker_module}"
-    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file}"
-    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file}
+    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues}"
+    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues}
 fi
 echo ""

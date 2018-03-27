@@ -15,11 +15,19 @@ name = "user_tasks"
 log = build_colorized_logger(name=name)
 
 
-@shared_task
+# allow tasks to be sent straight to the worker
+@shared_task(
+    name=("drf_network_pipeline.users.tasks."
+          "task_get_user"),
+    queue=("drf_network_pipeline.users.tasks."
+           "task_get_user"),
+    bind=True)
 def task_get_user(
-        req_node):
+        self=None,
+        req_node=None):
     """task_get_user
 
+    :param self: parent task object for bind=True
     :param req_node: dictionary for lookup values
     """
 

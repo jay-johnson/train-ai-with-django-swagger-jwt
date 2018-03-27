@@ -11,6 +11,8 @@ import os
 import ssl
 from configurations import Configuration
 from configurations import values
+from kombu import Exchange
+from kombu import Queue
 
 
 class Common(Configuration):
@@ -21,7 +23,7 @@ class Common(Configuration):
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = values.SecretValue()
 
-    # SECURITY WARNING: don't run with debug turned on in production!
+    # SECURITY WARNING: do not run with debug turned on in production!
     DEBUG = values.BooleanValue(False)
 
     ALLOWED_HOSTS = [
@@ -245,7 +247,7 @@ class Common(Configuration):
     # change it to False
     # Or change this setting on tasks level
     # CELERY_IGNORE_RESULT = True
-    # CELERY_SEND_TASK_ERROR_EMAILS = False
+    CELERY_SEND_TASK_ERROR_EMAILS = False
     # CELERY_TASK_RESULT_EXPIRES = 600
 
     # Set redis as celery result backend
@@ -264,7 +266,7 @@ class Common(Configuration):
 
     # CELERY_REDIS_MAX_CONNECTIONS = 1
 
-    # Don't use pickle as serializer, json is much safer
+    # Do not use pickle as serializer, json is much safer
     CELERY_TASK_SERIALIZER = "json"
     CELERY_ACCEPT_CONTENT = ["application/json"]
 
@@ -317,7 +319,7 @@ class Common(Configuration):
     ANTINEX_AUTH_URL = os.getenv(
         "ANTINEX_AUTH_URL", "redis://localhost:6379/6")
     ANTINEX_RESULT_AUTH_URL = os.getenv(
-        "ANTINEX_RESULT_AUTH_URL", "redis://localhost:6379/")
+        "ANTINEX_RESULT_AUTH_URL", "redis://localhost:6379/9")
 
     # AntiNex routing
     ANTINEX_EXCHANGE_NAME = os.getenv(
@@ -329,13 +331,19 @@ class Common(Configuration):
     ANTINEX_QUEUE_NAME = os.getenv(
         "ANTINEX_QUEUE_NAME", "webapp.predict.requests")
     ANTINEX_RESULT_EXCHANGE_NAME = os.getenv(
-        "ANTINEX_RESULT_EXCHANGE_NAME", "webapp.predict.results")
+        "ANTINEX_RESULT_EXCHANGE_NAME",
+        "drf_network_pipeline.pipeline.tasks.task_ml_process_results")
     ANTINEX_RESULT_EXCHANGE_TYPE = os.getenv(
         "ANTINEX_RESULT_EXCHANGE_TYPE", "topic")
     ANTINEX_RESULT_ROUTING_KEY = os.getenv(
-        "ANTINEX_RESULT_ROUTING_KEY", "webapp.predict.results")
+        "ANTINEX_RESULT_ROUTING_KEY",
+        "drf_network_pipeline.pipeline.tasks.task_ml_process_results")
     ANTINEX_RESULT_QUEUE_NAME = os.getenv(
-        "ANTINEX_RESULT_QUEUE_NAME", "webapp.predict.results")
+        "ANTINEX_RESULT_QUEUE_NAME",
+        "drf_network_pipeline.pipeline.tasks.task_ml_process_results")
+    ANTINEX_RESULT_TASK_NAME = os.getenv(
+        "ANTINEX_RESULT_TASK_NAME",
+        "drf_network_pipeline.pipeline.tasks.task_ml_process_results")
 
     # By default persist messages to disk
     ANTINEX_PERSISTENT_MESSAGES = 2
@@ -398,6 +406,93 @@ class Common(Configuration):
     ANTINEX_RESULT_SSL_OPTIONS = ANTINEX_SSL_OPTIONS
 
     # end of AntiNex Worker settings
+
+    # Add custom routing here
+    CELERY_CREATE_MISSING_QUEUES = True
+    CELERY_QUEUES = (
+        Queue(
+            "default",
+            Exchange("default"),
+            routing_key="default"),
+        Queue(
+            ("drf_network_pipeline.users.tasks."
+             "task_get_user"),
+            Exchange(
+                "drf_network_pipeline.users.tasks."
+                "task_get_user"),
+            routing_key=(
+                "drf_network_pipeline.users.tasks."
+                "task_get_user")),
+        Queue(
+            ("drf_network_pipeline.pipeline.tasks."
+             "task_ml_prepare"),
+            Exchange(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_prepare"),
+            routing_key=(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_prepare")),
+        Queue(
+            ("drf_network_pipeline.pipeline.tasks."
+             "task_ml_job"),
+            Exchange(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_job"),
+            routing_key=(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_job")),
+        Queue(
+            ("drf_network_pipeline.pipeline.tasks."
+             "task_ml_process_results"),
+            Exchange(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_process_results"),
+            routing_key=(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_ml_process_results")),
+        Queue(
+            ("drf_network_pipeline.pipeline.tasks."
+             "task_publish_to_core"),
+            Exchange(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_publish_to_core"),
+            routing_key=(
+                "drf_network_pipeline.pipeline.tasks."
+                "task_publish_to_core"))
+    )
+
+    CELERY_ROUTES = {
+        ("drf_network_pipeline.users.tasks."
+         "task_get_user"): {
+            "queue":
+                ("drf_network_pipeline.users.tasks."
+                 "task_get_user")
+        },
+        ("drf_network_pipeline.pipeline.tasks."
+         "task_ml_prepare"): {
+            "queue":
+                ("drf_network_pipeline.pipeline.tasks."
+                 "task_ml_prepare")
+        },
+        ("drf_network_pipeline.pipeline.tasks."
+         "task_ml_job"): {
+            "queue":
+                ("drf_network_pipeline.pipeline.tasks."
+                 "task_ml_job")
+        },
+        ("drf_network_pipeline.pipeline.tasks."
+         "task_publish_to_core"): {
+            "queue":
+                ("drf_network_pipeline.pipeline.tasks."
+                 "task_publish_to_core")
+        },
+        ("drf_network_pipeline.pipeline.tasks."
+         "task_ml_process_results"): {
+            "queue":
+                ("drf_network_pipeline.pipeline.tasks."
+                 "task_ml_process_results")
+        }
+    }
 
 # end of Common
 

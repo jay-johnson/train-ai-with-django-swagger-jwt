@@ -1,0 +1,175 @@
+{
+    "body": {
+        "apply_scaler": true,
+        "features_to_process": [
+            "eth_type",
+            "idx",
+            "ip_ihl",
+            "ip_len",
+            "ip_tos",
+            "ip_version",
+            "tcp_dport",
+            "tcp_fields_options.MSS",
+            "tcp_fields_options.Timestamp",
+            "tcp_fields_options.WScale",
+            "tcp_seq",
+            "tcp_sport"
+        ],
+        "histories": [
+            "val_loss",
+            "val_acc",
+            "loss",
+            "acc"
+        ],
+        "label": "Django-AntiNex-Simple-Scaler-DNN",
+        "loss": "binary_crossentropy",
+        "manifest": {
+            "apply_scaler": true,
+            "batch_size": 32,
+            "csv_file": null,
+            "dataset": null,
+            "epochs": 10,
+            "features_to_process": [
+                "eth_type",
+                "idx",
+                "ip_ihl",
+                "ip_len",
+                "ip_tos",
+                "ip_version",
+                "tcp_dport",
+                "tcp_fields_options.MSS",
+                "tcp_fields_options.Timestamp",
+                "tcp_fields_options.WScale",
+                "tcp_seq",
+                "tcp_sport"
+            ],
+            "histories": [
+                "val_loss",
+                "val_acc",
+                "loss",
+                "acc"
+            ],
+            "ignore_features": [],
+            "job_id": 34,
+            "label_rules": {
+                "label_values": [
+                    -1,
+                    0,
+                    1
+                ],
+                "labels": [
+                    "not_attack",
+                    "not_attack",
+                    "attack"
+                ]
+            },
+            "loss": "binary_crossentropy",
+            "meta_file": null,
+            "metrics": [
+                "accuracy"
+            ],
+            "ml_type": "classification",
+            "model_desc": {
+                "layers": [
+                    {
+                        "activation": "relu",
+                        "init": "uniform",
+                        "num_neurons": 250
+                    },
+                    {
+                        "activation": "sigmoid",
+                        "init": "uniform",
+                        "num_neurons": 1
+                    }
+                ]
+            },
+            "model_weights_file": "/tmp/ml_weights_job_34_result_34.h5",
+            "num_splits": 2,
+            "optimizer": "adam",
+            "post_proc_rules": null,
+            "predict_feature": "label_value",
+            "predict_rows": [
+                {
+                    "_dataset_index": 10,
+                    "eth_type": 2041.0,
+                    "idx": 40.0,
+                    "ip_ihl": 5.0,
+                    "ip_len": 100.0,
+                    "ip_tos": 0.0,
+                    "ip_version": 4.0,
+                    "label_value": 1.0,
+                    "tcp_dport": 8080.0,
+                    "tcp_fields_options.MSS": 65495.0,
+                    "tcp_fields_options.Timestamp": 1653838672.0,
+                    "tcp_fields_options.WScale": 7.0,
+                    "tcp_seq": 65072.0,
+                    "tcp_sport": 38587.0
+                },
+                {
+                    "_dataset_index": 11,
+                    "eth_type": 2041.0,
+                    "idx": 41.0,
+                    "ip_ihl": 5.0,
+                    "ip_len": 100.0,
+                    "ip_tos": 0.0,
+                    "ip_version": 4.0,
+                    "label_value": 1.0,
+                    "tcp_dport": 8080.0,
+                    "tcp_fields_options.MSS": 65495.0,
+                    "tcp_fields_options.Timestamp": 1653838672.0,
+                    "tcp_fields_options.WScale": 7.0,
+                    "tcp_seq": 65072.0,
+                    "tcp_sport": 38587.0
+                }
+            ],
+            "publish_to_core": true,
+            "result_id": 34,
+            "seed": 42,
+            "sort_values": [],
+            "test_size": 0.2,
+            "training_data": {},
+            "use_model_name": "Django-AntiNex-Simple-Scaler-DNN",
+            "verbose": 1,
+            "version": 1,
+            "worker_result_node": {
+                "auth_url": "redis://localhost:6379/9",
+                "delivery_mode": 2,
+                "exchange": "drf_network_pipeline.pipeline.tasks.task_ml_process_results",
+                "exchange_type": "topic",
+                "manifest": {
+                    "job_id": 34,
+                    "job_type": "train-and-predict",
+                    "result_id": 34
+                },
+                "queue": "drf_network_pipeline.pipeline.tasks.task_ml_process_results",
+                "routing_key": "drf_network_pipeline.pipeline.tasks.task_ml_process_results",
+                "source": "drf",
+                "ssl_options": {},
+                "task_name": "drf_network_pipeline.pipeline.tasks.task_ml_process_results"
+            }
+        },
+        "max_records": 100000,
+        "metrics": [
+            "accuracy"
+        ],
+        "model_desc": {
+            "layers": [
+                {
+                    "activation": "relu",
+                    "init": "uniform",
+                    "num_neurons": 250
+                },
+                {
+                    "activation": "sigmoid",
+                    "init": "uniform",
+                    "num_neurons": 1
+                }
+            ]
+        },
+        "model_json": null,
+        "optimizer": "adam",
+        "predict_feature": "label_value",
+        "predict_rows": "[{\"idx\": 40.0, \"ip_ihl\": 5.0, \"ip_len\": 100.0, \"ip_tos\": 0.0, \"tcp_seq\": 65072.0, \"eth_type\": 2041.0, \"tcp_dport\": 8080.0, \"tcp_sport\": 38587.0, \"ip_version\": 4.0, \"label_value\": 1.0, \"_dataset_index\": 10, \"tcp_fields_options.MSS\": 65495.0, \"tcp_fields_options.WScale\": 7.0, \"tcp_fields_options.Timestamp\": 1653838672.0}, {\"idx\": 41.0, \"ip_ihl\": 5.0, \"ip_len\": 100.0, \"ip_tos\": 0.0, \"tcp_seq\": 65072.0, \"eth_type\": 2041.0, \"tcp_dport\": 8080.0, \"tcp_sport\": 38587.0, \"ip_version\": 4.0, \"label_value\": 1.0, \"_dataset_index\": 11, \"tcp_fields_options.MSS\": 65495.0, \"tcp_fields_options.WScale\": 7.0, \"tcp_fields_options.Timestamp\": 1653838672.0}]",
+        "weights_json": null
+    }
+}

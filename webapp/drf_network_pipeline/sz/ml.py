@@ -16,8 +16,6 @@ from drf_network_pipeline.pipeline.models import MLJobResult
 from drf_network_pipeline.job_utils.run_task import run_task
 from drf_network_pipeline.pipeline.tasks import task_ml_prepare
 from drf_network_pipeline.pipeline.tasks import task_ml_job
-from drf_network_pipeline.pipeline.tasks import \
-    task_ml_process_worker_results
 from drf_network_pipeline.pipeline.create_ml_prepare_record import \
     create_ml_prepare_record
 from drf_network_pipeline.pipeline.create_ml_job_record import \
@@ -786,13 +784,6 @@ class MLJobsSerializer(serializers.Serializer):
                              request.user.id,
                              pk))
 
-            if settings.ANTINEX_WORKER_ENABLED:
-                if settings.CELERY_ENABLED:
-                    task_ml_process_worker_results.delay()
-                else:
-                    task_ml_process_worker_results()
-            # end of processing results from the worker if any
-
             db_query = (Q(user=request.user.id) & Q(id=pk))
             qset = []
             if pk:
@@ -1066,13 +1057,6 @@ class MLJobResultsSerializer(serializers.Serializer):
                      .format(self.class_name,
                              request.user.id,
                              pk))
-
-            if settings.ANTINEX_WORKER_ENABLED:
-                if settings.CELERY_ENABLED:
-                    task_ml_process_worker_results.delay()
-                else:
-                    task_ml_process_worker_results()
-            # end of processing results from the worker if any
 
             db_query = (Q(user=request.user.id) & Q(id=pk))
             qset = []
