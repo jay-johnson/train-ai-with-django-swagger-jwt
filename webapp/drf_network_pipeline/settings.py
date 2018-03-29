@@ -53,7 +53,6 @@ class Common(Configuration):
         "django_celery_results",
         "cacheops",
         "debug_toolbar",
-
         "drf_network_pipeline.users",
         "drf_network_pipeline.pipeline",
     ]
@@ -71,10 +70,17 @@ class Common(Configuration):
 
     ROOT_URLCONF = "drf_network_pipeline.urls"
 
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
     TEMPLATES = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "DIRS": [
+                "drf_network_pipeline/templates",
+                "drf_network_pipeline/docs/build/html",
+                "drf_network_pipeline/docs/build/html/modules"
             ],
             "APP_DIRS": True,
             "OPTIONS": {
@@ -145,7 +151,16 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/{{ docs_version }}/howto/static-files/
     STATIC_URL = "/static/"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"  # noqa
+    STATICFILES_STORAGE = \
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    STATICFILES_DIRS = [
+        os.path.join(
+            BASE_DIR,
+            "drf_network_pipeline/docs/build/html/_static")
+    ]
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = "{}/media".format(
+        BASE_DIR)
 
     AUTH_USER_MODEL = "users.User"
 
@@ -493,6 +508,42 @@ class Common(Configuration):
                  "task_ml_process_results")
         }
     }
+
+    TEMPLATE_DIRS = [
+        "drf_network_pipeline/templates"
+    ]
+    INCLUDE_DOCS = bool(os.getenv(
+        "INCLUDE_DOCS",
+        "1") == "1")
+    if INCLUDE_DOCS:
+        DOCS_ROOT = os.path.join(
+            BASE_DIR,
+            "{}/drf_network_pipeline/docs/build/html".format(
+                BASE_DIR))
+        DOCS_ACCESS = "public"
+        DOC_START_DIR = "drf_network_pipeline/docs/build/html"
+        TEMPLATE_DIRS.append(
+            DOC_START_DIR
+        )
+        # noqa https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory
+        ADD_THESE_DOC_DIRS = []
+        for d in os.walk(DOC_START_DIR):
+            if "static" not in d[0]:
+                ADD_THESE_DOC_DIRS.append(d[0])
+
+        DEFAULT_DOC_INDEX_HTML = "{}/{}".format(
+            BASE_DIR,
+            "drf_network_pipeline/docs/build/html/index.html")
+
+        TEMPLATE_DIRS = TEMPLATE_DIRS + ADD_THESE_DOC_DIRS
+        if not os.path.exists(DEFAULT_DOC_INDEX_HTML):
+            print(("Failed to find sphinx index "
+                   "BASE_DIR={} full_path={} docs "
+                   "failed to load")
+                  .format(
+                      BASE_DIR,
+                      DEFAULT_DOC_INDEX_HTML))
+    # end of adding sphinx docs into the server
 
 # end of Common
 

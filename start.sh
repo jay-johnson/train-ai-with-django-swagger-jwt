@@ -33,6 +33,16 @@ env | grep DJANGO | sort
 echo ""
 
 echo ""
+echo "Deploying Sphinx docs"
+./build-docs.sh
+echo ""
+
+echo ""
+echo "Deploying Statics"
+./collect-statics.sh
+echo ""
+
+echo ""
 echo "Starting Django listening on TCP port 8080"
 echo "http://localhost:8080/swagger"
 echo ""

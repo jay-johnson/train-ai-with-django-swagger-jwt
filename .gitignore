@@ -35,7 +35,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+./build/*
 develop-eggs/
 dist/
 downloads/
@@ -71,9 +71,6 @@ coverage.xml
 *.mo
 *.pot
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
 
@@ -107,7 +104,6 @@ db.sqlite3
 *.tgz
 Error
 
-build
 dist
 venv
 venv2
@@ -129,5 +125,10 @@ py3venv
 *.jpeg
 *.tiff
 *.gif
+*.tgz
+*.gz
 
 nohup.out
+db.sqlite3-journal
+webapp/drf_network_pipeline/docs/build/*.rst
+webapp/drf_network_pipeline/docs/latest.log

@@ -33,7 +33,12 @@ psycopg2==2.7.3.2
 pycodestyle
 pydocstyle
 requests
+recommonmark
 scikit-learn
+sphinx
+sphinx-autobuild
+sphinx_bootstrap_theme
+sphinx_rtd_theme
 tables
 tensorflow
 uwsgi

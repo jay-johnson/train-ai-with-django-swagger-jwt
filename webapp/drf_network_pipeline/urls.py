@@ -2,12 +2,15 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
+from django.urls import re_path
+from django.views.static import serve
 from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_jwt.views import obtain_jwt_token
 from drf_network_pipeline.api.user import UserViewSet
 
 import drf_network_pipeline.api.ml as ml_api
+import drf_network_pipeline.index
 
 
 schema_view = get_swagger_view(title="DRF Swagger with JWT")
@@ -38,9 +41,26 @@ urlpatterns = [
          name="account-create"),
 ]
 
-
 if settings.DEBUG:
-    import debug_toolbar
+    import debug_toolbar  # noqa
     urlpatterns = [
-        path("__debug__/", include(debug_toolbar.urls)),
+        path("__debug__/",
+             include(debug_toolbar.urls)),
+    ] + urlpatterns
+
+if settings.INCLUDE_DOCS:
+    # could also make the user login required:
+    # noqa https://stackoverflow.com/questions/20386445/integrating-sphinx-and-django-in-order-to-require-users-to-log-in-to-see-the-doc
+    urlpatterns = [
+        path(
+            'docs/',
+            drf_network_pipeline.index.handle_sphinx_doc_index,
+            name="sphinx_doc_index"),
+        re_path(
+            r'^docs/(?P<path>.*)',
+            serve,
+            {
+                'document_root': settings.DOCS_ROOT
+            },
+            name="sphinx_all_docs"),
     ] + urlpatterns
