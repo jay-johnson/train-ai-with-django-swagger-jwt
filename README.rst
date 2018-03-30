@@ -103,10 +103,16 @@ If you are running all the containers, you can use these links to move around:
 - Jupyter Notebook showing how the Deep Neural Networks are Trained (login with ``admin`` and ``ALT + r`` to view the slideshow)
 
   http://localhost:8888/notebooks/AntiNex-Protecting-Django.ipynb
+  
+- Jupyter Notebook shoing how to use Pre-trained Deep Neural Networks with AntiNex
+
+  http://localhost:8888/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
 
 - Jupyter Notebook Slideshow (login with ``admin``)
 
   http://localhost:8889/Slides-AntiNex-Protecting-Django.slides.html#/
+
+  http://localhost:8890/Slides-AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.slides.html#/
 
 If you are interested in running locally without the large container image, you can run the broker and database stack with docker containers for simulating a more production-ready environment. Here's the containers these steps will start:
 
