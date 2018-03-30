@@ -29,7 +29,8 @@ def run_task(
 
     """run_task
 
-    handling sync/async Celery task
+    Handles Celery sync/async task processing
+
     :param task_method: requested method
     :param task_name: name of the task for logging
     :param req_data: requested data

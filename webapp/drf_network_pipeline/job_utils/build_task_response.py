@@ -12,6 +12,9 @@ def build_task_response(
         cache_key=None):
     """build_task_response
 
+    Builds a common response dictionary for all Celery tasks
+    being wrapped with the utils framework
+
     :param status: task return status code
     :param err: task error message for debugging
     :param task_name: task label for debugging

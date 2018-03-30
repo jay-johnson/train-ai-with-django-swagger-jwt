@@ -14,6 +14,9 @@ def build_task_request(
         cache_key=None):
     """build_task_node
 
+    Builds a common request dictionary for all Celery tasks
+    being wrapped with the utils framework
+
     :param status: task return status code
     :param err: task error message for debugging
     :param task_name: task label for debugging

@@ -15,6 +15,9 @@ def handle_task_method(
         delay_timeout=settings.CELERY_GET_RESULT_TIMEOUT):
     """handle_task_method
 
+    Wraps task invocation for easier debugging with a
+    standardized dictionary status, error, data response
+
     :param req_node: request tracking data
     :param task_method: task method to run
     :param get_result: get the result from task

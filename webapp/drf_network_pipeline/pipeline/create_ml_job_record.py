@@ -283,7 +283,6 @@ def create_ml_job_record(
         acc_data = {
             "accuracy": -1.0
         }
-        ml_result_obj = None
         ml_result_obj = MLJobResult(
                 user=ml_job_obj.user,
                 job=ml_job_obj,
