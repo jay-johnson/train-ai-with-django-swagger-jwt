@@ -1,7 +1,30 @@
 AntiNex API Examples
 ====================
 
-Using Curl Commands with the REST API
+Here are a few ways to learn about the AntiNex API.
+
+AntiNex Python Client within a Jupyter Notebook
+===============================================
+
+Here is how to use the `antinex-client`_ for training and using a pre-trained Deep Neural Network to make predictions:
+
+https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
+
+More Jupyter Links
+------------------
+
+Notebook:
+
+http://localhost:8888/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
+
+Presentation Slides running in the Jupyter container (with arrow keys for navigation):
+
+http://localhost:8890/Slides-AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.slides.html#/
+
+.. _antinex-client: https://github.com/jay-johnson/antinex-client
+
+Using Curl
+==========
 
 Login a User
 ------------

@@ -1,5 +1,5 @@
 Protecting React and Redux with a Deep Neural Network
-====================================================
+=====================================================
 
 This guide is a walkthrough for preparing and training a deep neural network for defending React and Redux application servers. The accuracy is currently **87%** without tuning the DNN or adding in actual exploits or sql-injection attacks into the attack datasets. Please note the ``non-attack`` training data is recorded from a multi-user simulation against a Django application server. Sorry I have not had enough free time to create a true React and Redux non-attack dataset (PRs welcome though!). 
 
