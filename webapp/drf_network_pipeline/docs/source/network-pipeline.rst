@@ -1,7 +1,7 @@
 Network Data Analysis Pipeline
 ==============================
 
-.. image:: https://github.com/jay-johnson/network-pipeline/blob/master/docker/images/network-pipeline-workflow.png
+.. image:: https://raw.githubusercontent.com/jay-johnson/network-pipeline/master/docker/images/network-pipeline-workflow.png
     :align: center
 
 This is a distributed python 3 framework for automating network traffic capture and converting it into a csv file. Once you have a csv file you can build, train and tune machine learning models to defend your own infrastructure by actively monitoring the network layer.
