@@ -47,6 +47,7 @@ services:
     ports:
       - "8888:8888"
       - "8889:8889"
+      - "8890:8890"
       - "6006:6006"
     entrypoint: "/opt/antinex-core/docker/jupyter/start-container.sh"
 

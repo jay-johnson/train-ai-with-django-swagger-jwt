@@ -18,12 +18,14 @@ What is this?
 AntiNex is a free tool for helping anyone defend against software attacks. It helps users train highly accurate Deep Neural Networks (dnn's) from specialized datasets. These datasets are captured network traffic packets in the OSI layers 2, 3, 4 and 5. Once labeled as attack and non-attack records, you can use your dnn's for identifying attack records across the network. With this approach, AntiNex can predict attacks on web applications like: Django, Flask, React and Redux, Vue, and Spring with repeatable accuracies above **99.8%**. By default just one AntiNex Core (core) worker manages 100 pre-trained dnn's in memory for making faster predictions and support for manual retraining as needed based off new datasets.
 
 - AntiNex core `accuracy scores`_
-- `Jupyter notebook`_ showing how it works without any of the AntiNex components as proof of the methodology
+- `Jupyter notebook for how it works`_ without any of the AntiNex components as proof of the methodology
+- `Jupyter notebook for using a pre-trained dnn to make new predictions with AntiNex`_
 
 AntiNex is a python 3 multi-tenant framework for running a data pipeline for building, training, scoring and refining dnn's. Once trained, dnn's can be loaded into the core for making predictions in near-realtime as the models have already been tuned and pre-trained. The initial focus of AntiNex was to create AI models to defend web applications, but it makes predictions with `classification`_ (used for labeling `attack vs non-attack`_ records) or `regression`_ (like predicting the `closing price of a stock`_) datasets.
 
 .. _accuracy scores: https://github.com/jay-johnson/antinex-core/#antinex-core
-.. _Jupyter notebook: https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Protecting-Django.ipynb
+.. _Jupyter notebook for how it works: https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Protecting-Django.ipynb
+.. _Jupyter notebook for using a pre-trained dnn to make new predictions with AntiNex: https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
 .. _classification: https://en.wikipedia.org/wiki/Statistical_classification
 .. _regression: https://en.wikipedia.org/wiki/Regression_analysis
 .. _attack vs non-attack: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/0d280216e3697f0d2cf7456095e37df64be73040/tests/scaler-full-django-antinex-simple.json#L109-L120
@@ -163,6 +165,8 @@ Jupyter Slides on How the Analysis Works
 .. note:: The **left** and **right** arrow keys navigate the slides in the browser.
 
 http://localhost:8889/Slides-AntiNex-Protecting-Django.slides.html#/
+
+http://localhost:8890/Slides-AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.slides.html#/
 
 Django REST API with Swagger
 ----------------------------
