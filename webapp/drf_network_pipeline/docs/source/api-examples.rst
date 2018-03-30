@@ -13,7 +13,7 @@ https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex
 More Jupyter Links
 ------------------
 
-Notebook:
+Login to Notebook with **admin**:
 
 http://localhost:8888/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
 
