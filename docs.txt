@@ -1,5 +1,0 @@
-Django==2.0
-sphinx
-sphinx-autobuild
-sphinx_bootstrap_theme
-sphinx_rtd_theme
