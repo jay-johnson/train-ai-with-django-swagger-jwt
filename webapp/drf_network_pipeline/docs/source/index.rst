@@ -15,7 +15,7 @@ Helping everyone use Deep Neural Networks for Defense
 What is this?
 =============
 
-AntiNex is a free tool for helping anyone defend against software attacks. It helps users train highly accurate Deep Neural Networks (dnn's) from specialized datasets. These datasets are captured network traffic packets in the OSI layers 2, 3, 4 and 5. Once labeled as attack and non-attack records, you can use your dnn's for identifying attack records across the network. With this approach, AntiNex can predict attacks on web applications like: Django, Flask, React and Redux, Vue, and Spring with repeatable accuracies above **99.8%**. By default just one AntiNex Core (core) worker manages 100 pre-trained dnn's in memory for making faster predictions and support for manual retraining as needed based off new datasets.
+AntiNex is a free tool for helping anyone defend against software attacks. It helps users train highly accurate Deep Neural Networks (dnn's) from specialized datasets. These datasets are captured network traffic packets in the OSI layers 2, 3, 4 and 5. Once labeled as attack and non-attack records, you can use your dnn's for identifying attack records across the network. With this approach, AntiNex can predict attacks on web applications like: Django, Flask, React and Redux, Vue, and Spring with repeatable accuracies above **99.7%**. By default just one AntiNex Core (core) worker manages 100 pre-trained dnn's in memory for making faster predictions and support for manual retraining as needed based off new datasets.
 
 - AntiNex core `accuracy scores`_
 - `Jupyter notebook for how it works`_ without any of the AntiNex components as proof of the methodology
@@ -210,7 +210,7 @@ So why does this matter?
 - There is no free software we can use today that can share and continually learn how to better defend software applications and our networks against attacks
 - AI for network security is a vendor lock-in play, and this approach is already beating the best scores I see online
 - Without open datasets and shared best-of-AI-model definitions, our networks will continue to be susceptible to attacks that are easy to defend (antivirus has been doing this same approach for years but it is not good enough)
-- Build your own 99.8% accurate dnn within minutes of running the dockerized stack
+- Build your own 99.7% accurate dnn within minutes of running the dockerized stack
 - Building new training datasets with your own attack and non-attack data takes a matter of minutes
 - Replay and prediction history is stored on the user's account within the included postgres database 
 - The same core can run on any system that can run python 3 (it can be backported to python 2 for IoT devices as all the internal components like Keras and Tensorflow still run on python 2)
