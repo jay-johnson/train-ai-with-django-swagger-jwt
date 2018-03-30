@@ -15,14 +15,13 @@ Helping everyone use Deep Neural Networks for Defense
 What is this?
 =============
 
-AntiNex is a free tool for helping anyone defend against software attacks like `internet chemotherapy`_. It does this by helping users craft specialized datasets from network traffic packets in the OSI layers 2, 3, 4 and 5. Once datasets are labeled as attack and non-attack records, you can train your own highly accurate Deep Neural Networks (dnn's) for identifying attack records across the network. With this approach AntiNex can predict attacks on web applications like: Django, Flask, React and Redux, Vue, and Spring with repeatable accuracies above **99.8%**. By default just one AntiNex Core (core) worker manages 100 pre-trained dnn's in memory for making faster predictions and support for manual retraining as needed based off new datasets.
+AntiNex is a free tool for helping anyone defend against software attacks. It helps users train highly accurate Deep Neural Networks (dnn's) from specialized datasets. These datasets are captured network traffic packets in the OSI layers 2, 3, 4 and 5. Once labeled as attack and non-attack records, you can use your dnn's for identifying attack records across the network. With this approach, AntiNex can predict attacks on web applications like: Django, Flask, React and Redux, Vue, and Spring with repeatable accuracies above **99.8%**. By default just one AntiNex Core (core) worker manages 100 pre-trained dnn's in memory for making faster predictions and support for manual retraining as needed based off new datasets.
 
 - AntiNex core `accuracy scores`_
 - `Jupyter notebook`_ showing how it works without any of the AntiNex components as proof of the methodology
 
 AntiNex is a python 3 multi-tenant framework for running a data pipeline for building, training, scoring and refining dnn's. Once trained, dnn's can be loaded into the core for making predictions in near-realtime as the models have already been tuned and pre-trained. The initial focus of AntiNex was to create AI models to defend web applications, but it makes predictions with `classification`_ (used for labeling `attack vs non-attack`_ records) or `regression`_ (like predicting the `closing price of a stock`_) datasets.
 
-.. _internet chemotherapy: https://0x00sec.org/t/internet-chemotherapy/4664
 .. _accuracy scores: https://github.com/jay-johnson/antinex-core/#antinex-core
 .. _Jupyter notebook: https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Protecting-Django.ipynb
 .. _classification: https://en.wikipedia.org/wiki/Statistical_classification
@@ -147,6 +146,14 @@ Get the New Prediction Records and Results
 
     ai-get-results.py -u root -p 123321 -i 2
 
+API Examples
+============
+
+.. toctree::
+   :maxdepth: 2
+
+   api-examples
+
 More Included App URLs
 ======================
 
@@ -262,7 +269,6 @@ These pre-configured capture agents perform the following steps in order:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
     
    network-pipeline
 
@@ -301,7 +307,6 @@ The REST API is the gateway for running anything in AntiNex. Only authenticated 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
     
    antinex-api
 
@@ -323,7 +328,6 @@ In the future the core will support loading the weights and model files from dis
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
     
    antinex-core
 
@@ -339,7 +343,6 @@ This repository is a python client for interacting with the REST API.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
     
    antinex-client
 
@@ -357,7 +360,6 @@ This repository is a standalone library that uses Scikit-Learn, Keras and Tensor
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
     
    antinex-utils
 
@@ -387,7 +389,7 @@ There's a lot of moving pieces in AI, and I wanted to be clear what is currently
 
 #.  Custom layers or custom Deep Neural Network models - only Keras Sequential neural networks, KerasRegressor, KerasClassifier, Stratified Kfolds, cross validation scoring, Scalers, Add and Dropout are supported. PR's are always welcomed!
 #.  Able to tell what your applications are doing today that is good, non-attack traffic out of the box. AntiNex requires recording how the network is being used in normal operation + identifying what you want to protect (do you want tcp traffic only? or a combination of tcp + udp + arp?). It uses the captured traffic to build the initial training dataset.
-#.  Exotic attacks - The network pipeline includes the Zed Attack Proxy (ZED) for OWASP dynamic security analysis. This tool attacks using a fuzzing attack on web applications. ZED was used to generate the latest attack datasets, and there is no guarantee the latest dnn's will always be effective with attacks I have not seen yet. Please share your findings and reach out if you know how to generate new, better attack simulations to help us all. PR's are always welcomed!
+#.  Exotic attacks - The network pipeline includes the Zed Attack Proxy (ZAP) for OWASP dynamic security analysis. This tool attacks using a fuzzing attack on web applications. ZAP was used to generate the latest attack datasets, and there is no guarantee the latest dnn's will always be effective with attacks I have not seen yet. Please share your findings and reach out if you know how to generate new, better attack simulations to help us all. PR's are always welcomed!
 #.  Image predictions and Convoluted Neural Networks - it's only works on numeric datasets.
 #.  Recurrent Neural Networks - I plan on adding LTSM support into the antinex-utils, but the scores were already good enough to release this first build.
 #.  Embedding Layers - I want to add payload deserialization to the packet processing with support for decrypting traffic, but the dnn scores were good enough to skip this feature for now.
