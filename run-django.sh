@@ -32,15 +32,19 @@ echo ""
 env | grep DJANGO | sort
 echo ""
 
-echo ""
-echo "Deploying Sphinx docs"
-./build-docs.sh
-echo ""
+if [[ "${SKIP_BUILD_DOCS}" != "1" ]]; then
+    echo ""
+    echo "Deploying Sphinx docs"
+    ./build-docs.sh
+    echo ""
+fi
 
-echo ""
-echo "Deploying Statics"
-./collect-statics.sh
-echo ""
+if [[ "${SKIP_COLLECT_STATICS}" != "1" ]]; then
+    echo ""
+    echo "Deploying Statics"
+    ./collect-statics.sh
+    echo ""
+fi
 
 echo ""
 echo "Starting Django listening on TCP port 8080"
