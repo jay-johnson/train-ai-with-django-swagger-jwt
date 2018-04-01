@@ -1,6 +1,9 @@
 Django REST Framework + Celery + JWT + Swagger + Keras + Tensorflow
 ===================================================================
 
+.. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
+    :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
+
 Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow. 
 
 Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
