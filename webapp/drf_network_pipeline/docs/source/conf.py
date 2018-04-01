@@ -27,7 +27,6 @@ class Mock(MagicMock):
 
 
 MOCK_MODULES = [
-    'antinex-utils',
     'celery-connectors',
     'h5py',
     'pycurl',

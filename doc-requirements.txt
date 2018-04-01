@@ -1,3 +1,4 @@
+antinex-utils
 celery[redis]
 colorlog
 dj-database-url==0.4.2
