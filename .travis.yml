@@ -44,7 +44,5 @@ install:
 
 script:
   - echo "Starting Redis"
-  - docker run --name antinex-redis -p 6379:6379 -d redis:4.0.5-alpine
-  - docker run --name antinex-postgres -p 5432:5432 -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_DB=webapp -d postgres:10.2-alpine
   - docker ps -a
-  - . envs/dev.env && docker ps -a && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate --run-syncdb && python manage.py migrate --fake webapp && python manage.py test
+  - . envs/dev.env && docker ps -a && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate --run-syncdb && python manage.py test
