@@ -1,0 +1,53 @@
+language: python
+
+python:
+  - 3.6
+
+services: postgresql
+
+env:
+  - DJANGO=2.0
+
+before_install:
+  - export DJANGO_SETTINGS_MODULE=drf_network_pipeline.settings
+  - export PYTHONPATH=$HOME/builds/jay-johnson/train-ai-with-django-swagger-jwt
+  - export PIP_USE_MIRRORS=true
+  - export ENVIRONMENT=Development
+  - export DJANGO_CONFIGURATION=Development
+  - export DJANGO_SECRET_KEY=supersecret
+  - export DJANGO_DEBUG=yes
+  - export DJANGO_TEMPLATE_DEBUG=yes
+  - export COLLECT_STATICS=1
+  - export POSTGRES_HOST=0.0.0.0
+  - export POSTGRES_PORT=5432
+  - export POSTGRES_USER=postgres
+  - export POSTGRES_PASSWORD=postgres
+  - export POSTGRES_DB=webapp
+  - export CELERY_ENABLED=0
+  - export CACHEOPS_ENABLED=0
+  - export USE_ENV=drf-dev
+  - export NUM_WORKERS=1
+  - export ANTINEX_WORKER_ENABLED=0
+  - export ANTINEX_WORKER_ONLY=0
+  - export ANTINEX_DELIVERY_MODE=persistent
+  - export ANTINEX_AUTH_URL=redis://localhost:6379/6
+  - export ANTINEX_EXCHANGE_NAME=webapp.predict.requests
+  - export ANTINEX_EXCHANGE_TYPE=topic
+  - export ANTINEX_QUEUE_NAME=webapp.predict.requests
+  - export ANTINEX_WORKER_SSL_ENABLED=0
+  - export ANTINEX_CA_CERTS=
+  - export ANTINEX_KEYFILE=
+  - export ANTINEX_CERTFILE=
+  - export ANTINEX_TLS_PROTOCOL=
+  - export ANTINEX_KEYFILE=
+
+install:
+  - pip install -r requirements.txt
+  - pip install django==$DJANGO --quiet
+  - pip install psycopg2 --quiet
+
+before_script:
+  - psql -c "CREATE DATABASE webapp;" -U postgres
+
+script:
+  - cd webapp && python manage.py syncdb --noinput && python manage.py test
