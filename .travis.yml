@@ -40,6 +40,9 @@ before_install:
   - export ANTINEX_CERTFILE=
   - export ANTINEX_TLS_PROTOCOL=
   - export ANTINEX_KEYFILE=
+  - echo "Starting Redis"
+  - docker run --name antinex-redis -d redis
+  - docker ps -A
 
 install:
   - pip install -r requirements.txt
