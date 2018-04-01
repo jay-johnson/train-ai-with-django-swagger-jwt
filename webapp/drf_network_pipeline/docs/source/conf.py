@@ -26,7 +26,13 @@ class Mock(MagicMock):
         return Mock()
 
 
-MOCK_MODULES = ['pycurl', 'celery-connectors', 'tensorflow', 'h5py']
+MOCK_MODULES = [
+    'antinex-utils',
+    'celery-connectors',
+    'h5py',
+    'pycurl',
+    'tensorflow'
+]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'drf_network_pipeline.settings'
