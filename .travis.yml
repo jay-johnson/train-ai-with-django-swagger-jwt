@@ -50,4 +50,4 @@ before_script:
   - psql -c "CREATE DATABASE webapp;" -U postgres
 
 script:
-  - cd webapp && pip list && python manage.py syncdb --noinput && python manage.py test
+  - cd webapp && pip list && python manage.py migrate && python manage.py test
