@@ -374,8 +374,8 @@ API Reference
    :maxdepth: 2
 
    pipeline
-   serializers
    job_utils
+   serializers
    modules/models
    faq.rst
 

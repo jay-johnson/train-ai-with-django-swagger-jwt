@@ -1,5 +1,5 @@
-Job Helpers
-===========
+Source Code - Job Helpers
+=========================
 
 These are the helper methods for abstracting celery calls from the Django REST Framework Serializers. These are optional for most users, I just find them helpful because the serializers all examine a common dictionary structure instead of custom ones all over the code. The response structure is:
 
