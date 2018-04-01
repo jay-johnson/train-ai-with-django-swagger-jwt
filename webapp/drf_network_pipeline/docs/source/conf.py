@@ -20,21 +20,35 @@ from mock import Mock as MagicMock
 from recommonmark.parser import CommonMarkParser
 
 
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
+html_theme_options = {}
+if os.getenv("READTHEDOCS", "") != "":
+    class Mock(MagicMock):
+        @classmethod
+        def __getattr__(cls, name):
+            return Mock()
+
+    MOCK_MODULES = [
+        'celery-connectors',
+        'h5py',
+        'pycurl',
+        'tensorflow'
+    ]
+    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+    os.environ['DJANGO_SECRET_KEY'] = 'Development'
+    html_theme_options = {
+        'canonical_url': '',
+        'logo_only': False,
+        'display_version': True,
+        'prev_next_buttons_location': 'bottom',
+        # Toc options
+        'collapse_navigation': False,
+        'sticky_navigation': True,
+        'navigation_depth': 4
+    }
+# if on readthedocs
 
 
-MOCK_MODULES = [
-    'celery-connectors',
-    'h5py',
-    'pycurl',
-    'tensorflow'
-]
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-os.environ['DJANGO_SECRET_KEY'] = 'Development'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'drf_network_pipeline.settings'
 sys.path.insert(0, os.path.abspath("../../.."))
 django.setup()
@@ -117,16 +131,6 @@ html_theme = os.getenv(
 # documentation.
 #
 html_theme_path = []
-html_theme_options = {
-    'canonical_url': '',
-    'logo_only': False,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    # Toc options
-    'collapse_navigation': False,
-    'sticky_navigation': True,
-    'navigation_depth': 4
-}
 
 # if using bootstrap add on the theme
 if html_theme == "bootstrap":
