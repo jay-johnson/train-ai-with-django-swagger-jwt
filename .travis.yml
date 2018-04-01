@@ -50,4 +50,4 @@ before_script:
   - psql -c "CREATE DATABASE webapp;" -U postgres
 
 script:
-  - cd webapp && pip list && python manage.py migrate && python manage.py test
+  - . envs/drf-dev.env && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate && python manage.py test
