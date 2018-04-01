@@ -34,6 +34,7 @@ MOCK_MODULES = [
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
+os.environ['DJANGO_SECRET_KEY'] = 'Development'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'drf_network_pipeline.settings'
 sys.path.insert(0, os.path.abspath("../../.."))
 django.setup()
@@ -109,14 +110,23 @@ pygments_style = 'sphinx'
 # find more themes: https://bootswatch.com/
 html_theme = os.getenv(
     "DOC_THEME",
-    "alabaster")
+    "sphinx_rtd_theme")
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 html_theme_path = []
-html_theme_options = {}
+html_theme_options = {
+    'canonical_url': '',
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    # Toc options
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4
+}
 
 # if using bootstrap add on the theme
 if html_theme == "bootstrap":
