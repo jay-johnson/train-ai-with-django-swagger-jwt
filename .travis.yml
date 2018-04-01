@@ -53,4 +53,4 @@ script:
   - echo "Starting Redis"
   - docker run --name antinex-redis -p 6379:6379 -d redis
   - docker ps -a
-  - . envs/drf-dev.env && docker ps -a && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate && python manage.py test
+  - . envs/drf-dev.env && docker ps -a && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate --run-syncdb && python manage.py migrate --fake webapp && python manage.py test
