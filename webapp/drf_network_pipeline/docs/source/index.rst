@@ -460,3 +460,4 @@ Disclaimers and Legal
 #.  I am not legally responsible for where you deploy this tool. It is meant to help educate how to defend.
 #.  This is still an emerging technology, and I am not claiming it will work to defend everything out there on the internet. It works very well for predicting when an attack using OWASP fuzzing attacks are targeting web applications. I am not legally responsible if you run this and you still get hacked, lose data, lose your job, lose your money, destroyed personal property or anything worse. I built it to educate how to build your own deep neural networks to defend. It will forever be an ongoing battle and arms race with malicious actors on the internet trying to beat every claimed-unbeatable fortress.
 
+
