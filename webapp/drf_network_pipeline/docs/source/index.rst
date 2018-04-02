@@ -196,7 +196,7 @@ The AntiNex REST API is part of the AntiNex stack:
      - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
            :alt: Travis AntiNex AI Utils Tests
            :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
-     - `Docs <http://antinex-utils.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`_
      - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
            :alt: Read the Docs AntiNex AI Utils Tests
            :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
