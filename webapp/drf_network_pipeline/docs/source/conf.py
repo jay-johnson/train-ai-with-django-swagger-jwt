@@ -30,10 +30,8 @@ if os.getenv("READTHEDOCS", "") != "":
             return Mock()
 
     MOCK_MODULES = [
-        # 'celery-connectors',
         'h5py',
         'pycurl'
-        # 'tensorflow'
     ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
