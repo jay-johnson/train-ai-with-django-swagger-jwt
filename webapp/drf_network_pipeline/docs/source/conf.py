@@ -16,23 +16,24 @@ import os
 import sys
 import django
 import sphinx_bootstrap_theme
-from mock import Mock as MagicMock
+from unittest.mock import MagicMock
 from recommonmark.parser import CommonMarkParser
 
 
 os.environ['DJANGO_SECRET_KEY'] = 'Development'
 html_theme_options = {}
 if os.getenv("READTHEDOCS", "") != "":
+
     class Mock(MagicMock):
         @classmethod
         def __getattr__(cls, name):
             return Mock()
 
     MOCK_MODULES = [
-        'celery-connectors',
+        # 'celery-connectors',
         'h5py',
-        'pycurl',
-        'tensorflow'
+        'pycurl'
+        # 'tensorflow'
     ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
