@@ -14,7 +14,6 @@
 #
 import os
 import sys
-import django
 import sphinx_bootstrap_theme
 from unittest.mock import MagicMock
 from recommonmark.parser import CommonMarkParser
@@ -59,6 +58,7 @@ else:
 # if on readthedocs
 
 
+import django  # noqa
 os.environ['DJANGO_SETTINGS_MODULE'] = 'drf_network_pipeline.settings'
 sys.path.insert(0, os.path.abspath("../../.."))
 django.setup()
