@@ -19,7 +19,6 @@ from unittest.mock import MagicMock
 from recommonmark.parser import CommonMarkParser
 
 
-os.environ['DJANGO_SECRET_KEY'] = 'Development'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
@@ -59,6 +58,7 @@ else:
 
 
 import django  # noqa
+os.environ['DJANGO_SECRET_KEY'] = 'Development'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'drf_network_pipeline.settings'
 sys.path.insert(0, os.path.abspath("../../.."))
 django.setup()
