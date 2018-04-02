@@ -28,6 +28,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages'
 ]
+
 html_theme_options = {}
 if os.getenv("READTHEDOCS", "") != "":
 
