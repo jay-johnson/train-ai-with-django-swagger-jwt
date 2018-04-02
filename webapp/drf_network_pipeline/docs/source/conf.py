@@ -20,6 +20,7 @@ from mock import Mock as MagicMock
 from recommonmark.parser import CommonMarkParser
 
 
+os.environ['DJANGO_SECRET_KEY'] = 'Development'
 html_theme_options = {}
 if os.getenv("READTHEDOCS", "") != "":
     class Mock(MagicMock):
@@ -35,7 +36,6 @@ if os.getenv("READTHEDOCS", "") != "":
     ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-    os.environ['DJANGO_SECRET_KEY'] = 'Development'
     html_theme_options = {
         'canonical_url': '',
         'logo_only': False,

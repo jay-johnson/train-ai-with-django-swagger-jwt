@@ -124,5 +124,5 @@ services:
       - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-pipeline && 
                  . ~/.venvs/venvdrfpipeline/bin/activate &&
-                 /opt/antinex-pipeline/network_pipeline/scripts/packets-redis.py'"
+                 /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py'"
 

@@ -20,7 +20,7 @@ Train a Deep Neural Network with a JSON List of Records
 
 ::
 
-    ai-train-dnn.py -u root -p 123321 -f examples/predict-rows-scaler-django-simple.json
+    ai_train_dnn.py -u root -p 123321 -f examples/predict-rows-scaler-django-simple.json
 
 Train a Deep Neural Network to Predict Attacks with the AntiNex Datasets
 ------------------------------------------------------------------------
@@ -42,7 +42,7 @@ Please wait as this will take a few minutes to return and convert the prediction
 
 ::
 
-    ai-train-dnn.py -u root -p 123321 -f examples/scaler-full-django-antinex-simple.json 
+    ai_train_dnn.py -u root -p 123321 -f examples/scaler-full-django-antinex-simple.json 
 
     ...
 
@@ -57,7 +57,7 @@ Run:
 
 ::
 
-    ai-train-dnn.py -u root -p 123321 -f examples/publish-to-core-scaler-full-django.json
+    ai_train_dnn.py -u root -p 123321 -f examples/publish-to-core-scaler-full-django.json
 
 Here is the diff between requests that will run using a pre-trained model and one that will train a new neural network:
 
@@ -76,7 +76,7 @@ Prepare a Dataset
 
 ::
 
-    ai-prepare-dataset.py -u root -p 123321 -f examples/prepare-new-dataset.json
+    ai_prepare_dataset.py -u root -p 123321 -f examples/prepare-new-dataset.json
 
 Get Job Record for a Deep Neural Network
 ----------------------------------------
@@ -87,7 +87,7 @@ This include the model json or model description for the Keras DNN.
 
 ::
 
-    ai-get-job.py -u root -p 123321 -i 4
+    ai_get_job.py -u root -p 123321 -i 4
 
 Get Predictions Results for a Deep Neural Network
 -------------------------------------------------
@@ -98,7 +98,7 @@ This includes predictions from the training or prediction job.
 
 ::
 
-    ai-get-results.py -u root -p 123321 -i 4
+    ai_get_results.py -u root -p 123321 -i 4
 
 Get a Prepared Dataset
 ----------------------
@@ -107,7 +107,7 @@ Get a user's MLPrepare record by setting: ``-i <MLPrepare.id>``
 
 ::
 
-    ai-get-prepared-dataset.py -u root -p 123321 -i 15
+    ai_get_prepared_dataset.py -u root -p 123321 -i 15
 
 Using a Client Built from Environment Variables
 -----------------------------------------------
@@ -124,7 +124,7 @@ Run the client prediction stream script
 
 ::
 
-    ai-env-predict.py -f examples/predict-rows-scaler-full-django.json
+    ai_env_predict.py -f examples/predict-rows-scaler-full-django.json
 
 .. _Network Pipeline: https://github.com/jay-johnson/network-pipeline
 .. _AntiNex Core: https://github.com/jay-johnson/antinex-core

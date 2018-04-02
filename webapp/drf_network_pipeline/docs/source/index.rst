@@ -91,7 +91,7 @@ Train the Django Neural Network with 99.8% Accuracy
 ::
 
     # train a deep neural network with the included antinex-datasets
-    ai-train-dnn.py -u root -p 123321 -f tests/only-publish-scaler-full-django.json
+    ai_train_dnn.py -u root -p 123321 -f tests/only-publish-scaler-full-django.json
 
     ...
     ... more logs
@@ -119,7 +119,7 @@ Return the 30,200 predicted records and accuracy scores (which were 99.826%) fro
 
 ::
 
-    ai-get-results.py -u root -p 123321 -i 1
+    ai_get_results.py -u root -p 123321 -i 1
     2018-03-29 20:52:26,348 - ai-client - INFO - creating client user=root url=http://localhost:8080 result_id=1
     2018-03-29 20:52:26,349 - ai-client - INFO - loading request in result_id=1
     2018-03-29 20:52:26,360 - ai-client - INFO - log in user=root url=http://localhost:8080/api-token-auth/ ca_file=None cert=None
@@ -133,7 +133,7 @@ Note: this is using the same HTTP Request JSON dictionary as the initial trainin
 
 ::
 
-    ai-train-dnn.py -u root -p 123321 -f tests/only-publish-scaler-full-django.json
+    ai_train_dnn.py -u root -p 123321 -f tests/only-publish-scaler-full-django.json
 
     ...
 
@@ -146,7 +146,7 @@ Get the New Prediction Records and Results
 
 ::
 
-    ai-get-results.py -u root -p 123321 -i 2
+    ai_get_results.py -u root -p 123321 -i 2
 
 API Examples
 ============
@@ -168,43 +168,43 @@ The AntiNex REST API is part of the AntiNex stack:
      - Build
      - Docs Link
      - Docs Build
-   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`_
+   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
      - .. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
            :alt: Travis Tests
            :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
-     - `Docs <http://antinex.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex.readthedocs.io/en/latest/>`__
      - .. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
            :alt: Read the Docs REST API Tests
            :target: https://readthedocs.org/projects/antinex/badge/?version=latest
-   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`_
+   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`__
      - .. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
            :alt: Travis AntiNex Core Tests
            :target: https://travis-ci.org/jay-johnson/antinex-core.svg
-     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`__
      - .. image:: https://readthedocs.org/projects/antinex-core-worker/badge/?version=latest
            :alt: Read the Docs AntiNex Core Tests
            :target: http://antinex-core-worker.readthedocs.io/en/latest/?badge=latest
-   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`_
+   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`__
      - .. image:: https://travis-ci.org/jay-johnson/network-pipeline.svg?branch=master
            :alt: Travis AntiNex Network Pipeline Tests
            :target: https://travis-ci.org/jay-johnson/network-pipeline.svg
-     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`__
      - .. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
            :alt: Read the Docs AntiNex Network Pipeline Tests
            :target: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
-   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`_
+   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`__
      - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
            :alt: Travis AntiNex AI Utils Tests
            :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
-     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`__
      - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
            :alt: Read the Docs AntiNex AI Utils Tests
            :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
-   * - `Client <https://github.com/jay-johnson/antinex-client>`_
+   * - `Client <https://github.com/jay-johnson/antinex-client>`__
      - .. image:: https://travis-ci.org/jay-johnson/antinex-client.svg?branch=master
            :alt: Travis AntiNex Client Tests
            :target: https://travis-ci.org/jay-johnson/antinex-client.svg
-     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`_
+     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`__
      - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
            :alt: Read the Docs AntiNex Client Tests
            :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
@@ -301,14 +301,14 @@ Here is how the **capture agents** would be set up for capturing network traffic
 
         docker exec -it pipeline ps auwwx
         USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-        runner       1  0.2  0.0   4340   812 ?        Ss   07:32   0:00 /bin/sh -c cd /opt/antinex-pipeline && . ~/.venvs/venvdrfpipeline/bin/activate && /opt/antinex-pipeline/network_pipeline/scripts/packets-redis.py
-        runner      10 12.8  0.5 409060 66196 ?        Sl   07:32   0:00 python /opt/antinex-pipeline/network_pipeline/scripts/packets-redis.py
+        runner       1  0.2  0.0   4340   812 ?        Ss   07:32   0:00 /bin/sh -c cd /opt/antinex-pipeline && . ~/.venvs/venvdrfpipeline/bin/activate && /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py
+        runner      10 12.8  0.5 409060 66196 ?        Sl   07:32   0:00 python /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py
         runner      17  0.0  0.0  19192  2408 pts/0    Rs+  07:32   0:00 ps auwwx
 
 
     This subscriber script is on GitHub:
 
-    https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/packets-redis.py
+    https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/packets_redis.py
 
 Please refer to the repository for the latest code and documentation: https://github.com/jay-johnson/network-pipeline
 

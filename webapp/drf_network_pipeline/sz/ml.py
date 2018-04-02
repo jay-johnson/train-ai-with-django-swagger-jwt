@@ -31,6 +31,10 @@ User = get_user_model()  # noqa
 
 class MLPrepareSerializer(serializers.Serializer):
 
+    """
+    AntiNex Prepare Dataset Serializer
+    """
+
     title = serializers.CharField(
                 max_length=256,
                 required=False,
@@ -436,6 +440,10 @@ class MLPrepareSerializer(serializers.Serializer):
 
 
 class MLJobsSerializer(serializers.Serializer):
+
+    """
+    AntiNex AI Job Serializer
+    """
 
     title = serializers.CharField(
                 required=False,
@@ -889,6 +897,10 @@ class MLJobsSerializer(serializers.Serializer):
 
 
 class MLJobResultsSerializer(serializers.Serializer):
+
+    """
+    AntiNex AI Job Results Serializer
+    """
 
     user = UserSerializer(
                 many=False)

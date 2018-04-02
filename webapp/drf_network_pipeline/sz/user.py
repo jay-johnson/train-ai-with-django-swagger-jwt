@@ -25,6 +25,10 @@ User = get_user_model()  # noqa
 # Serializers define the API representation.
 class UserSerializer(serializers.Serializer):
 
+    """
+    User Serializer
+    """
+
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
