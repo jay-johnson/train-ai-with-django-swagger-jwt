@@ -15,7 +15,7 @@
 import os
 import sys
 import sphinx_bootstrap_theme
-from unittest.mock import MagicMock
+from mock import Mock as MagicMock
 from recommonmark.parser import CommonMarkParser
 
 
@@ -33,7 +33,7 @@ if os.getenv("READTHEDOCS", "") != "":
     class Mock(MagicMock):
         @classmethod
         def __getattr__(cls, name):
-            return MagicMock()
+            return Mock()
 
     MOCK_MODULES = [
         'celery',
