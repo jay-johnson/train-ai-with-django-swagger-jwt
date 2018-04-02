@@ -102,35 +102,35 @@ Django - Train and Predict
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-full-django-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-full-django-antinex-simple.json
 
 Flask - Train and Predict
 -------------------------
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-full-flask-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-full-flask-antinex-simple.json
 
 React and Redux - Train and Predict
 -----------------------------------
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-full-react-redux-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-full-react-redux-antinex-simple.json
 
 Vue - Train and Predict
 -----------------------
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-full-vue-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-full-vue-antinex-simple.json
 
 Spring - Train and Predict
 --------------------------
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-full-spring-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-full-spring-antinex-simple.json
 
 Accuracy and Prediction Report
 ------------------------------
@@ -169,21 +169,21 @@ If you do not have the datasets cloned locally, you can use the included minimiz
 
 ::
 
-    ./publish_predict_request.py -f training/scaler-django-antinex-simple.json
+    ./antinex_core/scripts/publish_predict_request.py -f training/scaler-django-antinex-simple.json
 
 Publish a Train Request
 -----------------------
 
 ::
 
-    ./publish_train_request.py
+    ./antinex_core/scripts/publish_train_request.py
 
 Publish a Regression Prediction Request
 ---------------------------------------
 
 ::
 
-    ./publish_regression_predict.py
+    ./antinex_core/scripts/publish_regression_predict.py
 
 JSON API
 --------

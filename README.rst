@@ -720,7 +720,7 @@ Paste in the following values and click **Try it Out**:
 
     I use this script to convert a configurable number of records from the bottom of a csv file which helps build these type of prediction json files:
 
-    https://github.com/jay-johnson/antinex-core/blob/master/antinex_core/scripts/convert-bottom-rows-to-json.py
+    https://github.com/jay-johnson/antinex-core/blob/master/antinex_core/scripts/convert_bottom_rows_to_json.py
 
     ::
 
