@@ -35,6 +35,14 @@ Creates an initial ``MLPrepare`` record stub in the database
 .. automodule:: drf_network_pipeline.pipeline.create_ml_prepare_record
    :members:
 
+Process AntiNex Core Worker Results
+-----------------------------------
+
+Fills in the ``MLJob`` and ``MLJobResult`` records with the JSON response from the AntiNex Core.
+
+.. automodule:: drf_network_pipeline.pipeline.process_worker_results
+   :members: handle_worker_results_message,process_worker_results
+
 Celery Tasks
 ------------
 
