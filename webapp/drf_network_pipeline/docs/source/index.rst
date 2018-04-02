@@ -159,6 +159,8 @@ API Examples
 AntiNex Stack Status
 ---------------------
 
+The AntiNex REST API is part of the AntiNex stack:
+
 .. list-table::
    :header-rows: 1
 

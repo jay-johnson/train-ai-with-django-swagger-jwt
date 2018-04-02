@@ -14,6 +14,8 @@ Now supports building the same highly accurate deep neural networks as the `Anti
 AntiNex Stack Status
 ---------------------
 
+The AntiNex REST API is part of the AntiNex stack:
+
 .. list-table::
    :header-rows: 1
 
