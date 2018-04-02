@@ -1,5 +1,4 @@
 antinex-utils
-celery>=4.1.0
 celery[redis]
 colorlog
 dj-database-url==0.4.2
@@ -37,7 +36,6 @@ sphinx
 sphinx-autobuild
 sphinx_bootstrap_theme
 sphinx_rtd_theme
-tensorflow
 uwsgi
 whitenoise==4.0b4
 Werkzeug==0.12.2

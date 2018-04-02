@@ -21,6 +21,13 @@ from recommonmark.parser import CommonMarkParser
 
 
 os.environ['DJANGO_SECRET_KEY'] = 'Development'
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages'
+]
 html_theme_options = {}
 if os.getenv("READTHEDOCS", "") != "":
 
@@ -31,7 +38,6 @@ if os.getenv("READTHEDOCS", "") != "":
 
     MOCK_MODULES = [
         'celery',
-        'celery.five',
         'h5py',
         'pycurl'
     ]
@@ -47,6 +53,8 @@ if os.getenv("READTHEDOCS", "") != "":
         'sticky_navigation': True,
         'navigation_depth': 4
     }
+else:
+    extensions.append('celery.contrib.sphinx')
 # if on readthedocs
 
 
@@ -76,14 +84,6 @@ release = '1.0.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'celery.contrib.sphinx',
-]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
