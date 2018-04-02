@@ -31,6 +31,7 @@ if os.getenv("READTHEDOCS", "") != "":
 
     MOCK_MODULES = [
         'celery',
+        'celery.five',
         'h5py',
         'pycurl'
     ]
