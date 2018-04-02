@@ -3,19 +3,64 @@ AntiNex REST API
 
 Automate training AI to defend applications with a Django 2.0+ REST Framework + Celery + Swagger + JWT using Keras and Tensorflow. 
 
-.. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
-    :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
-
-.. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
-    :target: http://antinex.readthedocs.io/en/latest/?badge=latest
-
 Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
-
-.. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
 .. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
     :width: 200px
     :height: 400px
+
+.. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
+
+AntiNex Stack Status
+---------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - Component
+     - Build
+     - Docs Link
+     - Docs Build
+   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`_
+     - .. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
+           :alt: Travis Tests
+           :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
+     - `Docs <http://antinex.readthedocs.io/en/latest/>`_
+     - .. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
+           :alt: Read the Docs REST API Tests
+           :target: https://readthedocs.org/projects/antinex/badge/?version=latest
+   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`_
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
+           :alt: Travis AntiNex Core Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-core.svg
+     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`_
+     - .. image:: https://readthedocs.org/projects/antinex-core-worker/badge/?version=latest
+           :alt: Read the Docs AntiNex Core Tests
+           :target: http://antinex-core-worker.readthedocs.io/en/latest/?badge=latest
+   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`_
+     - .. image:: https://travis-ci.org/jay-johnson/network-pipeline.svg?branch=master
+           :alt: Travis AntiNex Network Pipeline Tests
+           :target: https://travis-ci.org/jay-johnson/network-pipeline.svg
+     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`_
+     - .. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+           :alt: Read the Docs AntiNex Network Pipeline Tests
+           :target: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`_
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
+           :alt: Travis AntiNex AI Utils Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
+     - `Docs <http://antinex-utils.readthedocs.io/en/latest/>`_
+     - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
+           :alt: Read the Docs AntiNex AI Utils Tests
+           :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
+   * - `Client <https://github.com/jay-johnson/antinex-client>`_
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-client.svg?branch=master
+           :alt: Travis AntiNex Client Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-client.svg
+     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`_
+     - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
+           :alt: Read the Docs AntiNex Client Tests
+           :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
 
 Supported API Requests
 ----------------------
