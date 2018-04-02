@@ -30,6 +30,7 @@ if os.getenv("READTHEDOCS", "") != "":
             return MagicMock()
 
     MOCK_MODULES = [
+        'celery',
         'h5py',
         'pycurl'
     ]
