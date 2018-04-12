@@ -27,7 +27,13 @@ auto_reload = bool(os.getenv(
 #       range.
 #
 
-bind = '127.0.0.1:8080'
+bind = "{}:{}".format(
+    os.getenv(
+        "WEBAPP_HOST",
+        "0.0.0.0"),
+    os.getenv(
+        "WEBAPP_PORT",
+        "8080"))
 backlog = 2048
 
 #
