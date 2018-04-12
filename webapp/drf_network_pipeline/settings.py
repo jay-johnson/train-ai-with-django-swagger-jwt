@@ -30,7 +30,9 @@ class Common(Configuration):
         "localhost",
         "127.0.0.1",
         "0.0.0.0",
-        "zap"
+        "webapp",
+        "dev.antinex",
+        "api.antinex.com"
     ]
 
     # Application definition
@@ -558,8 +560,16 @@ class Development(Common):
         "localhost",
         "127.0.0.1",
         "0.0.0.0",
-        "zap"
+        "webapp",
+        "dev.antinex",
+        "api.antinex.com"
     ]
+
+    env_allowed_hosts = os.getenv(
+        "DJANGO_ALLOWED_HOSTS",
+        None)
+    if env_allowed_hosts:
+        ALLOWED_HOSTS = env_allowed_hosts.split(",")
 
     INTERNAL_IPS = [
         "127.0.0.1"

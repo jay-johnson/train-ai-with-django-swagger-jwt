@@ -2,6 +2,8 @@
 
 venv=~/.venvs/venvdrfpipeline
 env_name=drf-dev
+webapp_host="localhost"
+webapp_port="8080"
 
 if [[ "${USE_ENV}" != "" ]]; then
     env_name="${USE_ENV}"
@@ -12,6 +14,14 @@ if [[ ! -e ./envs/${env_name}.env ]]; then
     echo "Failed to find env file: envs/${env_name}.env"
     echo ""
     exit 1
+fi
+
+if [[ "${WEBAPP_HOST}" != "" ]]; then
+    webapp_host="${WEBAPP_HOST}"
+fi
+
+if [[ "${WEBAPP_PORT}" != "" ]]; then
+    webapp_port="${WEBAPP_PORT}"
 fi
 
 echo "Activating and installing pips"
@@ -47,8 +57,8 @@ if [[ "${SKIP_COLLECT_STATICS}" != "1" ]]; then
 fi
 
 echo ""
-echo "Starting Django listening on TCP port 8080"
-echo "http://localhost:8080/swagger"
+echo "Starting Django listening on TCP port ${webapp_port}"
+echo "http://${webapp_host}:${webapp_port}/swagger"
 echo ""
 # runserver has issues with
 # threads which break keras
