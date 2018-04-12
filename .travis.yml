@@ -43,9 +43,9 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - echo "Starting Linting Tests"
-  - flake8 .
-  - pycodestyle --exclude=.tox,.eggs,migrations
+  # - echo "Starting Linting Tests"
+  # - flake8 .
+  # - pycodestyle --exclude=.tox,.eggs,migrations
   - echo "Preparing DB"
   - . envs/dev.env && echo "Running Tests for Environment=${ENVIRONMENT} DB=${POSTGRES_DB} with antinex.env=${USE_ENV}" && cd webapp && pip list && python manage.py migrate --run-syncdb
   - echo "Starting Unit Tests"
