@@ -1,10 +1,13 @@
-Network Data Analysis Pipeline
-==============================
+AntiNex - Network Data Analysis Pipeline
+========================================
+
+This is a distributed python 3 framework for automating network traffic capture and converting it into a csv file. Once you have a csv file you can build, train and tune machine learning models to defend your own infrastructure by actively monitoring the network layer.
 
 .. image:: https://raw.githubusercontent.com/jay-johnson/network-pipeline/master/docker/images/network-pipeline-workflow.png
     :align: center
 
-This is a distributed python 3 framework for automating network traffic capture and converting it into a csv file. Once you have a csv file you can build, train and tune machine learning models to defend your own infrastructure by actively monitoring the network layer.
+.. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+    :target: http://antinex-network-pipeline.readthedocs.io/en/latest/?badge=latest
 
 It supports auto-publishing captured network traffic to the `AntiNex REST API`_ for using pre-trained Deep Neural Networks to make predictions on if this is an attack record or not using the `AntiNex Core`_. Please refer to the `Making Live Predictions using Pre-trained Neural Networks`_ section for more details. Publishing to the REST API can run inside docker as well.
 
@@ -73,13 +76,70 @@ Here are the included, standalone capture tools (all of which require root privi
 
 #.  `capture_arp.py`_
 #.  `capture_icmp.py`_
+#.  `capture_ssh.py`_
 #.  `capture_tcp.py`_
+#.  `capture_telnet.py`_
 #.  `capture_udp.py`_
 
 .. _capture_arp.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_arp.py
 .. _capture_icmp.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_icmp.py
+.. _capture_ssh.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_ssh.py
 .. _capture_tcp.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_tcp.py
+.. _capture_telnet.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_telnet.py
 .. _capture_udp.py: https://github.com/jay-johnson/network-pipeline/blob/master/network_pipeline/scripts/capture_udp.py
+
+AntiNex Stack Status
+--------------------
+
+AntiNex Network Pipeline is part of the AntiNex stack:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Component
+     - Build
+     - Docs Link
+     - Docs Build
+   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
+     - .. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
+           :alt: Travis Tests
+           :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
+     - `Docs <http://antinex.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
+           :alt: Read the Docs REST API Tests
+           :target: https://readthedocs.org/projects/antinex/badge/?version=latest
+   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
+           :alt: Travis AntiNex Core Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-core.svg
+     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-core-worker/badge/?version=latest
+           :alt: Read the Docs AntiNex Core Tests
+           :target: http://antinex-core-worker.readthedocs.io/en/latest/?badge=latest
+   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`__
+     - .. image:: https://travis-ci.org/jay-johnson/network-pipeline.svg?branch=master
+           :alt: Travis AntiNex Network Pipeline Tests
+           :target: https://travis-ci.org/jay-johnson/network-pipeline.svg
+     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+           :alt: Read the Docs AntiNex Network Pipeline Tests
+           :target: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
+           :alt: Travis AntiNex AI Utils Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
+     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
+           :alt: Read the Docs AntiNex AI Utils Tests
+           :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
+   * - `Client <https://github.com/jay-johnson/antinex-client>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-client.svg?branch=master
+           :alt: Travis AntiNex Client Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-client.svg
+     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
+           :alt: Read the Docs AntiNex Client Tests
+           :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
 
 What packets and layers are supported?
 ======================================
@@ -315,6 +375,18 @@ Scapy_ currently provides the traffic capture tooling, but the code already has 
     ::
     
         ./network_pipeline/scripts/capture_tcp.py
+
+    Capture SSH Traffic
+
+    ::
+
+        ./network_pipeline/scripts/capture_ssh.py
+
+    Capture Telnet Traffic
+
+    ::
+
+        ./network_pipeline/scripts/capture_telnet.py
 
 #.  Capture UDP Data
 
@@ -683,4 +755,3 @@ License
 Apache 2.0 - Please refer to the LICENSE_ for more details
 
 .. _License: https://github.com/jay-johnson/network-pipeline/blob/master/LICENSE
-
