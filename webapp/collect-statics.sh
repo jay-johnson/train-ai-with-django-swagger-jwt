@@ -13,9 +13,17 @@ if [[ "${USE_VENV}" != "" ]]; then
     fi
 fi
 
-echo "Activating and installing pips"
-. ${venv}/bin/activate
-echo ""
+if [[ -e ${venv} ]]; then
+    echo "Activating and installing pips"
+    . ${venv}/bin/activate
+    echo ""
+else
+    if [[ -e /opt/venv ]]; then
+        echo "Activating and installing pips"
+        . /opt/venv/bin/activate
+        echo ""
+    fi
+fi
 
 if [[ "${COLLECT_STATICS}" == "1" ]]; then
     echo "Collecting static files"
