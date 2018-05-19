@@ -14,12 +14,12 @@ if [[ "${USE_VENV}" != "" ]]; then
 fi
 
 if [[ -e ${venv}/bin/activate ]]; then
-    echo "Activating and installing pips: ${venv}/bin/activate"
+    echo "Activating and pips: ${venv}/bin/activate"
     . ${venv}/bin/activate
     echo ""
 else
     if [[ -e /opt/venv/bin/activate ]]; then
-        echo "Activating /opt/venv and installing pips"
+        echo "Activating /opt/venv and pips"
         . /opt/venv/bin/activate
         echo ""
     fi

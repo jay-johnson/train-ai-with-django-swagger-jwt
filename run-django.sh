@@ -35,7 +35,7 @@ if [[ "${WEBAPP_PORT}" != "" ]]; then
     webapp_port="${WEBAPP_PORT}"
 fi
 
-echo "Activating and installing pips"
+echo "Activating pips"
 . ${venv}/bin/activate
 echo ""
 
