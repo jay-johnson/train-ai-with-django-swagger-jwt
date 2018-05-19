@@ -53,6 +53,7 @@ echo ""
 env | grep DJANGO | sort
 echo ""
 
+# do not run these in the container in openshift
 if [[ "${SKIP_BUILD_DOCS}" != "1" ]]; then
     echo ""
     echo "Deploying Sphinx docs"
@@ -60,10 +61,17 @@ if [[ "${SKIP_BUILD_DOCS}" != "1" ]]; then
     echo ""
 fi
 
+# do not run these in the container in openshift
 if [[ "${SKIP_COLLECT_STATICS}" != "1" ]]; then
     echo ""
     echo "Deploying Statics"
     ./collect-statics.sh
+    echo ""
+fi
+
+if [[ "${LOG_CFG}" != "" ]]; then
+    echo ""
+    echo "Logging config: ${LOG_CFG}"
     echo ""
 fi
 
