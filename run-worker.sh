@@ -71,9 +71,9 @@ fi
 
 custom_queues="celery,drf_network_pipeline.users.tasks.task_get_user,drf_network_pipeline.pipeline.tasks.task_ml_process_results,drf_network_pipeline.pipeline.tasks.task_publish_to_core,drf_network_pipeline.pipeline.tasks.task_ml_prepare,drf_network_pipeline.pipeline.tasks.task_ml_job"
 
-if [[ "${LOG_CFG}" != "" ]]; then
+if [[ "${SHARED_LOG_CFG}" != "" ]]; then
     echo ""
-    echo "Logging config: ${LOG_CFG}"
+    echo "Logging config: ${SHARED_LOG_CFG}"
     echo ""
 fi
 

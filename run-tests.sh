@@ -33,9 +33,9 @@ echo "Sourcing: ./envs/${env_name}.env"
 source ./envs/${env_name}.env
 echo ""
 
-if [[ "${LOG_CFG}" != "" ]]; then
+if [[ "${SHARED_LOG_CFG}" != "" ]]; then
     echo ""
-    echo "Logging config: ${LOG_CFG}"
+    echo "Logging config: ${SHARED_LOG_CFG}"
     echo ""
 fi
 
