@@ -5,6 +5,17 @@ env_name=drf-dev
 webapp_host="localhost"
 webapp_port="8080"
 
+# support for using venv in other locations
+if [[ "${USE_VENV}" != "" ]]; then
+    if [[ -e ${USE_VENV}/bin/activate ]]; then
+        echo "Using custom virtualenv: ${USE_VENV}"
+        venv=${USE_VENV}
+    else
+        echo "Did not find custom virtualenv: ${USE_VENV}"
+        exit 1
+    fi
+fi
+
 if [[ "${USE_ENV}" != "" ]]; then
     env_name="${USE_ENV}"
 fi
@@ -25,7 +36,7 @@ if [[ "${WEBAPP_PORT}" != "" ]]; then
 fi
 
 echo "Activating and installing pips"
-source ${venv}/bin/activate
+. ${venv}/bin/activate
 echo ""
 
 echo "Sourcing: ./envs/${env_name}.env"

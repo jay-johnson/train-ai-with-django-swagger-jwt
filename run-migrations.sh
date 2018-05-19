@@ -3,14 +3,23 @@
 venv=~/.venvs/venvdrfpipeline
 env_name=dev
 
+# support for using venv in other locations
+if [[ "${USE_VENV}" != "" ]]; then
+    if [[ -e ${USE_VENV}/bin/activate ]]; then
+        echo "Using custom virtualenv: ${USE_VENV}"
+        venv=${USE_VENV}
+    else
+        echo "Did not find custom virtualenv: ${USE_VENV}"
+        exit 1
+    fi
+fi
+
 if [[ ! -e ${venv}/bin/activate ]]; then
     echo ""
     echo "Failed to create virtualenv: virtualenv -p python3 ${venv}"
     echo ""
     exit 1
 fi
-
-source ${venv}/bin/activate
 
 if [[ "${USE_ENV}" != "" ]]; then
     env_name="${USE_ENV}"
@@ -22,6 +31,10 @@ if [[ ! -e ./envs/${env_name}.env ]]; then
     echo ""
     exit 1
 fi
+
+echo "Activating and installing pips"
+. ${venv}/bin/activate
+echo ""
 
 echo "Sourcing: ./envs/${env_name}.env"
 source ./envs/${env_name}.env
