@@ -116,9 +116,9 @@ def build_colorized_logger(
     override_config = os.getenv(
         "SHARED_LOG_CFG",
         None)
-    debug_log_config = os.getenv(
+    debug_log_config = bool(os.getenv(
         "DEBUG_SHARED_LOG_CFG",
-        None)
+        "0") == "1")
     if override_config:
         if debug_log_config:
             print((
