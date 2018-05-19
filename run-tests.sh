@@ -25,7 +25,7 @@ if [[ ! -e ./envs/${env_name}.env ]]; then
     exit 1
 fi
 
-echo "Activating pips"
+echo "Activating pips: ${venv}/bin/activate"
 . ${venv}/bin/activate
 echo ""
 
