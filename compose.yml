@@ -123,6 +123,6 @@ services:
     volumes:
       - /tmp:/tmp
     entrypoint: "/bin/sh -c 'cd /opt/antinex-pipeline && 
-                 . ~/.venvs/venvdrfpipeline/bin/activate &&
+                 . /opt/venv/bin/activate &&
                  /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py'"
 
