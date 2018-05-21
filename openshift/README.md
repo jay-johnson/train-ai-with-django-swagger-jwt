@@ -5,6 +5,7 @@ This will deploy the following containers to OpenShift:
 1. API Server - Django REST Framework with JWT and Swagger
 1. API Worker - Celery Worker Pool
 1. Core Worker - AntiNex AI Core Celery Worker
+1. Pipeline - AntiNex Network Pipeline Celery Worker
 1. Posgres 9.6
 1. Redis 3.2
 
