@@ -829,8 +829,27 @@ def task_ml_job(
         log.info(("saving job={} results")
                  .format(
                     ml_job_id))
-        ml_result_obj.save()
 
+        # OpenShift 9.6 Postgres container killed the worker
+        # here. Interested to see if this is a jsonb/jsonfield problem
+        # 2018-05-20
+        try:
+            ml_result_obj.save()
+        except Exception as e:
+            res["error"] = (
+                "Failed saving model job.id={} with ex={}").format(
+                    ml_job_id,
+                    e)
+            res["status"] = ERR
+            res["data"] = data
+            log.error(
+                res["error"])
+            return res
+        # end try/ex
+
+        log.info(("done saving job={} results")
+                 .format(
+                    ml_job_id))
         data["job"] = ml_job_obj.get_public()
         data["results"] = ml_result_obj.get_public()
         res["status"] = SUCCESS
@@ -843,7 +862,7 @@ def task_ml_job(
                 prediction_req["label"] = use_model_name
 
             log.info(("publishing to core use_model_name={} "
-                     "worker={} already_predicted={}")
+                      "worker={} already_predicted={}")
                      .format(
                         use_model_name,
                         settings.ANTINEX_WORKER_ENABLED,
