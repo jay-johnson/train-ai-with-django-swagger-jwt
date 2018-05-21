@@ -24,5 +24,12 @@ spec:
     targetPort: 8080
   selector:
     antinex: api
+    purpose: rest
+    layer: rest
+    auth: jwt
+    toolchain: swagger
+    messaging: redis
+    cache: redis
+    pubsub: publisher
 status:
   loadBalancer: {}

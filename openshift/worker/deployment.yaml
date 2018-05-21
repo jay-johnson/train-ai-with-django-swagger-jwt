@@ -23,6 +23,11 @@ spec:
       creationTimestamp: null
       labels:
         antinex: worker
+        purpose: worker
+        layer: backend
+        messaging: redis
+        cache: redis
+        pubsub: consumer
     spec:
       containers:
       - command:
@@ -93,8 +98,14 @@ spec:
         - name: WEBAPP_PORT
           value: "8080"
         image: jayjohnson/ai-core:latest
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 1000m
+          requests:
+            cpu: 2000m
+            memory: 1000m
         name: worker
-        resources: {}
       hostname: worker
       restartPolicy: Always
 status: {}

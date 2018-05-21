@@ -23,6 +23,11 @@ spec:
       creationTimestamp: null
       labels:
         antinex: pipeline
+        purpose: network-traffic-packet-consumer
+        layer: backend
+        messaging: redis
+        cache: redis
+        pubsub: consumer
     spec:
       containers:
       - command:

@@ -29,7 +29,9 @@ oc apply -f worker/deployment.yaml
 echo ""
 
 if [[ "${first_time_deploy}" == "1" ]]; then
-    echo "Sleeping for 3 minutes for first time deployment to pull in images"
+    echo "Sleeping for 4 minutes for first time deployment to pull in images"
+    sleep 60
+    echo "3 more minutes..."
     sleep 60
     echo "2 more minutes..."
     sleep 60

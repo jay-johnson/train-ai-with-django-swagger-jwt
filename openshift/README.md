@@ -8,10 +8,16 @@ This will deploy the following containers to OpenShift:
 1. Posgres 9.6
 1. Redis 3.2
 
+As a note, please make sure to give the hosting vm(s) enough memory to run the stack. If you are using Minishift (https://github.com/minishift/minishift) make sure to start the vm with enough CPU and memory. Here is an example command:
+
+```
+minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
+```
+
 ### Login to OpenShift
 
 ```
-oc login https://192.168.99.102:8443
+oc login https://192.168.99.103:8443
 ```
 
 ### Deploy
@@ -26,34 +32,34 @@ Deploy the containers:
 
 You can view the **antinex** project's pod on the OpenShift web console:
 
-https://192.168.99.102:8443/console/project/antinex/browse/pods
+https://192.168.99.103:8443/console/project/antinex/browse/pods
 
 You can also use the command line:
 
 ```
 oc status
-In project antinex on server https://192.168.99.102:8443
+In project antinex on server https://192.168.99.103:8443
 
-http://api-antinex.192.168.99.102.nip.io to pod port 8080 (svc/api)
+http://api-antinex.192.168.99.103.nip.io to pod port 8080 (svc/api)
   deployment/api deploys jayjohnson/ai-core:latest
-    deployment #1 running for 4 minutes - 1 pod
+    deployment #1 running for 12 minutes - 1 pod
 
-http://postgres-antinex.192.168.99.102.nip.io to pod port 5432 (svc/postgres)
+http://postgres-antinex.192.168.99.103.nip.io to pod port postgresql (svc/postgres)
   dc/postgres deploys openshift/postgresql:9.6
-    deployment #1 deployed 4 minutes ago - 1 pod
+    deployment #1 deployed 16 minutes ago - 1 pod
 
-http://redis-antinex.192.168.99.102.nip.io to pod port 6379 (svc/redis)
+http://redis-antinex.192.168.99.103.nip.io to pod port 6379-tcp (svc/redis)
   dc/redis deploys istag/redis:latest
-    deployment #1 deployed 4 minutes ago - 1 pod
-
-deployment/worker deploys jayjohnson/ai-core:latest
-  deployment #1 running for 4 minutes - 1 pod
+    deployment #1 deployed 16 minutes ago - 1 pod
 
 deployment/pipeline deploys jayjohnson/ai-core:latest
-  deployment #1 running for 4 minutes - 1 pod
+  deployment #1 running for 12 minutes - 1 pod
+
+deployment/worker deploys jayjohnson/ai-core:latest
+  deployment #1 running for 16 minutes - 1 pod
 
 deployment/core deploys jayjohnson/ai-core:latest
-  deployment #1 running for 4 minutes - 1 pod
+  deployment #1 running for 12 minutes - 1 pod
 ```
 
 ### Migrations
@@ -143,7 +149,7 @@ oc rsh deployment/api /bin/bash
 ./ssh-worker.sh
 ```
 
-or:
+or
 
 ```
 oc rsh deployment/worker /bin/bash

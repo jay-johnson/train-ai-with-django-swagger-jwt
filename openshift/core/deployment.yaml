@@ -23,6 +23,11 @@ spec:
       creationTimestamp: null
       labels:
         antinex: core
+        purpose: worker
+        layer: backend
+        ai.framework: keras
+        ai.backend: tensorflow
+        layer: backend
     spec:
       containers:
       - command:

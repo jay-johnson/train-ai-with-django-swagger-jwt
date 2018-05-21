@@ -25,6 +25,13 @@ spec:
       creationTimestamp: null
       labels:
         antinex: api
+        purpose: rest
+        layer: rest
+        auth: jwt
+        toolchain: swagger
+        messaging: redis
+        cache: redis
+        pubsub: publisher
     spec:
       containers:
       - command:
