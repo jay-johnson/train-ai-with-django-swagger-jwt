@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    description: Postgres - Database
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: postgres
+    purpose: database
+    layer: data
+  name: postgres
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        antinex: postgres
+    spec:
+      containers:
+      - env:
+        - name: POSTGRESQL_USER
+          value: antinex
+        - name: POSTGRESQL_PASSWORD
+          value: antinex
+        - name: POSTGRESQL_DATABASE
+          value: webapp
+        image: centos/postgresql-96-centos7
+        name: postgres
+        ports:
+        - containerPort: 5432
+        resources: {}
+      hostname: postgres
+      restartPolicy: Always
+status: {}

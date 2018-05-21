@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: Redis - Database for Caching and Publisher-Subscribe Messaging
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: redis
+    purpose: database
+    layer: data
+  name: redis
+spec:
+  ports:
+  - name: "6379"
+    port: 6379
+    targetPort: 6379
+  selector:
+    antinex: redis
+status:
+  loadBalancer: {}

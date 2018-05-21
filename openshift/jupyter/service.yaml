@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: Jupyter - Web Application for IPython Notebooks Data Science and Analysis
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: jupyter
+    purpose: analysis
+    layer: web
+    users: data-scientists
+    auth: basic
+    messaging: redis
+    cache: redis
+    pubsub: publisher
+  name: jupyter
+spec:
+  ports:
+  - name: "8888"
+    port: 8888
+    targetPort: 8888
+  - name: "8889"
+    port: 8889
+    targetPort: 8889
+  - name: "8890"
+    port: 8890
+    targetPort: 8890
+  - name: "6006"
+    port: 6006
+    targetPort: 6006
+  selector:
+    antinex: jupyter
+status:
+  loadBalancer: {}

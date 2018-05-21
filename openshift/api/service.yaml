@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: AntiNex API - Django REST Framework with JWT and Swagger - Celery Producer
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: api
+    purpose: rest
+    layer: rest
+    auth: jwt
+    toolchain: swagger
+    messaging: redis
+    cache: redis
+    pubsub: publisher
+  name: api
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    antinex: api
+status:
+  loadBalancer: {}

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: Postgres - Database
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: postgres
+    purpose: database
+    layer: data
+  name: postgres
+spec:
+  ports:
+  - name: "5432"
+    port: 5432
+    targetPort: 5432
+  selector:
+    antinex: postgres
+status:
+  loadBalancer: {}

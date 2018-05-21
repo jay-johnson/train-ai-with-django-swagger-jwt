@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    description: Redis - Database for Caching and Publisher-Subscribe Messaging
+    runtime: python3
+    kompose.cmd: kompose convert -f compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    antinex: redis
+    purpose: database
+    layer: data
+  name: redis
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        antinex: redis
+    spec:
+      containers:
+      - image: redis:4.0.5-alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {}
+      hostname: redis
+      restartPolicy: Always
+status: {}
