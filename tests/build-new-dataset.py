@@ -34,7 +34,7 @@ if args.data_file:
 # end of assigning data file
 
 url = os.getenv(
-    "BASE_URL",
+    "ANTINEX_URL",
     "http://localhost:8080")
 username = os.getenv(
     "API_USER",

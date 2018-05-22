@@ -13,7 +13,7 @@ log = build_colorized_logger(name=name)
 
 
 url = os.getenv(
-    "BASE_URL",
+    "ANTINEX_URL",
     "http://localhost:8080")
 username = os.getenv(
     "API_USER",
