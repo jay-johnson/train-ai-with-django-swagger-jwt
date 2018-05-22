@@ -5,6 +5,7 @@ This will deploy the following containers to OpenShift:
 1. API Server - Django REST Framework with JWT and Swagger
 1. API Worker - Celery Worker Pool
 1. Core Worker - AntiNex AI Core Celery Worker
+1. Jupyter - Comes with Integrated AntiNex Notebooks
 1. Pipeline - AntiNex Network Pipeline Celery Worker
 1. Posgres 9.6
 1. Redis 3.2
@@ -50,6 +51,10 @@ In project antinex on server https://192.168.99.103:8443
 http://api-antinex.192.168.99.103.nip.io to pod port 8080 (svc/api)
   deployment/api deploys jayjohnson/ai-core:latest
     deployment #1 running for 12 minutes - 1 pod
+
+http://jupyter-antinex.192.168.99.103.nip.io to pod port 8888 (svc/jupyter)
+  deployment/jupyter deploys jayjohnson/ai-core:latest
+    deployment #1 running for about an hour - 1 pod
 
 http://postgres-antinex.192.168.99.103.nip.io to pod port postgresql (svc/postgres)
   dc/postgres deploys openshift/postgresql:9.6
