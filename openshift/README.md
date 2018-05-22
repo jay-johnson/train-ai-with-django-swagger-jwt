@@ -19,7 +19,7 @@ minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
 
 Here's an example of logging into a local Minishift instance:
 
-[![asciicast](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9.png)](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9)
+[![asciicast](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9.png)](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9?autoplay=1)
 
 ```
 oc login https://192.168.99.103:8443
