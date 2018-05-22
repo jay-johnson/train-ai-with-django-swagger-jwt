@@ -17,6 +17,10 @@ minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
 
 ### Login to OpenShift
 
+Here's an example of logging into a local Minishift instance:
+
+[![asciicast](https://asciinema.org/a/4SzI5n8qsygtb075ER78POH2Z.png)](https://asciinema.org/a/4SzI5n8qsygtb075ER78POH2Z)
+
 ```
 oc login https://192.168.99.103:8443
 ```
