@@ -19,7 +19,7 @@ minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
 
 Here's an example of logging into a local Minishift instance:
 
-[![asciicast](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9.png)](https://asciinema.org/a/p43SsSDRIuW53GtahbxHq7yD9?autoplay=1)
+[![asciicast](https://asciinema.org/a/182791.png)](https://asciinema.org/a/182791?autoplay=1)
 
 ```
 oc login https://192.168.99.103:8443
@@ -29,7 +29,7 @@ oc login https://192.168.99.103:8443
 
 Deploy the containers:
 
-[![asciicast](https://asciinema.org/a/lBVLnxMvy4bHiOCvqtNYKmpxP.png)](https://asciinema.org/a/lBVLnxMvy4bHiOCvqtNYKmpxP?autoplay=1)
+[![asciicast](https://asciinema.org/a/182796.png)](https://asciinema.org/a/182796?autoplay=1)
 
 ```
 ./deploy.sh
@@ -73,7 +73,7 @@ deployment/core deploys jayjohnson/ai-core:latest
 
 Migrations have to run inside an **api** container. Below is a recording of running the initial migration.
 
-[![asciicast](https://asciinema.org/a/FYqpZz0Fkmvbp6kQnb1iQYwmJ.png)](https://asciinema.org/a/FYqpZz0Fkmvbp6kQnb1iQYwmJ?autoplay=1)
+[![asciicast](https://https://asciinema.org/a/182798.png)](https://asciinema.org/a/182798?autoplay=1)
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
