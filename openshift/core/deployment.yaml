@@ -43,12 +43,18 @@ spec:
           value: redis
         - name: REDIS_PORT
           value: "6379"
+        - name: ANTINEX_AUTH_URL
+          value: redis://redis:6379/6
+        - name: ANTINEX_RESULT_AUTH_URL
+          value: redis://redis:6379/9
         - name: BROKER_URL
           value: redis://redis:6379/6
-        - name: USE_ENV
-          value: openshift-dev
         - name: SHARED_DIR
           value: /opt/data
+        - name: USE_ENV
+          value: openshift-dev
+        - name: USE_VENV
+          value: /opt/venv
         image: jayjohnson/ai-core:latest
         name: core
         resources: {}

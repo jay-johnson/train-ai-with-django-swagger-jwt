@@ -37,6 +37,8 @@ spec:
         env:
         - name: ANTINEX_AUTH_URL
           value: redis://redis:6379/6
+        - name: ANTINEX_RESULT_AUTH_URL
+          value: redis://redis:6379/9
         - name: ANTINEX_CA_CERTS
         - name: ANTINEX_CERTFILE
         - name: ANTINEX_DELIVERY_MODE
