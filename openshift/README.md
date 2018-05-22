@@ -127,6 +127,48 @@ export API_DEBUG="false"
 ./create-user.sh <optional path to user file>
 ```
 
+## Train a Deep Neural Network
+
+Here's how to train a deep neural network using the AntiNex Client and the Django AntiNex dataset:
+
+[![asciicast](https://asciinema.org/a/182848.png)](https://asciinema.org/a/182848?autoplay=1)
+
+### Commands for Training a Deep Neural Network on OpenShift with AntiNex
+
+1. Install the AntiNex Client
+
+```
+pip install antinex-client
+```
+
+2. Set the API URL for the AntiNex Client
+
+```
+export API_URL="$(/opt/antinex/api/openshift/get-api-url.sh)"
+```
+
+3. Train the Deep Nerual Network with the Django Dataset
+
+```
+ai_train_dnn.py -f ../tests/scaler-full-django-antinex-simple.json -s
+```
+
+4. Get the Job
+
+The job from the video was MLJob.id: 6
+
+```
+ai_get_job.py -i 6
+```
+
+5. Get the Job Result
+
+The job's result from the video was MLJobResult.id: 6
+
+```
+ai_get_results.py -i 6
+```
+
 ## Drop and Restore Database with the Latest Migration
 
 [![asciicast](https://asciinema.org/a/182822.png)](https://asciinema.org/a/182822?autoplay=1)
