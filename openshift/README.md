@@ -71,7 +71,7 @@ deployment/core deploys jayjohnson/ai-core:latest
 
 ### Migrations
 
-Migrations have to run inside an ```api``` container. Below is a recording of running the initial migration.
+Migrations have to run inside an ``api`` container. Below is a recording of running the initial migration.
 
 [![asciicast](https://asciinema.org/a/FYqpZz0Fkmvbp6kQnb1iQYwmJ.png)](https://asciinema.org/a/FYqpZz0Fkmvbp6kQnb1iQYwmJ?autoplay=1)
 
