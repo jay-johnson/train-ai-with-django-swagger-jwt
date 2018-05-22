@@ -73,7 +73,7 @@ deployment/core deploys jayjohnson/ai-core:latest
 
 Migrations have to run inside an **api** container. Below is a recording of running the initial migration.
 
-[![asciicast](https://asciinema.org/a/182801.png)](https://asciinema.org/a/182801?autoplay=1)
+[![asciicast](https://asciinema.org/a/182811.png)](https://asciinema.org/a/182811?autoplay=1)
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
