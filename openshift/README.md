@@ -15,7 +15,7 @@ As a note, please make sure to give the hosting vm(s) enough memory to run the s
 minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
 ```
 
-### Login to OpenShift
+## Login to OpenShift
 
 Here's an example of logging into a local Minishift instance:
 
@@ -25,7 +25,7 @@ Here's an example of logging into a local Minishift instance:
 oc login https://192.168.99.103:8443
 ```
 
-### Deploy
+## Deploy
 
 Deploy the containers:
 
@@ -35,7 +35,7 @@ Deploy the containers:
 ./deploy.sh
 ```
 
-### Check the Stack
+## Check the Stack
 
 You can view the **antinex** project's pod on the OpenShift web console:
 
@@ -69,11 +69,11 @@ deployment/core deploys jayjohnson/ai-core:latest
   deployment #1 running for 12 minutes - 1 pod
 ```
 
-### Migrations
+## Migrations
 
 Migrations have to run inside an **api** container. Below is a recording of running the initial migration.
 
-[![asciicast](https://asciinema.org/a/r12XAOhs80SPVjTdL4eR0NMwY.png)](https://asciinema.org/a/r12XAOhs80SPVjTdL4eR0NMwY?autoplay=1)
+[![asciicast](https://asciinema.org/a/182811.png)](https://asciinema.org/a/182811?autoplay=1)
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
@@ -88,7 +88,46 @@ exit
 exit
 ```
 
-### Drop and Restore Database with the Latest Migration
+## Creating a User
+
+Here's how to create the default user **trex**
+
+[![asciicast](https://asciinema.org/a/182829.png)](https://asciinema.org/a/182829?autoplay=1)
+
+### Create Default User trex
+
+The command to run is:
+
+```
+./create-user.sh
+```
+
+### Create User Using Swagger
+
+You can create users using swagger the API's swagger url (here's the default one during creation of this guide):
+
+http://api-antinex.192.168.99.100.nip.io/swagger/
+
+### Create User From User File
+
+You can define a user file with these environment keys in a file before running. You can also just exported them in the current shell session (but having a resource file will be required in the future):
+
+```
+export API_USER="trex"
+export API_PASSWORD="123321"
+export API_URL="$(/opt/antinex/api/openshift/get-api-url.sh)"
+export API_EMAIL="bugs@antinex.com"
+export API_FIRSTNAME="Guest"
+export API_LASTNAME="Guest"
+export API_VERBOSE="true"
+export API_DEBUG="false"
+```
+
+```
+./create-user.sh <optional path to user file>
+```
+
+## Drop and Restore Database with the Latest Migration
 
 [![asciicast](https://asciinema.org/a/182822.png)](https://asciinema.org/a/182822?autoplay=1)
 
@@ -98,9 +137,9 @@ You can drop the database and restore it to the latest migration with this comma
 ./tools/drop-database.sh
 ```
 
-### Debugging
+## Debugging
 
-#### Tail API Logs
+### Tail API Logs
 
 ```
 oc logs -f deployment/api
@@ -112,7 +151,7 @@ or
 ./logs-api.sh
 ```
 
-#### Tail Worker Logs
+### Tail Worker Logs
 
 ```
 oc logs -f deployment/worker
@@ -124,7 +163,7 @@ or
 ./logs-worker.sh
 ```
 
-#### Tail AI Core Logs
+### Tail AI Core Logs
 
 ```
 oc logs -f deployment/core
@@ -136,7 +175,7 @@ or
 ./logs-core.sh
 ```
 
-#### Tail Pipeline Logs
+### Tail Pipeline Logs
 
 ```
 oc logs -f deployment/pipeline
@@ -148,7 +187,7 @@ or
 ./logs-pipeline.sh
 ```
 
-#### Change the Entrypoint
+### Change the Entrypoint
 
 To keep the containers running just add something like: ```tail -f <some file>``` to keep the container running for debugging issues.
 
@@ -158,13 +197,13 @@ I use:
 && tail -f /var/log/antinex/api/api.log
 ```
 
-#### SSH into API Container
+### SSH into API Container
 
 ```
 oc rsh deployment/api /bin/bash
 ```
 
-#### SSH into API Worker Container
+### SSH into API Worker Container
 
 ```
 ./ssh-worker.sh
@@ -176,7 +215,7 @@ or
 oc rsh deployment/worker /bin/bash
 ```
 
-#### SSH into AI Core Container
+### SSH into AI Core Container
 
 ```
 oc rsh deployment/core /bin/bash
