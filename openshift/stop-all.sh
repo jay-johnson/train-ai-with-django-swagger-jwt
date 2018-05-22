@@ -16,6 +16,10 @@ echo "Deleting Pipeline:"
 oc delete -f pipeline/deployment.yaml
 echo ""
 
+echo "Deleting Jupyter:"
+oc delete -f jupyter/deployment.yaml -f jupyter/service.yaml
+echo ""
+
 echo "Deleting Redis:"
 oc delete svc/redis dc/redis
 echo ""
