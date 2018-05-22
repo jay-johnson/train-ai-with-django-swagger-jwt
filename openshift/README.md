@@ -88,6 +88,16 @@ exit
 exit
 ```
 
+### Drop and Restore Database with the Latest Migration
+
+[![asciicast](https://asciinema.org/a/182822.png)](https://asciinema.org/a/182822?autoplay=1)
+
+You can drop the database and restore it to the latest migration with this command. Copy and paste the output to run the commands quickly. Make sure to get the second batch or using the ``./show-migrate-cmds.sh`` if you need to migrate at some point in the future.
+
+```
+./tools/drop-database.sh
+```
+
 ### Debugging
 
 #### Tail API Logs
