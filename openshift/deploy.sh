@@ -24,6 +24,13 @@ oc new-app \
     --docker-image=bitnami/redis
 echo ""
 
+echo "Sleeping for database pods to start up"
+sleep 3
+
+echo "Exposing Postgres and Redis services"
+oc expose svc/postgres
+oc expose svc/redis
+
 echo "Deploying AntiNex - API Workers"
 oc apply -f worker/deployment.yaml
 echo ""
@@ -52,14 +59,17 @@ echo "Deploying AntiNex - Pipeline Consumer"
 oc apply -f pipeline/deployment.yaml
 echo ""
 
+echo "Deploying Jupyter with AntiNex Integration"
+oc apply -f jupyter/service.yaml -f jupyter/deployment.yaml
+echo ""
+
 echo "Checking Cluster Status:"
 oc status
 echo ""
 
-echo "Exposing API, Postgres and Redis services"
+echo "Exposing API and Jupyter services"
 oc expose svc/api
-oc expose svc/postgres
-oc expose svc/redis
+oc expose svc/jupyter
 
 echo "Waiting for services to start"
 sleep 5

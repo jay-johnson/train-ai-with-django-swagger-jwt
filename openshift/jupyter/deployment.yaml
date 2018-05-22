@@ -25,15 +25,30 @@ spec:
       creationTimestamp: null
       labels:
         antinex: jupyter
+        purpose: analysis
+        layer: web
+        users: data-scientists
+        auth: basic
+        messaging: redis
+        cache: redis
+        pubsub: publisher
     spec:
       containers:
       - command:
         - /bin/bash
         - -c
-        - cd /opt/antinex-core && . /opt/venv/bin/activate && source /opt/antinex-api/envs/openshift-dev.env && env | sort && /opt/antinex-core/docker/jupyter/start-container.sh
+        - cd /opt/antinex-core/docker/jupyter && export HOME=/opt/antinex-core/docker/jupyter && . /opt/venv/bin/activate && source /opt/antinex-api/envs/openshift-dev.env && env | sort && /opt/antinex-core/docker/jupyter/start-container.sh && tail -f /var/log/antinex/api/api.log
         env:
+        - name: ANTINEX_URL
+          value: http://api:8080
+        - name: ANTINEX_USER
+          value: root
+        - name: ANTINEX_PASSWORD
+          value: "123321"
         - name: BROKER_URL
-          value: redis://0.0.0.0:6379/6
+          value: redis://redis:6379/6
+        - name: JUPYTER_PORT
+          value: "8888"
         - name: JUPYTER_PASS
           value: admin
         - name: SHARED_DIR
