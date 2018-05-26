@@ -166,7 +166,7 @@ export ANTINEX_URL=$(./get-api-url.sh)
 
 You can create users using swagger the API's swagger url (here's the default one during creation of this guide):
 
-http://http://api-antinex.apps.homelab.com/swagger/
+http://api-antinex.apps.homelab.com/swagger/
 
 ### Create User From User File
 

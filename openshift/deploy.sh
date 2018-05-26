@@ -79,6 +79,16 @@ echo "Exposing Postgres and Redis services"
 oc expose svc/postgres
 oc expose svc/redis
 
+if [[ "${first_time_deploy}" == "1" ]]; then
+    echo "Sleeping for 3 minutes for first time deployment to pull in images"
+    sleep 60
+    echo "2 more minutes..."
+    sleep 60
+    echo "1 more minute..."
+    sleep 60
+    echo "done..."
+fi
+
 echo "Deploying AntiNex - Django Rest Framework REST API workers"
 oc apply -f worker/deployment.yaml
 echo ""
@@ -94,6 +104,10 @@ if [[ "${first_time_deploy}" == "1" ]]; then
     sleep 60
     echo "done..."
 fi
+
+echo "Deploying AntiNex - Django Rest Framework REST API workers"
+oc apply -f worker/deployment.yaml
+echo ""
 
 echo "Deploying AntiNex - AI Core"
 oc apply -f core/deployment.yaml
