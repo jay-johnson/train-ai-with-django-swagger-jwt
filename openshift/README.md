@@ -1,6 +1,6 @@
-## AntiNex on OpenShift
+## AntiNex on OpenShift Container Platform
 
-This will deploy the following containers to OpenShift:
+This will deploy the following containers to OpenShift Container Platform:
 
 1. API Server - Django REST Framework with JWT and Swagger
 1. API Worker - Celery Worker Pool
@@ -10,27 +10,52 @@ This will deploy the following containers to OpenShift:
 1. Posgres 9.6
 1. Redis 3.2
 
-As a note, please make sure to give the hosting vm(s) enough memory to run the stack. If you are using Minishift (https://github.com/minishift/minishift) make sure to start the vm with enough CPU and memory. Here is an example command:
+### Getting Started
+
+The documents assumed the repository is cloned to the directory:
+
+/opt/antinex/api
 
 ```
-minishift start --cpus 3 --memory 8GB --vm-driver=virtualbox
+mkdir -p -m 777 /opt/antinex
+git clone git@github.com:jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
 ```
 
-## Login to OpenShift
+#### Enable Admin Rights for Users
 
-Here's an example of logging into a local Minishift instance:
-
-[![asciicast](https://asciinema.org/a/182791.png)](https://asciinema.org/a/182791?autoplay=1)
+Add ``cluster-admin`` role to all users that need to deploy AntiNex on OCP
 
 ```
-oc login https://192.168.99.103:8443
+[root@ocp39 ~]# oc adm policy add-cluster-role-to-user cluster-admin trex
+cluster role "cluster-admin" added: "trex"
+[root@ocp39 ~]#
+```
+
+#### Persistence
+
+For Postgres and Redis to use a persistent volume, the user must be a **cluster-admin**.
+
+#### Resources
+
+Please make sure to give the hosting vm(s) enough memory to run the stack. If you are using [OpenShift Container Platform](https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/installation_and_configuration/#install-config-install-rpm-vs-containerized) please use at least 2 CPU cores and 8 GB of RAM.
+
+## Login to OpenShift Container Platform
+
+Here's an example of logging into OpenShift Container Platform
+
+[![asciicast](https://asciinema.org/a/183593.png)](https://asciinema.org/a/183593?autoplay=1)
+
+```
+oc login https://ocp39.homelab.com:8443
 ```
 
 ## Deploy
 
-Deploy the containers:
+Deploy the containers to OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/182796.png)](https://asciinema.org/a/182796?autoplay=1)
+[![asciicast](https://asciinema.org/a/183657.png)](https://asciinema.org/a/183657?autoplay=1)
+
+### Run Deployment Command
 
 ```
 ./deploy.sh
@@ -40,45 +65,71 @@ Deploy the containers:
 
 You can view the **antinex** project's pod on the OpenShift web console:
 
-https://192.168.99.103:8443/console/project/antinex/browse/pods
+OpenShift Container Platform:
+
+https://ocp39.homelab.com:8443/console/project/antinex/browse/pods
 
 You can also use the command line:
 
 ```
-oc status
-In project antinex on server https://192.168.99.103:8443
+oc status -v
+In project antinex on server https://ocp39.homelab.com:8443
 
-http://api-antinex.192.168.99.103.nip.io to pod port 8080 (svc/api)
+http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
   deployment/api deploys jayjohnson/ai-core:latest
-    deployment #1 running for 12 minutes - 1 pod
+    deployment #1 running for 3 minutes - 1 pod
 
-http://jupyter-antinex.192.168.99.103.nip.io to pod port 8888 (svc/jupyter)
+http://jupyter-antinex.apps.homelab.com to pod port 8888 (svc/jupyter)
   deployment/jupyter deploys jayjohnson/ai-core:latest
-    deployment #1 running for about an hour - 1 pod
+    deployment #1 running for 3 minutes - 1 pod
 
-http://postgres-antinex.192.168.99.103.nip.io to pod port postgresql (svc/postgres)
-  dc/postgres deploys openshift/postgresql:9.6
-    deployment #1 deployed 16 minutes ago - 1 pod
+http://postgres-antinex.apps.homelab.com to pod port postgresql (svc/postgres)
+  dc/postgres deploys openshift/postgresql:9.6 
+    deployment #1 deployed 7 minutes ago - 1 pod
 
-http://redis-antinex.192.168.99.103.nip.io to pod port 6379-tcp (svc/redis)
-  dc/redis deploys istag/redis:latest
-    deployment #1 deployed 16 minutes ago - 1 pod
-
-deployment/pipeline deploys jayjohnson/ai-core:latest
-  deployment #1 running for 12 minutes - 1 pod
+http://redis-antinex.apps.homelab.com to pod port 6379-tcp (svc/redis)
+  dc/redis deploys istag/redis:latest 
+    deployment #2 deployed 7 minutes ago - 1 pod
+    deployment #1 deployed 7 minutes ago
 
 deployment/worker deploys jayjohnson/ai-core:latest
-  deployment #1 running for 16 minutes - 1 pod
+  deployment #1 running for 7 minutes - 1 pod
 
 deployment/core deploys jayjohnson/ai-core:latest
-  deployment #1 running for 12 minutes - 1 pod
+  deployment #1 running for 3 minutes - 1 pod
+
+deployment/pipeline deploys jayjohnson/ai-core:latest
+  deployment #1 running for 3 minutes - 1 pod
+
+Warnings:
+  * dc/redis references a volume which may only be used in a single pod at a time - this may lead to hung deployments
+
+Info:
+  * deployment/api has no liveness probe to verify pods are still running.
+    try: oc set probe deployment/api --liveness ...
+  * deployment/core has no liveness probe to verify pods are still running.
+    try: oc set probe deployment/core --liveness ...
+  * deployment/jupyter has no liveness probe to verify pods are still running.
+    try: oc set probe deployment/jupyter --liveness ...
+  * deployment/pipeline has no liveness probe to verify pods are still running.
+    try: oc set probe deployment/pipeline --liveness ...
+  * deployment/worker has no liveness probe to verify pods are still running.
+    try: oc set probe deployment/worker --liveness ...
+  * dc/redis has no readiness probe to verify pods are ready to accept traffic or ensure deployment is successful.
+    try: oc set probe dc/redis --readiness ...
+  * dc/redis has no liveness probe to verify pods are still running.
+    try: oc set probe dc/redis --liveness ...
+
+View details with 'oc describe <resource>/<name>' or list everything with 'oc get all'.
 ```
 
 ## Migrations
 
 Migrations have to run inside an **api** container. Below is a recording of running the initial migration.
 
-[![asciicast](https://asciinema.org/a/182811.png)](https://asciinema.org/a/182811?autoplay=1)
+OpenShift Container Platform
+
+[![asciicast](https://asciinema.org/a/183660.png)](https://asciinema.org/a/183660?autoplay=1)
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
@@ -86,24 +137,28 @@ The command from the video is included in the openshift directory, and you can r
 ./show-migrate-cmds.sh
 
 Run a migration with:
-oc rsh api-dd5b7bf6-hq758
+oc rsh api-57f45c99b-n9nxq
 /bin/bash
 . /opt/venv/bin/activate && cd /opt/antinex-api && source /opt/antinex-api/envs/openshift-dev.env && export POSTGRES_DB=webapp && export POSTGRES_USER=antinex && export POSTGRES_PASSWORD=antinex && ./run-migrations.sh
 exit
 exit
+
 ```
 
 ## Creating a User
 
 Here's how to create the default user **trex**
 
-[![asciicast](https://asciinema.org/a/182829.png)](https://asciinema.org/a/182829?autoplay=1)
+OpenShift Container Platform
+
+[![asciicast](https://asciinema.org/a/183661.png)](https://asciinema.org/a/183661?autoplay=1)
 
 ### Create Default User trex
 
-The command to run is:
+The commands to create the default user **trex** are:
 
 ```
+export ANTINEX_URL=$(./get-api-url.sh)
 ./create-user.sh
 ```
 
@@ -111,11 +166,27 @@ The command to run is:
 
 You can create users using swagger the API's swagger url (here's the default one during creation of this guide):
 
-http://api-antinex.192.168.99.100.nip.io/swagger/
+http://http://api-antinex.apps.homelab.com/swagger/
 
 ### Create User From User File
 
 You can define a user file with these environment keys in a file before running. You can also just exported them in the current shell session (but having a resource file will be required in the future):
+
+1. Find the API Service
+
+```
+$ oc status | grep svc/api
+http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
+```
+
+1. Confirm it is Discovered by the AntiNex Get API URL Tool
+
+```
+$ /opt/antinex/api/openshift/get-api-url.sh
+http://api-antinex.apps.homelab.com
+```
+
+1. Set the Account Details
 
 ```
 export API_USER="trex"
@@ -128,8 +199,16 @@ export API_VERBOSE="true"
 export API_DEBUG="false"
 ```
 
+1. Create the user
+
 ```
 ./create-user.sh <optional path to user file>
+```
+
+1. Get a JWT Token for the New User
+
+```
+./get-token.sh
 ```
 
 ## Train a Deep Neural Network
@@ -268,10 +347,18 @@ oc rsh deployment/worker /bin/bash
 oc rsh deployment/core /bin/bash
 ```
 
-### Stop All
+### Stop All Containers
 
-Deploy the containers:
+Stop all the containers without changing the persistent volumes with the command:
 
 ```
-./deploy.sh
+./stop-all.sh
+```
+
+### Delete Everything
+
+Remove, delete and clean up everything in the AntiNex project with the command:
+
+```
+./remove-all.sh
 ```

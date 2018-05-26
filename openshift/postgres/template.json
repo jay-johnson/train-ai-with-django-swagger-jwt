@@ -67,23 +67,6 @@
         },
         {
             "apiVersion": "v1",
-            "kind": "PersistentVolumeClaim",
-            "metadata": {
-                "name": "${DATABASE_SERVICE_NAME}"
-            },
-            "spec": {
-                "accessModes": [
-                    "ReadWriteOnce"
-                ],
-                "resources": {
-                    "requests": {
-                        "storage": "${VOLUME_CAPACITY}"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "v1",
             "kind": "DeploymentConfig",
             "metadata": {
                 "annotations": {
@@ -179,7 +162,7 @@
                                 "volumeMounts": [
                                     {
                                         "mountPath": "/var/lib/pgsql/data",
-                                        "name": "${DATABASE_SERVICE_NAME}-data"
+                                        "name": "postgres-antinex-volume"
                                     }
                                 ]
                             }
@@ -188,9 +171,9 @@
                         "restartPolicy": "Always",
                         "volumes": [
                             {
-                                "name": "${DATABASE_SERVICE_NAME}-data",
+                                "name": "postgres-antinex-volume",
                                 "persistentVolumeClaim": {
-                                    "claimName": "${DATABASE_SERVICE_NAME}"
+                                    "claimName": "postgres-pvc"
                                 }
                             }
                         ]
