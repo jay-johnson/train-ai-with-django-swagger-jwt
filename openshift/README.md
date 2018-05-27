@@ -26,7 +26,6 @@ For preparing Ubuntu 18 to manage the Crunchy containers:
 ```
 sudo apt install golang-go
 mkdir -p -m 777 /opt/antinex
-git clone https://github.com/CrunchyData/crunchy-containers.git /opt/antinex/crunchy
 # on ubuntu 18.04:
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin

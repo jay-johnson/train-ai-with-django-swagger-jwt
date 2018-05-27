@@ -6,7 +6,7 @@
             "pv.kubernetes.io/bound-by-controller": "yes"
         },
         "creationTimestamp": null,
-        "name": "redis-antinex-volume"
+        "name": "redis-antinex-pv"
     },
     "spec": {
         "accessModes": [
@@ -20,7 +20,7 @@
             "server": "localhost"
         },
         "persistentVolumeReclaimPolicy": "Retain",
-        "volumeName": "redis-antinex-volume"
+        "volumeName": "redis-antinex-pv"
     },
     "status": {}
 }

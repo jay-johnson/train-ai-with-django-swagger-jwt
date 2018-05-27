@@ -1,3 +1,0 @@
-[submodule "openshift/crunchy-containers"]
-	path = openshift/crunchy-containers
-	url = https://github.com/CrunchyData/crunchy-containers.git
