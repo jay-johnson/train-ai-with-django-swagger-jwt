@@ -3,12 +3,15 @@
 project="antinex"
 redis_pv="redis-antinex-pv"
 redis_pvc="redis-antinex-pvc"
+pg_serivce_name="primary"
 pg_deployment_dir="./.pgdeployment"
 pg_repo="https://github.com/jay-johnson/crunchy-containers.git"
 
 test_exists=$(oc project | grep ${project} | wc -l)
+test_svc_pg_exists=$(oc status | grep "svc/${pg_serivce_name}" | wc -l)
 test_pv_redis_exists=$(oc get pv | grep ${redis_pv} | wc -l)
 test_pvc_redis_exists=$(oc get pvc | grep ${redis_pvc} | wc -l)
+
 first_time_deploy="0"
 
 if [[ "${test_exists}" == "0" ]]; then
@@ -29,8 +32,8 @@ echo "Getting Status"
 oc status
 
 # start the AntiNex docker image download as it can take a few minutes
-echo "Deploying AntiNex - Django Rest Framework REST API workers"
-oc apply -f api/deployment.yaml
+echo "Deploying AntiNex - AI Core"
+oc apply -f core/deployment.yaml
 echo ""
 
 echo "Deploying Redis"
@@ -42,29 +45,33 @@ echo ""
 
 echo "Deploying Crunchy Postgres Single Primary Database"
 source ./primary-db.sh
-if [[ ! -e ${pg_deployment_dir}/examples/kube/primary/primary.json ]]; then
-    git clone ${pg_repo} ${pg_deployment_dir}
+if [[ "${test_svc_pg_exists}" == "0" ]]; then
     if [[ ! -e ${pg_deployment_dir}/examples/kube/primary/primary.json ]]; then
-        echo "Failed to clone Crunchy Postgres Deployment repository to: ${pg_deployment_dir} - please confirm it exists"
-        ls -lrt ${pg_deployment_dir}
-        echo ""
-        echo "Tried cloning repository to deployment directory with command:"
-        echo "git clone ${pg_repo} ${pg_deployment_dir}"
-        echo ""
-        exit 1
+        git clone ${pg_repo} ${pg_deployment_dir}
+        if [[ ! -e ${pg_deployment_dir}/examples/kube/primary/primary.json ]]; then
+            echo "Failed to clone Crunchy Postgres Deployment repository to: ${pg_deployment_dir} - please confirm it exists"
+            ls -lrt ${pg_deployment_dir}
+            echo ""
+            echo "Tried cloning repository to deployment directory with command:"
+            echo "git clone ${pg_repo} ${pg_deployment_dir}"
+            echo ""
+            exit 1
+        else
+            echo "Installed Crunchy Containers"
+        fi
     else
-        echo "Installed Crunchy Containers"
+        pushd ${pg_deployment_dir}
+        git checkout ./examples/kube/primary/primary.json
+        git pull
+        popd
     fi
-else
-    pushd ${pg_deployment_dir}
-    git checkout ./examples/kube/primary/primary.json
-    git pull
+    cp postgres/crunchy-template.json ${pg_deployment_dir}/examples/kube/primary/primary.json
+    pushd ${pg_deployment_dir}/examples/kube/primary
+    ./run.sh
     popd
+else
+    echo "Detected running Crunchy Postgres Database: svc/${pg_serivce_name}"
 fi
-cp postgres/crunchy-template.json ${pg_deployment_dir}/examples/kube/primary/primary.json
-pushd ${pg_deployment_dir}/examples/kube/primary
-./run.sh
-popd
 
 echo ""
 
@@ -135,8 +142,8 @@ while [[ "${not_done}" == "1" ]]; do
     sleep 1
 done
 
-echo "Deploying AntiNex - AI Core"
-oc apply -f core/deployment.yaml
+echo "Deploying AntiNex - Django Rest Framework REST API workers"
+oc apply -f worker/deployment.yaml
 echo ""
 
 echo "Deploying AntiNex - Django Rest Framework REST API server"
