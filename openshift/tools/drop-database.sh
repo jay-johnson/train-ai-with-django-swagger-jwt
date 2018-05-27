@@ -2,7 +2,7 @@
 
 db=webapp
 
-db_pod=$(oc get pods | grep postgres | awk '{print $1}' | tail -1)
+db_pod=$(oc get pods | grep primary | awk '{print $1}' | tail -1)
 
 echo ""
 echo "Drop the database with:"

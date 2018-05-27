@@ -47,6 +47,8 @@ echo "Deploying Crunchy Postgres Single Primary Database"
 source ./primary-db.sh
 if [[ "${test_svc_pg_exists}" == "0" ]]; then
     if [[ ! -e ${pg_deployment_dir}/examples/kube/primary/primary.json ]]; then
+        echo "Installing Crunchy Containers Repository with command:"
+        echo "git clone ${pg_repo} ${pg_deployment_dir}"
         git clone ${pg_repo} ${pg_deployment_dir}
         if [[ ! -e ${pg_deployment_dir}/examples/kube/primary/primary.json ]]; then
             echo "Failed to clone Crunchy Postgres Deployment repository to: ${pg_deployment_dir} - please confirm it exists"
@@ -132,10 +134,10 @@ echo ""
 
 not_done=1
 while [[ "${not_done}" == "1" ]]; do
-    test_api_deployment=$(oc status -v | grep 'deployment/api' | wc -l)
-    if [[ "${test_api_deployment}" != "0" ]]; then
+    test_core_deployment=$(oc status -v | grep 'deployment/core' | wc -l)
+    if [[ "${test_core_deployment}" != "0" ]]; then
         echo "AntiNex API Workers are running"
-        oc status -v | grep deployment/api
+        oc status -v | grep deployment/core
         echo ""
         not_done="0"
     fi

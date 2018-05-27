@@ -64,7 +64,7 @@ oc login https://ocp39.homelab.com:8443
 
 Deploy the containers to OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183657.png)](https://asciinema.org/a/183657?autoplay=1)
+[![asciicast](https://asciinema.org/a/183873.png)](https://asciinema.org/a/183873?autoplay=1)
 
 ### Run Deployment Command
 
@@ -88,34 +88,31 @@ In project antinex on server https://ocp39.homelab.com:8443
 
 http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
   deployment/api deploys jayjohnson/ai-core:latest
-    deployment #1 running for 3 minutes - 1 pod
+    deployment #1 running for 12 minutes - 1 pod
 
 http://jupyter-antinex.apps.homelab.com to pod port 8888 (svc/jupyter)
   deployment/jupyter deploys jayjohnson/ai-core:latest
-    deployment #1 running for 3 minutes - 1 pod
+    deployment #1 running for 12 minutes - 1 pod
 
-http://postgres-antinex.apps.homelab.com to pod port postgresql (svc/postgres)
-  dc/postgres deploys openshift/postgresql:9.6 
-    deployment #1 deployed 7 minutes ago - 1 pod
+http://primary-antinex.apps.homelab.com to pod port 5432 (svc/primary)
+  pod/primary runs crunchydata/crunchy-postgres:centos7-10.4-1.8.3
 
 http://redis-antinex.apps.homelab.com to pod port 6379-tcp (svc/redis)
-  dc/redis deploys istag/redis:latest 
-    deployment #2 deployed 7 minutes ago - 1 pod
-    deployment #1 deployed 7 minutes ago
-
-deployment/worker deploys jayjohnson/ai-core:latest
-  deployment #1 running for 7 minutes - 1 pod
+  dc/redis deploys istag/redis:latest
+    deployment #1 deployed 13 minutes ago - 1 pod
 
 deployment/core deploys jayjohnson/ai-core:latest
-  deployment #1 running for 3 minutes - 1 pod
+  deployment #1 running for 13 minutes - 1 pod
 
 deployment/pipeline deploys jayjohnson/ai-core:latest
-  deployment #1 running for 3 minutes - 1 pod
+  deployment #1 running for 12 minutes - 1 pod
 
-Warnings:
-  * dc/redis references a volume which may only be used in a single pod at a time - this may lead to hung deployments
+deployment/worker deploys jayjohnson/ai-core:latest
+  deployment #1 running for 12 minutes - 1 pod
 
 Info:
+  * pod/primary has no liveness probe to verify pods are still running.
+    try: oc set probe pod/primary --liveness ...
   * deployment/api has no liveness probe to verify pods are still running.
     try: oc set probe deployment/api --liveness ...
   * deployment/core has no liveness probe to verify pods are still running.
@@ -132,6 +129,7 @@ Info:
     try: oc set probe dc/redis --liveness ...
 
 View details with 'oc describe <resource>/<name>' or list everything with 'oc get all'.
+
 ```
 
 ## Migrations
@@ -140,7 +138,7 @@ Migrations have to run inside an **api** container. Below is a recording of runn
 
 OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183660.png)](https://asciinema.org/a/183660?autoplay=1)
+[![asciicast](https://asciinema.org/a/183874.png)](https://asciinema.org/a/183874?autoplay=1)
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
@@ -226,7 +224,7 @@ export API_DEBUG="false"
 
 Here's how to train a deep neural network using the AntiNex Client and the Django AntiNex dataset:
 
-[![asciicast](https://asciinema.org/a/182848.png)](https://asciinema.org/a/182848?autoplay=1)
+[![asciicast](https://asciinema.org/a/183875.png)](https://asciinema.org/a/183875?autoplay=1)
 
 ### Commands for Training a Deep Neural Network on OpenShift with AntiNex
 
@@ -253,7 +251,7 @@ ai_train_dnn.py -f ../tests/scaler-full-django-antinex-simple.json -s
 The job from the video was MLJob.id: 6
 
 ```
-ai_get_job.py -i 6
+ai_get_job.py -i 3
 ```
 
 5. Get the Job Result
@@ -261,10 +259,12 @@ ai_get_job.py -i 6
 The job's result from the video was MLJobResult.id: 6
 
 ```
-ai_get_results.py -i 6
+ai_get_results.py -i 3
 ```
 
 ## Drop and Restore Database with the Latest Migration
+
+(Work in progress)
 
 [![asciicast](https://asciinema.org/a/182822.png)](https://asciinema.org/a/182822?autoplay=1)
 
