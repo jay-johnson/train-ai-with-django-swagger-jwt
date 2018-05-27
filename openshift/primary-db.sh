@@ -17,3 +17,8 @@ export CCP_STORAGE_PATH=/exports/postgres-antinex
 export CCP_NFS_IP=192.168.0.35
 export CCP_STORAGE_MODE=ReadWriteMany
 export CCP_STORAGE_CAPACITY=400M
+
+export PG_USER=antinex
+export PG_PASSWORD=antinex
+export PG_DATABASE=webapp
+export PG_PRIMARY_PASSWORD=123321

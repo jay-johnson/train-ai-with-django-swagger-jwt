@@ -32,7 +32,7 @@ spec:
         - name: PGADMIN_SETUP_PASSWORD
           value: postgres
         - name: POSTGRES_HOSTNAME
-          value: postgres
+          value: primary
         - name: POSTGRES_PORT
           value: "5432"
         - name: SERVER_MODE

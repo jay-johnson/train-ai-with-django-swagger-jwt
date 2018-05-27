@@ -16,16 +16,7 @@ if [[ "${project_exists}" != "0" ]]; then
     echo "Deleting everything under the ${project} project"
     oc delete all --all -n ${project}
 
-    echo "Deleting Redis Persistent Volume"
-    oc delete -f redis/persistence.json 
-
-    echo "Deleting Postgres Persistent Volume"
-    oc delete -f postgres/persistence.json 
-
-    echo "Deleting all Persistent Volume Claims"
-    oc delete pvc --all
-
-    echo "Deleting all Persistent Volume Claims"
+    echo "Deleting all Secrets"
     oc delete secrets $(oc get secrets | grep -i opaque | awk '{print $1}')
 
     echo "Deleting ${project} project"
@@ -49,19 +40,6 @@ else
     oc get projects
 
     echo ""
-fi
-
-if [[ "${SAVE_DATABASES}" == "" ]]; then
-    test_volume_exists=$(oc get pv | grep postgres-antinex-volume | wc -l)
-    if [[ "${test_volume_exists}" != "0" ]]; then
-        echo "Deleting postgres-${project}-volume"
-        oc delete pv postgres-antinex-volume
-    fi
-    test_volume_exists=$(oc get pv | grep redis-antinex-volume | wc -l)
-    if [[ "${test_volume_exists}" != "0" ]]; then
-        echo "Deleting redis-${project}-volume"
-        oc delete pv redis-antinex-volume
-    fi
 fi
 
 not_done="1"
