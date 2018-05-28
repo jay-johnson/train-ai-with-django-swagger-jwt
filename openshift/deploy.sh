@@ -3,12 +3,12 @@
 project="antinex"
 redis_pv="redis-antinex-pv"
 redis_pvc="redis-antinex-pvc"
-pg_serivce_name="primary"
+pg_service_name="primary"
 pg_deployment_dir="./.pgdeployment"
 pg_repo="https://github.com/jay-johnson/crunchy-containers.git"
 
 test_exists=$(oc project | grep ${project} | wc -l)
-test_svc_pg_exists=$(oc status | grep "svc/${pg_serivce_name}" | wc -l)
+test_svc_pg_exists=$(oc status | grep "svc/${pg_service_name}" | wc -l)
 test_pv_redis_exists=$(oc get pv | grep ${redis_pv} | wc -l)
 test_pvc_redis_exists=$(oc get pvc | grep ${redis_pvc} | wc -l)
 
@@ -72,7 +72,7 @@ if [[ "${test_svc_pg_exists}" == "0" ]]; then
     ./run.sh
     popd
 else
-    echo "Detected running Crunchy Postgres Database: svc/${pg_serivce_name}"
+    echo "Detected running Crunchy Postgres Database: svc/${pg_service_name}"
 fi
 
 echo ""
