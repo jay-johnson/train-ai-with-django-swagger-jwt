@@ -6,11 +6,11 @@
 AntiNex Docs
 ============
 
-Helping everyone use Deep Neural Networks for Defense
------------------------------------------------------
+Deep Neural Networks for Defending Software Systems
+---------------------------------------------------
 
 .. image:: https://imgur.com/pEEnUZT.png
-    :alt: AntiNex - Helping everyone use Deep Neural Networks for Defense
+    :alt: Antinex - Deep Neural Networks for Defending Software Systems
 
 What is this?
 =============
@@ -34,8 +34,13 @@ AntiNex is a python 3 multi-tenant framework for running a data pipeline for bui
 Quick Start
 ===========
 
-Clone and Start the Stack
--------------------------
+Deploy on OpenShift Container Platform
+--------------------------------------
+
+`Deploy AntiNex on Red Hat's OpenShift Container Platform (version 3.9) <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift#antinex-on-openshift-container-platform>`__
+
+Local Deployment with Docker Compose
+------------------------------------
 
 If you have docker-compose you can run the following commands to download all the containers and run the full stack locally (the `ai-core container`_ is ~2.5 GB so it can take a couple minutes to download):
 
@@ -426,6 +431,7 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
+   deploy-antinex-on-openshift-container-platform
    pipeline
    job_utils
    serializers
