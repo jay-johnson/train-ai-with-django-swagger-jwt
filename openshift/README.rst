@@ -61,7 +61,7 @@ Getting Started
 
 #.  Resources
 
-    Please make sure to give the hosting vm(s) enough memory to run the stack. If you are using [OpenShift Container Platform](https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/installation_and_configuration/#install-config-install-rpm-vs-containerized) please use at least 2 CPU cores and 8 GB of RAM.
+    Please make sure to give the hosting vm(s) enough memory to run the stack. If you are using `OpenShift Container Platform <https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/installation_and_configuration/#install-config-install-rpm-vs-containerized>`__ please use at least 2 CPU cores and 8 GB of RAM.
 
 Login to OpenShift Container Platform
 -------------------------------------
