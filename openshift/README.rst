@@ -365,7 +365,7 @@ or
 Change the Entrypoint
 ---------------------
 
-To keep the containers running just add something like: ```tail -f <some file>``` to keep the container running for debugging issues.
+To keep the containers running just add something like: ``tail -f <some file>`` to keep the container running for debugging issues.
 
 I use:
 
