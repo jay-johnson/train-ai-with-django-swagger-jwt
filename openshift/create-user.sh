@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user_file="../tests/users/user_1.sh"
+user_file="./users/user_1.sh"
 if [[ "${1}" != "" ]]; then
     if [[ -e ${1} ]]; then
         user_file="${1}"
