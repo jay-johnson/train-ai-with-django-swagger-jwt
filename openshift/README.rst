@@ -295,8 +295,6 @@ Commands for Training a Deep Neural Network on OpenShift with AntiNex
 Drop and Restore Database with the Latest Migration
 ---------------------------------------------------
 
-(Work in progress)
-
 .. raw:: html
 
     <a href="https://asciinema.org/a/182822?autoplay=1" target="_blank"><img src="https://asciinema.org/a/182822.png"/></a>

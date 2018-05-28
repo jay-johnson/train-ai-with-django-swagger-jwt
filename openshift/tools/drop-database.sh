@@ -7,10 +7,10 @@ db_pod=$(oc get pods | grep primary | awk '{print $1}' | tail -1)
 echo ""
 echo "Drop the database with:"
 echo "oc rsh ${db_pod}"
-echo "psql"
+echo "psql -U postgres"
 echo "drop database ${db};"
 echo "\q"
-echo "createdb ${db}"
+echo "createdb -U postgres ${db}"
 echo "exit"
 echo ""
 
