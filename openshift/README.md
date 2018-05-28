@@ -373,3 +373,20 @@ Remove, delete and clean up everything in the AntiNex project with the command:
 ```
 ./remove-all.sh
 ```
+
+## Troubleshooting
+
+### Permission Errors for Postgres or Redis
+
+If you see an error about permission denied in the logs for the primary postgres server or redis that mentions one of these directories:
+
+```
+/pgdata
+/exports/redis-antinex
+```
+
+Then run this command to ssh over to the OCP vm and fix the volume mount directories. Please note, this tool assumes you have copied over the ssh keys and are using NFS mounts for OCP volumes.
+
+```
+./tools/delete-and-fix-volumes.sh
+```
