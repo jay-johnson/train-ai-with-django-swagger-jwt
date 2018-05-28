@@ -68,7 +68,9 @@ Login to OpenShift Container Platform
 
 Here's an example of logging into OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183593.png)](https://asciinema.org/a/183593?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/183593?autoplay=1" target="_blank"><img src="https://asciinema.org/a/183593.png"/></a>
 
 ::
 
@@ -79,7 +81,9 @@ Deploy
 
 Deploy the containers to OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183873.png)](https://asciinema.org/a/183873?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/183873?autoplay=1" target="_blank"><img src="https://asciinema.org/a/183873.png"/></a>
 
 **Run Deployment Command**
 
@@ -154,7 +158,9 @@ Migrations have to run inside an **api** container. Below is a recording of runn
 
 OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183874.png)](https://asciinema.org/a/183874?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/183874?autoplay=1" target="_blank"><img src="https://asciinema.org/a/183874.png"/></a>
 
 The command from the video is included in the openshift directory, and you can run the command to show how to run a migration. Once the command finishes, you can copy and paste the output into your shell to quickly run a migration:
 
@@ -176,7 +182,9 @@ Here's how to create the default user **trex**
 
 OpenShift Container Platform
 
-[![asciicast](https://asciinema.org/a/183661.png)](https://asciinema.org/a/183661?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/183661?autoplay=1" target="_blank"><img src="https://asciinema.org/a/183661.png"/></a>
 
 #.  Create a User from the command line
 
@@ -243,7 +251,9 @@ Train a Deep Neural Network
 
 Here's how to train a deep neural network using the AntiNex Client and the Django AntiNex dataset:
 
-[![asciicast](https://asciinema.org/a/183875.png)](https://asciinema.org/a/183875?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/183875?autoplay=1" target="_blank"><img src="https://asciinema.org/a/183875.png"/></a>
 
 Commands for Training a Deep Neural Network on OpenShift with AntiNex
 ---------------------------------------------------------------------
@@ -287,7 +297,9 @@ Drop and Restore Database with the Latest Migration
 
 (Work in progress)
 
-[![asciicast](https://asciinema.org/a/182822.png)](https://asciinema.org/a/182822?autoplay=1)
+.. raw:: html
+
+    <a href="https://asciinema.org/a/182822?autoplay=1" target="_blank"><img src="https://asciinema.org/a/182822.png"/></a>
 
 You can drop the database and restore it to the latest migration with this command. Copy and paste the output to run the commands quickly. Make sure to get the second batch or using the ``./show-migrate-cmds.sh`` if you need to migrate at some point in the future.
 
