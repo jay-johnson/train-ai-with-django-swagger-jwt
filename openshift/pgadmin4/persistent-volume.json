@@ -1,0 +1,26 @@
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "annotations": {
+      "pv.kubernetes.io/bound-by-controller": "yes"
+    },
+    "creationTimestamp": null,
+    "name": "pgadmin-antinex-volume"
+  },
+  "spec": {
+    "accessModes": [
+      "ReadWriteOnce"
+    ],
+    "capacity": {
+      "storage": "10G"
+    },
+    "nfs": {
+      "path": "/exports/pgadmin-antinex",
+      "server": "localhost"
+    },
+    "persistentVolumeReclaimPolicy": "Retain",
+    "volumeName": "pgadmin-antinex-volume"
+  },
+  "status": {}
+}

@@ -4,19 +4,21 @@ AntiNex on OpenShift Container Platform
 
 This will deploy the following containers to OpenShift Container Platform:
 
-#. API Server - Django REST Framework with JWT and Swagger
+#. `API Server - Django REST Framework with JWT and Swagger <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
 
-#. API Worker - Celery Worker Pool
+#. `API Worker - Celery Worker Pool <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
 
-#. Core Worker - AntiNex AI Core Celery Worker
+#. `Core Worker - AntiNex AI Core Celery Worker <https://github.com/jay-johnson/antinex-core>`__
 
-#. Jupyter - Includes ready-to-use AntiNex IPython Notebooks
+#. `Jupyter - Includes ready-to-use AntiNex IPython Notebooks <https://github.com/jay-johnson/antinex-core/tree/master/docker/notebooks>`__
 
-#. Pipeline - AntiNex Network Pipeline Celery Worker
+#. `Pipeline - AntiNex Network Pipeline Celery Worker <https://github.com/jay-johnson/network-pipeline>`__
 
-#. Posgres 10.4 - Crunchy Data Single Primary
+#. `Posgres 10.4 - Crunchy Data Single Primary <https://hub.docker.com/r/crunchydata/crunchy-postgres/>`__
 
-#. Redis 3.2
+#. `Redis 3.2 <https://hub.docker.com/r/bitnami/redis/>`__
+
+#. `pgAdmin4 <https://hub.docker.com/r/crunchydata/crunchy-pgadmin4/>`__
 
 Getting Started
 ---------------
@@ -62,6 +64,14 @@ Getting Started
 #.  Resources
 
     Please make sure to give the hosting vm(s) enough memory to run the stack. If you are using `OpenShift Container Platform <https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/installation_and_configuration/#install-config-install-rpm-vs-containerized>`__ please use at least 2 CPU cores and 8 GB of RAM.
+
+#.  Set up /etc/hosts
+
+    OpenShift Container Platform is running on a vm with an ip: **192.168.0.35** and with these application fqdns in ``/etc/hosts``.
+
+    ::
+
+        192.168.0.35    ocp39.homelab.com api-antinex.apps.homelab.com jupyter-antinex.apps.homelab.com postgres-antinex.apps.homelab.com redis-antinex.apps.homelab.com primary-antinex.apps.homelab.com pgadmin4-http-antinex.apps.homelab.com
 
 Login to OpenShift Container Platform
 -------------------------------------

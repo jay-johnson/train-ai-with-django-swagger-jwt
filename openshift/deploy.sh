@@ -6,14 +6,13 @@ redis_pvc="redis-antinex-pvc"
 pg_service_name="primary"
 pg_deployment_dir="./.pgdeployment"
 pg_repo="https://github.com/jay-johnson/crunchy-containers.git"
-
+include_pgadmin="1"
 test_exists=$(oc project | grep ${project} | wc -l)
 test_svc_pg_exists=$(oc status | grep "svc/${pg_service_name}" | wc -l)
 test_pv_redis_exists=$(oc get pv | grep ${redis_pv} | wc -l)
 test_pvc_redis_exists=$(oc get pvc | grep ${redis_pvc} | wc -l)
 
 first_time_deploy="0"
-
 if [[ "${test_exists}" == "0" ]]; then
     oc new-project ${project}
     first_time_deploy="1"
@@ -21,6 +20,10 @@ fi
 
 if [[ ! -d ${pg_deployment_dir} ]]; then
     mkdir -p -m 777 ${pg_deployment_dir}
+fi
+
+if [[ "${DISABLE_PGADMIN}" == "1" ]]; then
+    include_pgadmin="0"
 fi
 
 echo ""
@@ -167,6 +170,15 @@ echo ""
 echo "Exposing API and Jupyter services"
 oc expose svc/api
 oc expose svc/jupyter
+echo ""
+
+if [[ "${include_pgadmin}" == "1" ]]; then
+    echo "Starting pgAdmin4"
+    ./run-pgadmin4.sh
+    echo ""
+else
+    echo "Skipping pgadmin4"
+fi
 
 echo "Waiting for services to start"
 sleep 5
