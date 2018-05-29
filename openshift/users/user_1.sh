@@ -3,9 +3,10 @@ export API_PASSWORD="123321"
 export API_EMAIL="bugs@antinex.com"
 export API_FIRSTNAME="Guest"
 export API_LASTNAME="Guest"
-export API_URL=https://ocp39.homelab.com:8443
+export API_URL=http://api-antinex.apps.homelab.com
 export API_VERBOSE="true"
 export API_DEBUG="false"
+export OCP_URL=https://ocp39.homelab.com:8443
 
 if [[ "${ANTINEX_USER}" != "" ]]; then
     export API_USER="${ANTINEX_USER}"
