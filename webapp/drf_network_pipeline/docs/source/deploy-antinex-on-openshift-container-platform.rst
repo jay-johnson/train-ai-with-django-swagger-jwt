@@ -4,7 +4,7 @@ AntiNex on OpenShift Container Platform
 
 Here is a guide for running the AntiNex stack on OpenShift Container Platform. This was tested on version 3.9.
 
-.. image:: https://imgur.com/bgGIdO0.png
+.. image:: https://imgur.com/5wi8GRs.png
 
 This will deploy the following containers to OpenShift Container Platform:
 
