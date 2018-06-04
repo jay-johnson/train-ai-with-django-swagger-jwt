@@ -61,7 +61,7 @@ To use these examples please clone the `Network Pipeline Datasets repository`_ l
 
 ::
 
-    git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/datasets
+    git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/antinex/datasets
 
 You can also use the `AntiNex Datasets repository`_ if you want, they assume you want to build a dataset with the included OWASP fuzzing attack data captured during a ZAP attack simulation in with your own captured CSV files.
 
@@ -98,8 +98,8 @@ will be an output the from the ``packet-redis.py`` script running in the **pipel
         "title": "Prepare new Dataset from recordings",
         "desc": "",
         "ds_name": "new_recording",
-        "ds_glob_path": "/opt/datasets/*/*.csv",
-        "ds_dir": "/opt/datasets",
+        "ds_glob_path": "/opt/antinex/datasets/*/*.csv",
+        "ds_dir": "/opt/antinex/datasets",
         "full_file": "/tmp/fulldata_attack_scans.csv",
         "clean_file": "/tmp/cleaned_attack_scans.csv",
         "meta_suffix": "metadata.json",
@@ -147,10 +147,10 @@ Prepare a Dataset using Curl
         --header 'Content-Type: application/json' \
         --header 'Accept: application/json' \
         --header "${auth_header}" \
-        -d '{ "title": "Prepare new Dataset from recordings", "desc": "", "ds_name": "new_recording", "ds_glob_path": "/opt/datasets/*/*.csv", "ds_dir": "/opt/datasets", "full_file": "/tmp/fulldata_attack_scans.csv", "clean_file": "/tmp/cleaned_attack_scans.csv", "meta_suffix": "metadata.json", "output_dir": "/tmp/", "pipeline_files": { "attack_files": [] }, "meta_data": {}, "post_proc": { "drop_columns": [ "src_file", "raw_id", "raw_load", "raw_hex_load", "raw_hex_field_load", "pad_load", "eth_dst", "eth_src", "ip_dst", "ip_src" ], "predict_feature": "label_name" }, "label_rules": { "set_if_above": 85, "labels": [ "not_attack", "attack" ], "label_values": [ 0, 1 ] }, "version": 1 }' \
+        -d '{ "title": "Prepare new Dataset from recordings", "desc": "", "ds_name": "new_recording", "ds_glob_path": "/opt/antinex/datasets/*/*.csv", "ds_dir": "/opt/antinex/datasets", "full_file": "/tmp/fulldata_attack_scans.csv", "clean_file": "/tmp/cleaned_attack_scans.csv", "meta_suffix": "metadata.json", "output_dir": "/tmp/", "pipeline_files": { "attack_files": [] }, "meta_data": {}, "post_proc": { "drop_columns": [ "src_file", "raw_id", "raw_load", "raw_hex_load", "raw_hex_field_load", "pad_load", "eth_dst", "eth_src", "ip_dst", "ip_src" ], "predict_feature": "label_name" }, "label_rules": { "set_if_above": 85, "labels": [ "not_attack", "attack" ], "label_values": [ 0, 1 ] }, "version": 1 }' \
         'http://0.0.0.0:8080/mlprepare/'
 
-    {"id":1,"user_id":1,"user_name":"root","status":"initial","control_state":"active","title":"Prepare new Dataset from recordings","desc":"no desc","full_file":"/tmp/fulldata_attack_scans.csv","clean_file":"/tmp/cleaned_attack_scans.csv","meta_suffix":"metadata.json","output_dir":"/tmp/","ds_dir":"/opt/datasets","ds_glob_path":"/opt/datasets/*/*.csv","pipeline_files":{"attack_files":[]},"post_proc":{"drop_columns":["src_file","raw_id","raw_load","raw_hex_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"predict_feature":"label_name"},"label_rules":{"set_if_above":85,"labels":["not_attack","attack"],"label_values":[0,1]},"tracking_id":"prep_fcd155e3-bd99-46a5-86d9-957fc7a95a8a","version":1,"created":"2018-03-30 16:06:49","updated":"2018-03-30 16:06:49","deleted":""}
+    {"id":1,"user_id":1,"user_name":"root","status":"initial","control_state":"active","title":"Prepare new Dataset from recordings","desc":"no desc","full_file":"/tmp/fulldata_attack_scans.csv","clean_file":"/tmp/cleaned_attack_scans.csv","meta_suffix":"metadata.json","output_dir":"/tmp/","ds_dir":"/opt/antinex/datasets","ds_glob_path":"/opt/antinex/datasets/*/*.csv","pipeline_files":{"attack_files":[]},"post_proc":{"drop_columns":["src_file","raw_id","raw_load","raw_hex_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"predict_feature":"label_name"},"label_rules":{"set_if_above":85,"labels":["not_attack","attack"],"label_values":[0,1]},"tracking_id":"prep_fcd155e3-bd99-46a5-86d9-957fc7a95a8a","version":1,"created":"2018-03-30 16:06:49","updated":"2018-03-30 16:06:49","deleted":""}
 
 Check the Newly Prepared Dataset Files Exist
 --------------------------------------------
@@ -181,7 +181,7 @@ Get Prepared Dataset Record from the Database using Curl
         --header "${auth_header}" \
         'http://0.0.0.0:8080/mlprepare/1/'
 
-    {"id":1,"user_id":1,"user_name":"root","status":"finished","control_state":"finished","title":"Prepare new Dataset from recordings","desc":"no desc","full_file":"/tmp/fulldata_attack_scans.csv","clean_file":"/tmp/cleaned_attack_scans.csv","meta_suffix":"metadata.json","output_dir":"/tmp/","ds_dir":"/opt/datasets","ds_glob_path":"/opt/datasets/*/*.csv","pipeline_files":["/opt/datasets/react-redux/netdata-2018-01-29-13-36-35.csv","/opt/datasets/spring/netdata-2018-01-29-15-00-12.csv","/opt/datasets/vue/netdata-2018-01-29-14-12-44.csv","/opt/datasets/django/netdata-2018-01-28-23-12-13.csv","/opt/datasets/django/netdata-2018-01-28-23-06-05.csv","/opt/datasets/flask-restplus/netdata-2018-01-29-11-30-02.csv"],"post_proc":{"drop_columns":["src_file","raw_id","raw_load","raw_hex_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"ignore_features":["label_name","src_file","raw_id","raw_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"predict_feature":"label_name","feature_to_predict":"label_name","features_to_process":["arp_id","dns_id","eth_id","eth_type","icmp_id","idx","ip_id","ip_ihl","ip_len","ip_tos","ip_version","ipvsix_id","label_value","pad_id","tcp_dport","tcp_fields_options.MSS","tcp_fields_options.NOP","tcp_fields_options.SAckOK","tcp_fields_options.Timestamp","tcp_fields_options.WScale","tcp_id","tcp_seq","tcp_sport","udp_id","label_name"]},"label_rules":{"labels":["not_attack","attack"],"label_values":[0,1],"set_if_above":85},"tracking_id":"prep_fcd155e3-bd99-46a5-86d9-957fc7a95a8a","version":1,"created":"2018-03-30 16:06:49","updated":"2018-03-30 16:07:07","deleted":""}
+    {"id":1,"user_id":1,"user_name":"root","status":"finished","control_state":"finished","title":"Prepare new Dataset from recordings","desc":"no desc","full_file":"/tmp/fulldata_attack_scans.csv","clean_file":"/tmp/cleaned_attack_scans.csv","meta_suffix":"metadata.json","output_dir":"/tmp/","ds_dir":"/opt/antinex/datasets","ds_glob_path":"/opt/antinex/datasets/*/*.csv","pipeline_files":["/opt/antinex/datasets/react-redux/netdata-2018-01-29-13-36-35.csv","/opt/antinex/datasets/spring/netdata-2018-01-29-15-00-12.csv","/opt/antinex/datasets/vue/netdata-2018-01-29-14-12-44.csv","/opt/antinex/datasets/django/netdata-2018-01-28-23-12-13.csv","/opt/antinex/datasets/django/netdata-2018-01-28-23-06-05.csv","/opt/antinex/datasets/flask-restplus/netdata-2018-01-29-11-30-02.csv"],"post_proc":{"drop_columns":["src_file","raw_id","raw_load","raw_hex_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"ignore_features":["label_name","src_file","raw_id","raw_load","raw_hex_field_load","pad_load","eth_dst","eth_src","ip_dst","ip_src"],"predict_feature":"label_name","feature_to_predict":"label_name","features_to_process":["arp_id","dns_id","eth_id","eth_type","icmp_id","idx","ip_id","ip_ihl","ip_len","ip_tos","ip_version","ipvsix_id","label_value","pad_id","tcp_dport","tcp_fields_options.MSS","tcp_fields_options.NOP","tcp_fields_options.SAckOK","tcp_fields_options.Timestamp","tcp_fields_options.WScale","tcp_id","tcp_seq","tcp_sport","udp_id","label_name"]},"label_rules":{"labels":["not_attack","attack"],"label_values":[0,1],"set_if_above":85},"tracking_id":"prep_fcd155e3-bd99-46a5-86d9-957fc7a95a8a","version":1,"created":"2018-03-30 16:06:49","updated":"2018-03-30 16:07:07","deleted":""}
 
 Train a Deep Neural Network with a Dataset
 ==========================================

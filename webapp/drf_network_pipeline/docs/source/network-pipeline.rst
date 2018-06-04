@@ -633,11 +633,11 @@ Please export the path to the datasets repository on your host:
 
     export DS_DIR=<path_to_datasets_base_directory>
 
-Or clone the repository to the default value for the environment variable (``DS_DIR=/opt/datasets``) with:
+Or clone the repository to the default value for the environment variable (``DS_DIR=/opt/antinex/datasets``) with:
 
 ::
 
-    git clone https://github.com/jay-johnson/network-pipeline-datasets.git /opt/datasets
+    git clone https://github.com/jay-johnson/network-pipeline-datasets.git /opt/antinex/datasets
 
 Build Dataset
 -------------
@@ -648,13 +648,13 @@ This will take a few moments to prepare the csv files.
 
     prepare_dataset.py
     2018-01-31 23:38:04,298 - builder - INFO - start - builder
-    2018-01-31 23:38:04,298 - builder - INFO - finding pipeline csvs in dir=/opt/datasets/*/*.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/react-redux/netdata-2018-01-29-13-36-35.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/spring/netdata-2018-01-29-15-00-12.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/vue/netdata-2018-01-29-14-12-44.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/django/netdata-2018-01-28-23-12-13.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/django/netdata-2018-01-28-23-06-05.csv
-    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/datasets/flask-restplus/netdata-2018-01-29-11-30-02.csv
+    2018-01-31 23:38:04,298 - builder - INFO - finding pipeline csvs in dir=/opt/antinex/datasets/*/*.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/react-redux/netdata-2018-01-29-13-36-35.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/spring/netdata-2018-01-29-15-00-12.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/vue/netdata-2018-01-29-14-12-44.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/django/netdata-2018-01-28-23-12-13.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/django/netdata-2018-01-28-23-06-05.csv
+    2018-01-31 23:38:04,299 - builder - INFO - adding file=/opt/antinex/datasets/flask-restplus/netdata-2018-01-29-11-30-02.csv
 
 Verify Dataset and Tracking Files
 ---------------------------------

@@ -42,8 +42,8 @@ class MLPrepareViewSet(
             "clean_file": "/tmp/cleaned_attack_scans.csv",
             "meta_suffix": "metadata.json",
             "output_dir": "/tmp/",
-            "ds_dir": "/opt/datasets",
-            "ds_glob_path": "/opt/datasets/*/*.csv",
+            "ds_dir": "/opt/antinex/datasets",
+            "ds_glob_path": "/opt/antinex/datasets/*/*.csv",
             "pipeline_files": {
                 "attack_files": []
             },

@@ -66,12 +66,12 @@ class MLPrepareSerializer(serializers.Serializer):
                 allow_blank=True,
                 required=False,
                 allow_null=True,
-                default="/opt/datasets")
+                default="/opt/antinex/datasets")
     ds_glob_path = serializers.CharField(
                 max_length=1024,
                 min_length=None,
                 allow_blank=False,
-                default="/opt/datasets/*/*.csv")
+                default="/opt/antinex/datasets/*/*.csv")
     pipeline_files = serializers.CharField(
                 max_length=None,
                 min_length=None,
