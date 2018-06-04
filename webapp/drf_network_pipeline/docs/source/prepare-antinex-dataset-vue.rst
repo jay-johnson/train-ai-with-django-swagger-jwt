@@ -23,7 +23,7 @@ Setup
 
     ::
 
-        cd ~/train-ai-with-django-swagger-jwt
+        cd /opt/antinex/api
         source ~/.venvs/venvdrfpipeline/bin/activate
         ./install.sh
         ./start.sh
@@ -37,7 +37,7 @@ If you want to prepare your own attack dataset run these commands with the REST 
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/vue/configs/vue-attack-prepare-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/build-new-dataset.py
+    /opt/antinex/api/tests/build-new-dataset.py
 
 Check the files were updated:
 
@@ -60,7 +60,7 @@ If you want to prepare your own full dataset run these commands with the REST AP
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/vue/configs/vue-prepare-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/build-new-dataset.py
+    /opt/antinex/api/tests/build-new-dataset.py
 
 Confirm Dataset is Ready
 ------------------------
@@ -90,7 +90,7 @@ Train Dataset
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/vue/configs/vue-train-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/create-keras-dnn.py
+    /opt/antinex/api/tests/create-keras-dnn.py
 
 From the logs taken during creation of this doc, the model is 83% accurate at predicting attack records.
 
@@ -108,7 +108,7 @@ This will display all the recent training runs in a list sorted by newest.
 
 ::
 
-    ~/train-ai-with-django-swagger-jwt/tests/get-recent-results.py 
+    /opt/antinex/api/tests/get-recent-results.py 
 
 Here's the training node in the list from the run above (yours will look a little different):
 

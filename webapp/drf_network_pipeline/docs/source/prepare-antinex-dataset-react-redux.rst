@@ -23,7 +23,7 @@ Setup
 
     ::
 
-        cd ~/train-ai-with-django-swagger-jwt
+        cd /opt/antinex/api
         source ~/.venvs/venvdrfpipeline/bin/activate
         ./install.sh
         ./start.sh
@@ -37,7 +37,7 @@ If you want to prepare your own attack dataset run these commands with the REST 
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/react-redux/configs/react-attack-prepare-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/build-new-dataset.py
+    /opt/antinex/api/tests/build-new-dataset.py
 
 Check the files were updated:
 
@@ -59,7 +59,7 @@ If you want to prepare your own full dataset run these commands with the REST AP
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/react-redux/configs/react-prepare-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/build-new-dataset.py
+    /opt/antinex/api/tests/build-new-dataset.py
 
 Confirm Dataset is Ready
 ------------------------
@@ -89,11 +89,11 @@ Train Dataset
 
     source ~/.venvs/venvdrfpipeline/bin/activate
     export TEST_DATA=/opt/antinex/antinex-datasets/v1/webapps/react-redux/configs/react-train-v1.json
-    ~/train-ai-with-django-swagger-jwt/tests/create-keras-dnn.py
+    /opt/antinex/api/tests/create-keras-dnn.py
 
 From the logs taken during creation of this doc, the model is 87% accurate at predicting attack records.
 
-~/train-ai-with-django-swagger-jwt/tests/create-keras-dnn.py
+/opt/antinex/api/tests/create-keras-dnn.py
 INFO:create-keras-dnn:Logging in user url=http://localhost:8080/api-token-auth/
 INFO:create-keras-dnn:logged in user=root token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InJvb3QiLCJleHAiOjE1MTg3MjIxMDAsImVtYWlsIjoicm9vdEBlbWFpbC5jb20ifQ.RKItbbMdW5-hlDpCDxrltx50FFAjMPunberb5GYI748
 INFO:create-keras-dnn:building post data
@@ -108,7 +108,7 @@ This will display all the recent training runs in a list sorted by newest.
 
 ::
 
-    ~/train-ai-with-django-swagger-jwt/tests/get-recent-results.py 
+    /opt/antinex/api/tests/get-recent-results.py 
 
 Here's the training node in the list from the run above (yours will look a little different):
 
