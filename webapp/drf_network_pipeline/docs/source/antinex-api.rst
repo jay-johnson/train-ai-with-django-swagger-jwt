@@ -53,12 +53,13 @@ Assuming your host has the pips already cached locally this takes about a minute
 Install
 =======
 
-This was tested on Ubuntu 17.10.
+This was tested on Ubuntu 17.10 and Ubuntu 18.04.
 
 ::
 
-    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git
-    cd train-ai-with-django-swagger-jwt
+    mkdir -p -m 777 /opt/antinex
+    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
+    cd /opt/antinex/api
     ./install.sh
 
 Getting Started With Docker
