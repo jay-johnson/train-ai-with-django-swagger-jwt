@@ -37,7 +37,7 @@ spec:
       - command:
         - /bin/bash
         - -c
-        - cd /opt/antinex-api && . /opt/venv/bin/activate && source /opt/antinex-api/envs/openshift-no-hostnames.env && env | sort && /opt/antinex-api/run-django.sh
+        - cd /opt/antinex/api && . /opt/venv/bin/activate && source /opt/antinex/api/envs/openshift-no-hostnames.env && env | sort && /opt/antinex/api/run-django.sh
         env:
         - name: ANTINEX_AUTH_URL
           value: redis://redis:6379/6

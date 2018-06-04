@@ -33,7 +33,7 @@ If you're running outside docker make sure to clone the repo with:
 
 ::
 
-    git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex-datasets    
+    git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex/antinex-datasets    
 
 Train the Django Defensive Deep Neural Network
 ----------------------------------------------

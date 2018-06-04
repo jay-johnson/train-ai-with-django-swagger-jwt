@@ -127,14 +127,14 @@ class MLJobTest(APITestCase):
         """
         make sure to clone the dataset repo locally to test with them:
         git clone https://github.com/jay-johnson/antinex-datasets.git \
-            /opt/antinex-datasets
+            /opt/antinex/antinex-datasets
         export TEST_ANTINEX=1
 
         By default the tests use the included, slim dataset versions
         """
         self.use_antinex = bool(
             os.getenv("TEST_ANTINEX", "0") == "1")
-        self.antinex_path = ("/opt/antinex-datasets/v1/webapps/"
+        self.antinex_path = ("/opt/antinex/antinex-datasets/v1/webapps/"
                              "django/training-ready")
 
         # disable worker publishing hook for tests

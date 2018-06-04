@@ -37,7 +37,7 @@ spec:
       - command:
         - /bin/bash
         - -c
-        - cd /opt/antinex-core/docker/jupyter && export HOME=/opt/antinex-core/docker/jupyter && . /opt/venv/bin/activate && source /opt/antinex-api/envs/openshift-dev.env && env | sort && /opt/antinex-core/docker/jupyter/start-container.sh && tail -f /var/log/antinex/api/api.log
+        - cd /opt/antinex/core/docker/jupyter && export HOME=/opt/antinex/core/docker/jupyter && . /opt/venv/bin/activate && source /opt/antinex/api/envs/openshift-dev.env && env | sort && /opt/antinex/core/docker/jupyter/start-container.sh && tail -f /var/log/antinex/api/api.log
         env:
         - name: ANTINEX_URL
           value: http://api:8080

@@ -311,7 +311,7 @@ class MLJobViewSet(
                 ]
             },
             "version": 1,
-            "dataset": "/opt/antinex-datasets/v1/
+            "dataset": "/opt/antinex/antinex-datasets/v1/
             webapps/django/training-ready/v1_django_cleaned.csv"
         }
         ```

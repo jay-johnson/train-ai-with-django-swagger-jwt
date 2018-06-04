@@ -49,8 +49,8 @@ If you have docker-compose you can run the following commands to download all th
     virtualenv -p python3 ~/.venvs/testing
     source ~/.venvs/testing/bin/activate
     pip install antinex-client
-    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt /opt/antinex-api
-    cd /opt/antinex-api
+    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt /opt/antinex/api
+    cd /opt/antinex/api
 
     # start all the containers from the compose.yml file: https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/master/compose.yml
     ./run-all.sh 
@@ -74,7 +74,7 @@ If you have docker-compose you can run the following commands to download all th
     3839a0af82ec        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   35 seconds ago      Up 33 seconds       0.0.0.0:83->5050/tcp     pgadmin
     b4ea601f28cd        redis:4.0.5-alpine          "docker-entrypoint.s…"   35 seconds ago      Up 33 seconds       0.0.0.0:6379->6379/tcp   redis
     c5eb07041509        postgres:10.2-alpine        "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:5432->5432/tcp   postgres
-    9da0440864e0        jayjohnson/ai-core:latest   "/opt/antinex-core/d…"   35 seconds ago      Up 34 seconds                                jupyter
+    9da0440864e0        jayjohnson/ai-core:latest   "/opt/antinex/core/d…"   35 seconds ago      Up 34 seconds                                jupyter
 
 .. _ai-core container: https://hub.docker.com/r/jayjohnson/ai-core/
 
@@ -86,7 +86,7 @@ SSH into the Django container and run the migration:
 ::
 
     docker exec -it worker bash
-    cd /opt/antinex-api
+    cd /opt/antinex/api
     ./run-migrations.sh
     exit
 
@@ -306,8 +306,8 @@ Here is how the **capture agents** would be set up for capturing network traffic
 
         docker exec -it pipeline ps auwwx
         USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-        runner       1  0.2  0.0   4340   812 ?        Ss   07:32   0:00 /bin/sh -c cd /opt/antinex-pipeline && . ~/.venvs/venvdrfpipeline/bin/activate && /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py
-        runner      10 12.8  0.5 409060 66196 ?        Sl   07:32   0:00 python /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py
+        runner       1  0.2  0.0   4340   812 ?        Ss   07:32   0:00 /bin/sh -c cd /opt/antinex/pipeline && . ~/.venvs/venvdrfpipeline/bin/activate && /opt/antinex/pipeline/network_pipeline/scripts/packets_redis.py
+        runner      10 12.8  0.5 409060 66196 ?        Sl   07:32   0:00 python /opt/antinex/pipeline/network_pipeline/scripts/packets_redis.py
         runner      17  0.0  0.0  19192  2408 pts/0    Rs+  07:32   0:00 ps auwwx
 
 

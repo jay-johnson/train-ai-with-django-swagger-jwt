@@ -49,7 +49,7 @@ services:
       - "8889:8889"
       - "8890:8890"
       - "6006:6006"
-    entrypoint: "/opt/antinex-core/docker/jupyter/start-container.sh"
+    entrypoint: "/opt/antinex/core/docker/jupyter/start-container.sh"
 
   # AntiNex Celery Worker for using pre-trained models
   core:
@@ -65,8 +65,8 @@ services:
       - redis
     volumes:
       - /tmp:/tmp
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-core/run-antinex-core.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/core/run-antinex-core.sh'"
 
   # Django Rest Framework + JWT + Swagger
   api:
@@ -83,8 +83,8 @@ services:
       - redis
     volumes:
       - /tmp:/tmp
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-api/run-django.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-django.sh'"
 
   # Django Rest Framework Celery Worker
   worker:
@@ -100,5 +100,5 @@ services:
       - redis
     volumes:
       - /tmp:/tmp
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-api/run-worker.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-worker.sh'"

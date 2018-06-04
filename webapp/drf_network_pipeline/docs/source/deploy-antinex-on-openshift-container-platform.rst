@@ -194,7 +194,7 @@ The command from the video is included in the openshift directory, and you can r
     Run a migration with:
     oc rsh api-5958c5d995-jjxkt
     /bin/bash
-    . /opt/venv/bin/activate && cd /opt/antinex-api && source /opt/antinex-api/envs/openshift-no-hostnames.env && export POSTGRES_HOST=primary && export POSTGRES_DB=webapp && export POSTGRES_USER=antinex && export POSTGRES_PASSWORD=antinex && ./run-migrations.sh
+    . /opt/venv/bin/activate && cd /opt/antinex/api && source /opt/antinex/api/envs/openshift-no-hostnames.env && export POSTGRES_HOST=primary && export POSTGRES_DB=webapp && export POSTGRES_USER=antinex && export POSTGRES_PASSWORD=antinex && ./run-migrations.sh
     exit
     exit
 

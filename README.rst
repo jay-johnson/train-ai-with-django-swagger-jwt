@@ -112,8 +112,9 @@ This was tested on Ubuntu 17.10.
 
 ::
 
-    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git
-    cd train-ai-with-django-swagger-jwt
+    mkdir -p -m 777 /opt/antinex
+    git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
+    cd /opt/antinex/api
     ./install.sh
 
 Getting Started With Docker
@@ -139,7 +140,7 @@ Verify the containers started
     2506f9793c21        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   33 seconds ago      Up 33 seconds                                worker
     a9e80d0b16c1        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                api
     35611733edd0        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                core
-    d7f96b5f8882        jayjohnson/ai-core:latest   "/opt/antinex-core/d…"   35 seconds ago      Up 34 seconds                                jupyter
+    d7f96b5f8882        jayjohnson/ai-core:latest   "/opt/antinex/core/d…"   35 seconds ago      Up 34 seconds                                jupyter
     f344b1cfa5cd        redis:4.0.5-alpine          "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:6379->6379/tcp   redis
     976c31bfbb8c        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   35 seconds ago      Up 34 seconds       0.0.0.0:83->5050/tcp     pgadmin
     f9139346c278        postgres:10.2-alpine        "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:5432->5432/tcp   postgres
@@ -341,7 +342,7 @@ Make sure the virtual environment has been loaded:
 Clone the datasets repository
 -----------------------------
 
-git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/datasets
+git clone https://github.com/jay-johnson/network-pipeline-datasets /opt/antinex/datasets
 
 Prepare a new Dataset from Captured Recordings
 ----------------------------------------------
@@ -659,7 +660,7 @@ Paste in the following values and click **Try it Out**:
 
         {
             "label": "Full-Django-AntiNex-Simple-Scaler-DNN",
-            "dataset": "/opt/antinex-datasets/v1/webapps/django/training-ready/v1_django_cleaned.csv",
+            "dataset": "/opt/antinex/antinex-datasets/v1/webapps/django/training-ready/v1_django_cleaned.csv",
             "ml_type": "classification",
             "predict_feature": "label_value",
             "features_to_process": [

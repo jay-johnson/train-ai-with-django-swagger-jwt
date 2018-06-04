@@ -246,8 +246,8 @@ There are a few ways to make live predictions depending on how the pipeline and 
 
     ::
 
-        git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex-api
-        cd /opt/antinex-api
+        git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
+        cd /opt/antinex/api
 
     Start the co-located container stack with the ``compose.yml`` file:
 
@@ -293,7 +293,7 @@ There are a few ways to make live predictions depending on how the pipeline and 
         export ANTINEX_PASSWORD=123321
         export ANTINEX_PUBLISH_TO_CORE=1
         export ANTINEX_USE_MODEL_NAME=Full-Django-AntiNex-Simple-Scaler-DNN
-        export ANTINEX_PUBLISH_REQUEST_FILE=/opt/antinex-client/examples/predict-rows-scaler-full-django.json
+        export ANTINEX_PUBLISH_REQUEST_FILE=/opt/antinex/client/examples/predict-rows-scaler-full-django.json
         export ANTINEX_FEATURES_TO_PROCESS=idx,arp_hwlen,arp_hwtype,arp_id,arp_op,arp_plen,arp_ptype,dns_default_aa,dns_default_ad,dns_default_an,dns_default_ancount,dns_default_ar,dns_default_arcount,dns_default_cd,dns_default_id,dns_default_length,dns_default_ns,dns_default_nscount,dns_default_opcode,dns_default_qd,dns_default_qdcount,dns_default_qr,dns_default_ra,dns_default_rcode,dns_default_rd,dns_default_tc,dns_default_z,dns_id,eth_id,eth_type,icmp_addr_mask,icmp_code,icmp_gw,icmp_id,icmp_ptr,icmp_seq,icmp_ts_ori,icmp_ts_rx,icmp_ts_tx,icmp_type,icmp_unused,ip_id,ip_ihl,ip_len,ip_tos,ip_version,ipv6_fl,ipv6_hlim,ipv6_nh,ipv6_plen,ipv6_tc,ipv6_version,ipvsix_id,pad_id,tcp_dport,tcp_fields_options.MSS,tcp_fields_options.NOP,tcp_fields_options.SAckOK,tcp_fields_options.Timestamp,tcp_fields_options.WScale,tcp_id,tcp_seq,tcp_sport,udp_dport,udp_id,udp_len,udp_sport
         export ANTINEX_IGNORE_FEATURES=
         export ANTINEX_SORT_VALUES=
@@ -323,8 +323,8 @@ Note: If you are running without the docker containers, please make sure to clon
 
 ::
 
-    git clone https://github.com/jay-johnson/antinex-client.git /opt/antinex-client
-    git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex-datasets
+    git clone https://github.com/jay-johnson/antinex-client.git /opt/antinex/client
+    git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex/antinex-datasets
 
 
 Load the Django Model into the Core

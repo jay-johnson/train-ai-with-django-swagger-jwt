@@ -49,7 +49,7 @@ services:
       - "8889:8889"
       - "8890:8890"
       - "6006:6006"
-    entrypoint: "/opt/antinex-core/docker/jupyter/start-container.sh"
+    entrypoint: "/opt/antinex/core/docker/jupyter/start-container.sh"
 
   # AntiNex Celery Worker for using pre-trained models
   core:
@@ -63,8 +63,8 @@ services:
     depends_on:
       - postgres
       - redis
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-core/run-antinex-core.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/core/run-antinex-core.sh'"
 
   # Django Rest Framework + JWT + Swagger
   api:
@@ -79,8 +79,8 @@ services:
     depends_on:
       - postgres
       - redis
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-api/run-django.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-django.sh'"
 
   # Django Rest Framework Celery Worker
   worker:
@@ -94,8 +94,8 @@ services:
       - api
       - postgres
       - redis
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-api && 
-                 /opt/antinex-api/run-worker.sh'"
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-worker.sh'"
   
   # Network Pipeline Packet Processor
   # auto-publishes to the Django Rest Framework 
@@ -114,7 +114,7 @@ services:
       - core
       - postgres
       - redis
-    entrypoint: "/bin/sh -c 'cd /opt/antinex-pipeline && 
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/pipeline && 
                  . /opt/venv/bin/activate &&
-                 /opt/antinex-pipeline/network_pipeline/scripts/packets_redis.py'"
+                 /opt/antinex/pipeline/network_pipeline/scripts/packets_redis.py'"
 
