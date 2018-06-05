@@ -126,11 +126,11 @@ You can also use the command line:
     In project antinex on server https://ocp39.homelab.com:8443
         
     http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
-    deployment/api deploys jayjohnson/ai-core:latest
+    deployment/api deploys jayjohnson/antinex-api:latest
         deployment #1 running for 12 minutes - 1 pod
 
     http://jupyter-antinex.apps.homelab.com to pod port 8888 (svc/jupyter)
-    deployment/jupyter deploys jayjohnson/ai-core:latest
+    deployment/jupyter deploys jayjohnson/antinex-jupyter:latest
         deployment #1 running for 12 minutes - 1 pod
 
     http://pgadmin4-http-antinex.apps.homelab.com to pod port pgadmin4-http (svc/pgadmin4-http)
@@ -143,13 +143,13 @@ You can also use the command line:
     dc/redis deploys istag/redis:latest 
         deployment #1 deployed 12 minutes ago - 1 pod
 
-    deployment/core deploys jayjohnson/ai-core:latest
+    deployment/core deploys jayjohnson/antinex-core:latest
     deployment #1 running for 12 minutes - 1 pod
 
-    deployment/pipeline deploys jayjohnson/ai-core:latest
+    deployment/pipeline deploys jayjohnson/antinex-pipelie:latest
     deployment #1 running for 12 minutes - 1 pod
 
-    deployment/worker deploys jayjohnson/ai-core:latest
+    deployment/worker deploys jayjohnson/antinex-worker:latest
     deployment #1 running for 12 minutes - 1 pod
 
     Info:

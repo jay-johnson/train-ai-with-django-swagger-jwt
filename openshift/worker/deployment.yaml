@@ -99,7 +99,7 @@ spec:
           value: api
         - name: WEBAPP_PORT
           value: "8080"
-        image: jayjohnson/ai-core:latest
+        image: jayjohnson/antinex-worker:latest
         resources:
           requests:
             cpu: 2000m

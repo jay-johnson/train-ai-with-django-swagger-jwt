@@ -95,7 +95,7 @@ spec:
           value: "1"
         - name: USE_VENV
           value: /opt/venv
-        image: jayjohnson/ai-core:latest
+        image: jayjohnson/antinex-pipeline:latest
         name: pipeline
         resources: {}
       hostname: pipeline

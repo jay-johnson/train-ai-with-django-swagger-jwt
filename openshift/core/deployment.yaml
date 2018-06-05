@@ -55,7 +55,7 @@ spec:
           value: openshift-no-hostnames
         - name: USE_VENV
           value: /opt/venv
-        image: jayjohnson/ai-core:latest
+        image: jayjohnson/antinex-core:latest
         name: core
         resources: {}
       hostname: core

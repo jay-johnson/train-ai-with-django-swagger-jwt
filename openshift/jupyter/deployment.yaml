@@ -53,7 +53,7 @@ spec:
           value: admin
         - name: SHARED_DIR
           value: /opt/data
-        image: jayjohnson/ai-core:latest
+        image: jayjohnson/antinex-jupyter:latest
         name: jupyter
         ports:
         - containerPort: 8888
