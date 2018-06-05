@@ -12,7 +12,7 @@ RUN echo "creating project directories" \
   && cd /opt/antinex/api \
   && git checkout master \
   && git pull \
-  && echo "checking repos in container" \
+  && echo "checking repo in container" \
   && ls -l /opt/antinex/api \
   && echo "activating venv" \
   && . /opt/venv/bin/activate \
