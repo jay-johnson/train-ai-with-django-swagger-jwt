@@ -13,7 +13,7 @@ before_install:
   - export DJANGO_SETTINGS_MODULE=drf_network_pipeline.settings
   - export PYTHONPATH=$HOME/builds/jay-johnson/train-ai-with-django-swagger-jwt
   - export PIP_USE_MIRRORS=true
-  - export USE_VERSION=$(cat /opt/antinex/core/setup.py | grep " version=" | sed -e 's/"/ /g' | awk '{print $2}')
+  - export USE_VERSION=1.0.47
   - export REPO_API=jayjohnson/antinex-api
   - export REPO_WORKER=jayjohnson/antinex-worker
   - echo "Building Docker with tag=${USE_VERSION}"
