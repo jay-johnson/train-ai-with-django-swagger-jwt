@@ -18,7 +18,7 @@ RUN echo "creating project directories" \
   && . /opt/venv/bin/activate \
   && cd /opt/antinex/api \
   && echo "installing pip upgrades" \
-  && pip install --upgrade -e . \
+  && pip install --upgrade -r /opt/antinex/api/requirements.txt \
   && echo "building docs" \
   && cd /opt/antinex/api/webapp/drf_network_pipeline/docs \
   && pip install -r /opt/antinex/api/webapp/drf_network_pipeline/docs/doc-requirements.txt \
