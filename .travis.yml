@@ -69,9 +69,11 @@ after_success:
   - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - export REPO=${REPO_API}
-  - echo "starting: cd docker/api && docker build -f Dockerfile -t ${REPO} ."
+  - echo "starting: ../cd docker/api && docker build -f Dockerfile -t ${REPO} ."
   - pwd
-  - cd docker/api && docker build -f Dockerfile -t $REPO .
+  - cd ../docker/api
+  - pwd
+  - docker build -f Dockerfile -t $REPO .
   - echo "docker tag ${REPO} ${REPO}:${USE_VERSION}"
   - docker tag $REPO $REPO:$USE_VERSION
   - echo "docker push ${REPO}"
@@ -81,7 +83,9 @@ after_success:
   - export REPO=${REPO_WORKER}
   - echo "starting: cd ../worker && docker build -f Dockerfile -t ${REPO} ."
   - pwd
-  - cd ../worker && docker build -f Dockerfile -t $REPO .
+  - cd ../worker
+  - pwd
+  - docker build -f Dockerfile -t $REPO .
   - echo "docker tag ${REPO} ${REPO}:${USE_VERSION}"
   - docker tag $REPO $REPO:$USE_VERSION
   - echo "docker push ${REPO}"
