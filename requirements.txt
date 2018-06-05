@@ -20,7 +20,7 @@ django-rest-swagger
 django-six
 djangorestframework
 djangorestframework-jwt
-flake8
+flake8<=3.4.1
 gunicorn
 h5py
 jsonfield
@@ -31,7 +31,7 @@ newrelic
 pandas
 numpy
 psycopg2==2.7.3.2
-pycodestyle
+pycodestyle==2.3.1
 pydocstyle
 requests
 recommonmark
