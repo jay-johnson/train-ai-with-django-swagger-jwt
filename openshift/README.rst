@@ -146,7 +146,7 @@ You can also use the command line:
     deployment/core deploys jayjohnson/antinex-core:latest
     deployment #1 running for 12 minutes - 1 pod
 
-    deployment/pipeline deploys jayjohnson/antinex-pipelie:latest
+    deployment/pipeline deploys jayjohnson/antinex-pipeline:latest
     deployment #1 running for 12 minutes - 1 pod
 
     deployment/worker deploys jayjohnson/antinex-worker:latest
