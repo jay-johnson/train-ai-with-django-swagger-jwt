@@ -5,6 +5,8 @@ Automate training AI to defend applications with a Django 2.0+ REST Framework + 
 
 Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
 
+For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kuberenetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift>`__ with persistent database volumes for Postgres (using `Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
+
 .. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
     :width: 200px
     :height: 400px
@@ -12,7 +14,7 @@ Now supports building the same highly accurate deep neural networks as the `Anti
 .. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
 AntiNex Stack Status
----------------------
+--------------------
 
 The AntiNex REST API is part of the AntiNex stack:
 
@@ -116,7 +118,7 @@ Assuming your host has the pips already cached locally this takes about a minute
 Install
 =======
 
-This was tested on Ubuntu 17.10.
+Tested on Ubuntu 17.10, Ubuntu 18.04 and works on `OpenShift Container Platform with Kubernetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift>`__.
 
 ::
 
@@ -158,7 +160,7 @@ Quick links
 
 If you are running all the containers, you can use these links to move around:
 
-- Use Swagger to Train a new Deep Neural Network (login with ``root`` and ``123321``)
+- Use Swagger to Train a new Deep Neural Network (login with ``trex`` and ``123321``)
 
   http://localhost:8080/swagger/#!/ml/ml_create
 
@@ -299,6 +301,30 @@ Start the Celery worker in a new terminal to process published Django work tasks
 
     ./run-worker.sh
 
+Create User
+-----------
+
+Create the user ``trex`` with password ``123321``:
+
+::
+
+    source tests/users/user_1.sh \
+    && ./tests/create-user.sh \
+    && env | grep API | sort
+
+    Creating user: trex on http://localhost:8080/users/
+    {"id":2,"username":"trex","email":"bugs@antinex.com"}
+    Getting token for user: trex
+    {"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2LCJ1c2VybmFtZSI6InRyZXgiLCJleHAiOjE1MjgyNjExMjgsImVtYWlsIjoiYnVnc0BhbnRpbmV4LmNvbSJ9.W6Lb2N1v8S3e6EMT7RuTvfUQMTbKjrmYzhMxtFQ9jhk"}
+    API_DEBUG=false
+    API_EMAIL=bugs@antinex.com
+    API_FIRSTNAME=Guest
+    API_LASTNAME=Guest
+    API_PASSWORD=123321
+    API_URL=http://localhost:8080
+    API_USER=trex
+    API_VERBOSE=true
+
 Verify the Celery Worker Processes a Task without Django
 --------------------------------------------------------
 
@@ -312,9 +338,9 @@ I find the first time I integrate Celery + Django + Redis can be painful. So I t
         2018-02-25 23:25:03,832 - run-celery-task - INFO - start - run-celery-task
         2018-02-25 23:25:03,832 - run-celery-task - INFO - connecting Celery=run-celery-task broker=redis://localhost:6379/9 backend=redis://localhost:6379/10 tasks=['drf_network_pipeline.users.tasks']
         2018-02-25 23:25:03,832 - get_celery_app - INFO - creating celery app=run-celery-task tasks=['drf_network_pipeline.users.tasks']
-        2018-02-25 23:25:03,847 - run-celery-task - INFO - app.broker_url=redis://localhost:6379/9 calling task=drf_network_pipeline.users.tasks.task_get_user data={'user_id': 1}
+        2018-02-25 23:25:03,847 - run-celery-task - INFO - app.broker_url=redis://localhost:6379/9 calling task=drf_network_pipeline.users.tasks.task_get_user data={'user_id': 2}
         2018-02-25 23:25:03,897 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - started job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71
-        2018-02-25 23:25:03,905 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - success job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71 task_result={'id': 1, 'username': 'root', 'email': 'root@email.com'}
+        2018-02-25 23:25:03,905 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - success job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71 task_result={'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}
         2018-02-25 23:25:03,905 - run-celery-task - INFO - end - run-celery-task
 
 #.  Verify the Celery Worker Processed the Task
@@ -324,11 +350,11 @@ I find the first time I integrate Celery + Django + Redis can be painful. So I t
     ::
 
         2018-02-26 07:25:03,897 - celery.worker.strategy - INFO - Received task: drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71]  
-        2018-02-26 07:25:03,898 - user_tasks - INFO - task - task_get_user - start user_data={'user_id': 1}
-        2018-02-26 07:25:03,899 - user_tasks - INFO - finding user=1
-        2018-02-26 07:25:03,903 - user_tasks - INFO - found user.id=1 name=root
+        2018-02-26 07:25:03,898 - user_tasks - INFO - task - task_get_user - start user_data={'user_id': 2}
+        2018-02-26 07:25:03,899 - user_tasks - INFO - finding user=2
+        2018-02-26 07:25:03,903 - user_tasks - INFO - found user.id=2 name=trex
         2018-02-26 07:25:03,904 - user_tasks - INFO - task - task_get_user - done
-        2018-02-26 07:25:03,905 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71] succeeded in 0.006255952997889835s: {'id': 1, 'username': 'root', 'email': 'root@email.com'}
+        2018-02-26 07:25:03,905 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71] succeeded in 0.006255952997889835s: {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}
 
 .. _celery-loaders: https://github.com/jay-johnson/celery-loaders
 
@@ -373,7 +399,7 @@ Train a Keras Deep Neural Network with Tensorflow
     ...
 
     2018-02-03 00:31:24,342 - create-keras-dnn - INFO - SUCCESS - Post Response status=200 reason=OK
-    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - {'job': {'id': 1, 'user_id': 1, 'user_name': 'root', 'title': 'Keras DNN - network-pipeline==1.0.9', 'desc': 'Tensorflow backend with simulated data', 'ds_name': 'cleaned', 'algo_name': 'dnn', 'ml_type': 'keras', 'status': 'initial', 'control_state': 'active', 'predict_feature': 'label_value', 'training_data': {}, 'pre_proc': {}, 'post_proc': {}, 'meta_data': {}, 'tracking_id': 'ml_701552d5-c761-4c69-9258-00d05ff81a48', 'version': 1, 'created': '2018-02-03 08:31:17', 'updated': '2018-02-03 08:31:17', 'deleted': ''}, 'results': {'id': 1, 'user_id': 1, 'user_name': 'root', 'job_id': 1, 'status': 'finished', 'version': 1, 'acc_data': {'accuracy': 83.7837837300859}, 'error_data': None, 'created': '2018-02-03 08:31:24', 'updated': '2018-02-03 08:31:24', 'deleted': ''}}
+    2018-02-03 00:31:24,342 - create-keras-dnn - INFO - {'job': {'id': 1, 'user_id': 2, 'user_name': 'trex', 'title': 'Keras DNN - network-pipeline==1.0.9', 'desc': 'Tensorflow backend with simulated data', 'ds_name': 'cleaned', 'algo_name': 'dnn', 'ml_type': 'keras', 'status': 'initial', 'control_state': 'active', 'predict_feature': 'label_value', 'training_data': {}, 'pre_proc': {}, 'post_proc': {}, 'meta_data': {}, 'tracking_id': 'ml_701552d5-c761-4c69-9258-00d05ff81a48', 'version': 1, 'created': '2018-02-03 08:31:17', 'updated': '2018-02-03 08:31:17', 'deleted': ''}, 'results': {'id': 1, 'user_id': 2, 'user_name': 'trex', 'job_id': 1, 'status': 'finished', 'version': 1, 'acc_data': {'accuracy': 83.7837837300859}, 'error_data': None, 'created': '2018-02-03 08:31:24', 'updated': '2018-02-03 08:31:24', 'deleted': ''}}
 
 .. raw:: html
 
@@ -556,9 +582,9 @@ Click on the yellow ``Example Value`` section to paste in defaults or paste in y
 ::
 
     {
-        "username": "test",
+        "username": "trex",
         "password": "123321",
-        "email": "your@email.com"
+        "email": "bugs@antinex.com"
     }
 
 Login User
@@ -566,7 +592,7 @@ Login User
 
 If you want to login as the super user:
 
-- Username: ``root``
+- Username: ``trex``
 - Password: ``123321``
 
 http://localhost:8080/api-auth/login/

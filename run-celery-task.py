@@ -28,9 +28,16 @@ args = parser.parse_args()
 
 task_name = args.task_name
 task_data = None
+file_contents = None
 if args.data_file:
     if os.path.exists(args.data_file):
-        task_data = json.loads(open(args.data_file).read())
+        file_contents = json.loads(open(args.data_file).read())
+        task_data = {
+            "celery_enabled": True,
+            "cache_key": None,
+            "use_cache": False,
+            "data": file_contents
+        }
 # end of loading the data to send
 
 if not task_data:

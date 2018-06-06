@@ -5,7 +5,7 @@ services:
   # PostgreSQL database
   postgres:
     container_name: "postgres"
-    image: postgres:10.2-alpine
+    image: postgres:10.4-alpine
     hostname: postgres
     env_file:
       - ./envs/postgres-dev.env
@@ -30,7 +30,7 @@ services:
   redis:
     container_name: "redis"
     hostname: redis
-    image: redis:4.0.5-alpine
+    image: redis:4.0.9-alpine
     ports:
       - "6379:6379"
 
@@ -38,7 +38,7 @@ services:
   jupyter:
     container_name: "jupyter"
     hostname: jupyter
-    image: jayjohnson/ai-core:latest
+    image: jayjohnson/antinex-jupyter:latest
     network_mode: "host"
     environment:
       - JUPYTER_PASS=admin
@@ -55,7 +55,7 @@ services:
   core:
     container_name: "core"
     hostname: core
-    image: jayjohnson/ai-core:latest
+    image: jayjohnson/antinex-core:latest
     network_mode: "host"
     environment:
       - SHARED_DIR=/opt/data
@@ -70,7 +70,7 @@ services:
   api:
     container_name: "api"
     hostname: api
-    image: jayjohnson/ai-core:latest
+    image: jayjohnson/antinex-api:latest
     network_mode: "host"
     env_file:
       - ./envs/all-dev.env
@@ -86,7 +86,7 @@ services:
   worker:
     container_name: "worker"
     hostname: worker
-    image: jayjohnson/ai-core:latest
+    image: jayjohnson/antinex-worker:latest
     network_mode: "host"
     env_file:
       - ./envs/all-dev.env
@@ -105,7 +105,7 @@ services:
   pipeline:
     container_name: "pipeline"
     hostname: pipeline
-    image: jayjohnson/ai-core:latest
+    image: jayjohnson/antinex-pipeline:latest
     network_mode: "host"
     env_file:
       - ./envs/pipeline-dev.env
