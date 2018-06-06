@@ -5,7 +5,7 @@ Automate training AI to defend applications with a Django 2.0+ REST Framework + 
 
 Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
 
-For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kuberenetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift>`__ with persistent database volumes for Postgres (using `Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
+For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kubernetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift#antinex-on-openshift-container-platform>`__ with persistent database volumes for Postgres (`Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
 
 .. image:: ./tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
     :width: 200px
