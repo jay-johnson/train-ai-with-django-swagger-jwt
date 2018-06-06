@@ -417,7 +417,7 @@ The core trains a deep neural network and persists it in a dictionary that uses 
 Make Predictions for a List of Records
 --------------------------------------
 
-If you have a list of records the API, Worker and Core support making predictions for each record in a list:
+If you have a list of records the API, Worker and Core support making predictions for each record in a list.
 
 Predict using the AntiNex Worker:
 
