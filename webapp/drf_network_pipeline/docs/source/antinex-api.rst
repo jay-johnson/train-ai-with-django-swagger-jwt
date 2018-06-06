@@ -5,11 +5,11 @@ Automate training AI to defend applications with a Django 2.0+ REST Framework + 
 
 Now supports building the same highly accurate deep neural networks as the `AntiNex Core`_ (**99.8%** accuracy with Django, Flask, React + Redux, Vue and Spring). This repository is fully dockerized and after the django celery worker finishes processing, it will auto-push predictions to the core's celery worker which is decoupled from django and the django database. The core's celery worker stores pre-trained AI neural networks in memory for faster predictions and supports re-training models as needed.
 
-For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kuberenetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift>`__ with persistent database volumes for Postgres (using `Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
-
-.. image:: .. image:: https://raw.githubusercontent.com/jay-johnson/train-ai-with-django-swagger-jwt/master/tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
+For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kubernetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift#antinex-on-openshift-container-platform>`__ with persistent database volumes for Postgres (`Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
 
 .. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
+
+.. image:: .. image:: https://raw.githubusercontent.com/jay-johnson/train-ai-with-django-swagger-jwt/master/tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
 
 AntiNex Stack Status
 --------------------
@@ -144,14 +144,15 @@ Verify the containers started
 ::
 
     docker ps
-    CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                    NAMES
-    2506f9793c21        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   33 seconds ago      Up 33 seconds                                worker
-    a9e80d0b16c1        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                api
-    35611733edd0        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                core
-    d7f96b5f8882        jayjohnson/ai-core:latest   "/opt/antinex/core/d…"   35 seconds ago      Up 34 seconds                                jupyter
-    f344b1cfa5cd        redis:4.0.5-alpine          "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:6379->6379/tcp   redis
-    976c31bfbb8c        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   35 seconds ago      Up 34 seconds       0.0.0.0:83->5050/tcp     pgadmin
-    f9139346c278        postgres:10.2-alpine        "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:5432->5432/tcp   postgres
+    CONTAINER ID        IMAGE                                COMMAND                  CREATED             STATUS              PORTS                    NAMES
+    d34c8973066b        jayjohnson/antinex-pipeline:latest   "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   pipeline
+    12ef5482bc17        jayjohnson/antinex-worker:latest     "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   worker
+    da7970ae165f        jayjohnson/antinex-api:latest        "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   api
+    11a2c95b7247        jayjohnson/antinex-core:latest       "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   core
+    1f26d89c8c2c        jayjohnson/antinex-jupyter:latest    "/opt/antinex/core/d…"   2 hours ago         Up 2 hours                                   jupyter
+    4905682ff3b4        postgres:10.4-alpine                 "docker-entrypoint.s…"   2 hours ago         Up 2 hours          0.0.0.0:5432->5432/tcp   postgres
+    fd8300740935        redis:4.0.9-alpine                   "docker-entrypoint.s…"   2 hours ago         Up 2 hours          0.0.0.0:6379->6379/tcp   redis
+    7c682ba78adb        jayjohnson/pgadmin4:1.0.0            "python ./usr/local/…"   2 hours ago         Up 2 hours          0.0.0.0:83->5050/tcp     pgadmin
 
 Quick links
 -----------
@@ -169,12 +170,6 @@ If you are running all the containers, you can use these links to move around:
 - Jupyter Notebook shoing how to use Pre-trained Deep Neural Networks with AntiNex
 
   http://localhost:8888/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
-
-- Jupyter Notebook Slideshow (login with ``admin``)
-
-  http://localhost:8889/Slides-AntiNex-Protecting-Django.slides.html#/
-
-  http://localhost:8890/Slides-AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.slides.html#/
 
 If you are interested in running locally without the large container image, you can run the broker and database stack with docker containers for simulating a more production-ready environment. Here's the containers these steps will start:
 
@@ -323,39 +318,6 @@ Create the user ``trex`` with password ``123321``:
     API_USER=trex
     API_VERBOSE=true
 
-Verify the Celery Worker Processes a Task without Django
---------------------------------------------------------
-
-I find the first time I integrate Celery + Django + Redis can be painful. So I try to validate Celery tasks work before connecting Celery to Django over a message broker (like Redis). Here is a test tool for helping debug this integration with the `celery-loaders`_ project. It's also nice not having to click through the browser to debug a new task.
-
-#.  Run the task test script
-
-    ::
-
-        ./run-celery-task.py -t drf_network_pipeline.users.tasks.task_get_user -f tests/celery/task_get_user.json
-        2018-02-25 23:25:03,832 - run-celery-task - INFO - start - run-celery-task
-        2018-02-25 23:25:03,832 - run-celery-task - INFO - connecting Celery=run-celery-task broker=redis://localhost:6379/9 backend=redis://localhost:6379/10 tasks=['drf_network_pipeline.users.tasks']
-        2018-02-25 23:25:03,832 - get_celery_app - INFO - creating celery app=run-celery-task tasks=['drf_network_pipeline.users.tasks']
-        2018-02-25 23:25:03,847 - run-celery-task - INFO - app.broker_url=redis://localhost:6379/9 calling task=drf_network_pipeline.users.tasks.task_get_user data={'user_id': 2}
-        2018-02-25 23:25:03,897 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - started job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71
-        2018-02-25 23:25:03,905 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - success job_id=72148f73-9b3f-4d15-9a95-70be7fbd3f71 task_result={'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}
-        2018-02-25 23:25:03,905 - run-celery-task - INFO - end - run-celery-task
-
-#.  Verify the Celery Worker Processed the Task
-
-    If Redis and Celery are working as expected, the logs should print something similar to the following:
-
-    ::
-
-        2018-02-26 07:25:03,897 - celery.worker.strategy - INFO - Received task: drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71]  
-        2018-02-26 07:25:03,898 - user_tasks - INFO - task - task_get_user - start user_data={'user_id': 2}
-        2018-02-26 07:25:03,899 - user_tasks - INFO - finding user=2
-        2018-02-26 07:25:03,903 - user_tasks - INFO - found user.id=2 name=trex
-        2018-02-26 07:25:03,904 - user_tasks - INFO - task - task_get_user - done
-        2018-02-26 07:25:03,905 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[72148f73-9b3f-4d15-9a95-70be7fbd3f71] succeeded in 0.006255952997889835s: {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}
-
-.. _celery-loaders: https://github.com/jay-johnson/celery-loaders
-
 Automation
 ==========
 
@@ -392,7 +354,7 @@ Train a Keras Deep Neural Network with Tensorflow
 
 ::
 
-    create-keras-dnn.py
+    ./create-keras-dnn.py
 
     ...
 
@@ -435,8 +397,46 @@ This will send a list of records to the API to train and make predictions. This 
 
     ./create-keras-dnn.py -f ./predict-rows-scaler-full-django.json 
 
+Train and Predict using the AntiNex Core
+----------------------------------------
+
+This will train and cache a deep neural network using the `AntiNex Core <https://github.com/jay-johnson/antinex-core>`__. Once trained, the core can make future predictions with the same API call without having to retrain. This makes predictions much faster.
+
+::
+
+    ./create-keras-dnn.py -f only-publish-scaler-full-django.json
+
+This will train a deep neural network and persist it in a dictionary for future predictions referencing the same name:
+
+::
+
+    "use_model_name": "Full-Django-AntiNex-Simple-Scaler-DNN"
+
+Make Predictions for a List of Records
+--------------------------------------
+
+If you have a list of records the API, Worker and Core support making predictions for each record in a list:
+
+Predict using the AntiNex Worker:
+
+::
+
+    ./create-keras-dnn.py -f predict-rows-scaler-full-django.json 
+
+Predict using the AntiNex Core:
+
+::
+
+    ./create-keras-dnn.py -f only-publish-predict-rows-simple.json 
+
+
+Additional Legacy Client API Tools
+----------------------------------
+
+These tools were created before the `AntiNex Python Client <https://github.com/jay-johnson/antinex-client>`__ was released. Please use that for official API examples. 
+
 Get a Prepared Dataset
-----------------------
+======================
 
 ::
 
@@ -448,7 +448,7 @@ Get a Prepared Dataset
     <a href="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB?autoplay=1" target="_blank"><img src="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB.png"/></a>
 
 Get an ML Job
--------------
+=============
 
 Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
 
@@ -462,7 +462,7 @@ Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
     <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://imgur.com/gFsh5q8.png"/></a>
 
 Get an ML Job Result
---------------------
+====================
 
 ::
 
@@ -474,7 +474,7 @@ Get an ML Job Result
     <a href="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ?autoplay=1" target="_blank"><img src="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ.png"/></a>
 
 Get Recent Prepared Datasets
-----------------------------
+============================
 
 ::
 
@@ -485,7 +485,7 @@ Get Recent Prepared Datasets
     <a href="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk?autoplay=1" target="_blank"><img src="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk.png"/></a>
 
 Get Recent ML Jobs
-------------------
+==================
 
 ::
 
@@ -497,7 +497,7 @@ Get Recent ML Jobs
 
 
 Get Recent ML Job Results
--------------------------
+=========================
 
 This is nice for reviewing historical accuracy as your tune your models.
 
@@ -856,6 +856,40 @@ Paste in the following values and click **Try it Out**:
             "meta_data": "{}",
             "version": 1
         }
+
+Verify the Celery Worker Processes a Task without Django
+--------------------------------------------------------
+
+I find the first time I integrate Celery + Django + Redis can be painful. So I try to validate Celery tasks work before connecting Celery to Django over a message broker (like Redis). Here is a test tool for helping debug this integration with the `celery-loaders`_ project. It's also nice not having to click through the browser to debug a new task.
+
+#.  Run the task test script
+
+    ::
+
+        ./run-celery-task.py -t drf_network_pipeline.users.tasks.task_get_user -f tests/celery/task_get_user.json
+        2018-06-05 22:41:39,426 - run-celery-task - INFO - start - run-celery-task
+        2018-06-05 22:41:39,426 - run-celery-task - INFO - connecting Celery=run-celery-task broker=redis://localhost:6379/9 backend=redis://localhost:6379/10 tasks=['drf_network_pipeline.users.tasks']
+        2018-06-05 22:41:39,427 - get_celery_app - INFO - creating celery app=run-celery-task tasks=['drf_network_pipeline.users.tasks']
+        2018-06-05 22:41:39,470 - run-celery-task - INFO - app.broker_url=redis://localhost:6379/9 calling task=drf_network_pipeline.users.tasks.task_get_user data={'celery_enabled': True, 'cache_key': None, 'use_cache': False, 'data': {'user_id': 2}}
+        2018-06-05 22:41:39,535 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - started job_id=4931e1fc-3610-4259-8ccd-5724a1c50c79
+        2018-06-05 22:41:39,549 - run-celery-task - INFO - calling task=drf_network_pipeline.users.tasks.task_get_user - success job_id=4931e1fc-3610-4259-8ccd-5724a1c50c79 task_result={'status': 0, 'err': '', 'task_name': '', 'data': {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}, 'celery_enabled': True, 'use_cache': False, 'cache_key': None}
+        2018-06-05 22:41:39,549 - run-celery-task - INFO - end - run-celery-task
+
+#.  Verify the Celery Worker Processed the Task
+
+    If Redis and Celery are working as expected, the logs should print something similar to the following:
+
+    ::
+
+        2018-06-06 05:41:39,535 - celery.worker.strategy - INFO - Received task: drf_network_pipeline.users.tasks.task_get_user[4931e1fc-3610-4259-8ccd-5724a1c50c79]
+        2018-06-06 05:41:39,537 - user_tasks - INFO - task - task_get_user - start req_node={'celery_enabled': True, 'cache_key': None, 'use_cache': False, 'data': {'user_id': 2}}
+        2018-06-06 05:41:39,537 - user_tasks - INFO - finding user=2 cache=False
+        2018-06-06 05:41:39,539 - celery.worker.request - DEBUG - Task accepted: drf_network_pipeline.users.tasks.task_get_user[4931e1fc-3610-4259-8ccd-5724a1c50c79] pid:26
+        2018-06-06 05:41:39,547 - user_tasks - INFO - found user.id=2 name=trex
+        2018-06-06 05:41:39,547 - user_tasks - INFO - task - task_get_user result={'status': 0, 'err': '', 'task_name': '', 'data': {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}, 'celery_enabled': True, 'use_cache': False, 'cache_key': None} - done
+        2018-06-06 05:41:39,550 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[4931e1fc-3610-4259-8ccd-5724a1c50c79] succeeded in 0.013342023004952352s: {'status': 0, 'err': '', 'task_name': '', 'data': {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}, 'celery_enabled': True, 'use_cache': False, 'cache_key': None}
+
+.. _celery-loaders: https://github.com/jay-johnson/celery-loaders
 
 Run Tests
 ---------

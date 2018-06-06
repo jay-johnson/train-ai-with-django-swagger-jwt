@@ -60,6 +60,8 @@ services:
     environment:
       - SHARED_DIR=/opt/data
       - BROKER_URL=redis://0.0.0.0:6379/6
+    volumes:
+      - /tmp:/tmp
     depends_on:
       - postgres
       - redis
@@ -76,6 +78,8 @@ services:
       - ./envs/all-dev.env
     ports:
       - "8080:8080"
+    volumes:
+      - /tmp:/tmp
     depends_on:
       - postgres
       - redis
@@ -90,6 +94,8 @@ services:
     network_mode: "host"
     env_file:
       - ./envs/all-dev.env
+    volumes:
+      - /tmp:/tmp
     depends_on:
       - api
       - postgres
@@ -109,6 +115,8 @@ services:
     network_mode: "host"
     env_file:
       - ./envs/pipeline-dev.env
+    volumes:
+      - /tmp:/tmp
     depends_on:
       - api
       - core

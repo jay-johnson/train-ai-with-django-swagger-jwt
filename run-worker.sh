@@ -48,7 +48,7 @@ echo "Loading Celery environment variables"
 echo ""
 
 num_workers=4
-log_level=DEBUG
+log_level=INFO
 log_file=/tmp/worker.log
 worker_module=drf_network_pipeline
 worker_name="default@%h"
