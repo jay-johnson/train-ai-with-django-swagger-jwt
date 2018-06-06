@@ -122,16 +122,17 @@ You can also use the command line:
     oc status -v
 
 ::
-    
+
+    oc status -v
     In project antinex on server https://ocp39.homelab.com:8443
-        
+
     http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
     deployment/api deploys jayjohnson/antinex-api:latest
-        deployment #1 running for 12 minutes - 1 pod
+        deployment #1 running for 7 hours - 1 pod
 
     http://jupyter-antinex.apps.homelab.com to pod port 8888 (svc/jupyter)
     deployment/jupyter deploys jayjohnson/antinex-jupyter:latest
-        deployment #1 running for 12 minutes - 1 pod
+        deployment #1 running for 7 hours - 1 pod
 
     http://pgadmin4-http-antinex.apps.homelab.com to pod port pgadmin4-http (svc/pgadmin4-http)
     pod/pgadmin4-http runs crunchydata/crunchy-pgadmin4:centos7-10.3-1.8.2
@@ -141,16 +142,16 @@ You can also use the command line:
 
     http://redis-antinex.apps.homelab.com to pod port 6379-tcp (svc/redis)
     dc/redis deploys istag/redis:latest 
-        deployment #1 deployed 12 minutes ago - 1 pod
+        deployment #1 deployed 7 hours ago - 1 pod
 
     deployment/core deploys jayjohnson/antinex-core:latest
-    deployment #1 running for 12 minutes - 1 pod
+    deployment #1 running for 7 hours - 1 pod
 
     deployment/pipeline deploys jayjohnson/antinex-pipeline:latest
-    deployment #1 running for 12 minutes - 1 pod
+    deployment #1 running for 7 hours - 1 pod
 
     deployment/worker deploys jayjohnson/antinex-worker:latest
-    deployment #1 running for 12 minutes - 1 pod
+    deployment #1 running for 7 hours - 1 pod
 
     Info:
     * pod/pgadmin4-http has no liveness probe to verify pods are still running.
