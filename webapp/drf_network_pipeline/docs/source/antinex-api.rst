@@ -9,7 +9,7 @@ For those wanting to scale up their processing speeds, `AntiNex deploys on OpenS
 
 .. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
-.. image:: .. image:: https://raw.githubusercontent.com/jay-johnson/train-ai-with-django-swagger-jwt/master/tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
+.. image:: https://raw.githubusercontent.com/jay-johnson/train-ai-with-django-swagger-jwt/master/tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
 
 AntiNex Stack Status
 --------------------
