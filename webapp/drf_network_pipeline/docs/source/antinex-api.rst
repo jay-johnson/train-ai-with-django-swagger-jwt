@@ -7,9 +7,9 @@ Now supports building the same highly accurate deep neural networks as the `Anti
 
 For those wanting to scale up their processing speeds, `AntiNex deploys on OpenShift Container Platform and Kubernetes <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/tree/master/openshift#antinex-on-openshift-container-platform>`__ with persistent database volumes for Postgres (`Crunchy Data <https://github.com/CrunchyData/crunchy-containers>`__) and Redis (`Bitnami <https://hub.docker.com/r/bitnami/redis/>`__)
 
-.. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
-
 .. image:: https://raw.githubusercontent.com/jay-johnson/train-ai-with-django-swagger-jwt/master/tests/images/django-rest-framework-with-swagger-and-jwt-trains-a-deep-neural-network-using-keras-and-tensorflow-with-83-percent-accuracy.gif
+
+.. _AntiNex Core: https://github.com/jay-johnson/antinex-core#antinex-core
 
 AntiNex Stack Status
 --------------------
@@ -406,11 +406,11 @@ This will train and cache a deep neural network using the `AntiNex Core <https:/
 
     ./create-keras-dnn.py -f only-publish-scaler-full-django.json
 
-This will train a deep neural network and persist it in a dictionary for future predictions referencing the same name:
+The core trains a deep neural network and persists it in a dictionary that uses the `label value on the request <https://github.com/jay-johnson/antinex-core/blob/521c019469ac41958f64dcf9483b7ce902311438/antinex_core/antinex_processor.py#L150-L153>`_ to store the trained model. Future predictions must continue to reuse the same ``label`` value on the request to avoid waiting for a retraining cycle. Here is the `label value used in the previous request <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/0487fdc6b62d15a67754f131c02eb5d71faf3897/tests/only-publish-scaler-full-django.json#L2>`__ which is:
 
 ::
 
-    "use_model_name": "Full-Django-AntiNex-Simple-Scaler-DNN"
+    "label": "Full-Django-AntiNex-Simple-Scaler-DNN"
 
 Make Predictions for a List of Records
 --------------------------------------
@@ -428,86 +428,6 @@ Predict using the AntiNex Core:
 ::
 
     ./create-keras-dnn.py -f only-publish-predict-rows-simple.json 
-
-
-Additional Legacy Client API Tools
-----------------------------------
-
-These tools were created before the `AntiNex Python Client <https://github.com/jay-johnson/antinex-client>`__ was released. Please use that for official API examples. 
-
-Get a Prepared Dataset
-======================
-
-::
-
-    export PREPARE_JOB_ID=1
-    ./get-a-prepared-dataset.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB?autoplay=1" target="_blank"><img src="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB.png"/></a>
-
-Get an ML Job
-=============
-
-Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
-
-::
-
-    export JOB_ID=1
-    ./get-a-job.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://imgur.com/gFsh5q8.png"/></a>
-
-Get an ML Job Result
-====================
-
-::
-
-    export JOB_RESULT_ID=1
-    ./get-a-result.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ?autoplay=1" target="_blank"><img src="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ.png"/></a>
-
-Get Recent Prepared Datasets
-============================
-
-::
-
-    ./get-recent-datasets.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk?autoplay=1" target="_blank"><img src="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk.png"/></a>
-
-Get Recent ML Jobs
-==================
-
-::
-
-    ./get-recent-jobs.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2?autoplay=1" target="_blank"><img src="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2.png"/></a>
-
-
-Get Recent ML Job Results
-=========================
-
-This is nice for reviewing historical accuracy as your tune your models.
-
-::
-
-    ./get-recent-results.py
-
-.. raw:: html
-
-    <a href="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k?autoplay=1" target="_blank"><img src="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k.png"/></a>
 
 Advanced Naming for Multi-Tenant Environments
 =============================================
@@ -890,6 +810,85 @@ I find the first time I integrate Celery + Django + Redis can be painful. So I t
         2018-06-06 05:41:39,550 - celery.app.trace - INFO - Task drf_network_pipeline.users.tasks.task_get_user[4931e1fc-3610-4259-8ccd-5724a1c50c79] succeeded in 0.013342023004952352s: {'status': 0, 'err': '', 'task_name': '', 'data': {'id': 2, 'username': 'trex', 'email': 'bugs@antinex.com'}, 'celery_enabled': True, 'use_cache': False, 'cache_key': None}
 
 .. _celery-loaders: https://github.com/jay-johnson/celery-loaders
+
+Additional Legacy Client API Tools
+----------------------------------
+
+These tools and examples were created before the `AntiNex Python Client <https://github.com/jay-johnson/antinex-client>`__ was released. Please use that for official API examples. 
+
+Get a Prepared Dataset
+======================
+
+::
+
+    export PREPARE_JOB_ID=1
+    ./get-a-prepared-dataset.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB?autoplay=1" target="_blank"><img src="https://asciinema.org/a/J0xedsJx5dJ1Z1LYPI2is7SjB.png"/></a>
+
+Get an ML Job
+=============
+
+Any trained Keras Deep Neural Network models are saved as an ``ML Job``.
+
+::
+
+    export JOB_ID=1
+    ./get-a-job.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/A8fJs0okBxltJDI2X1uTghddz?autoplay=1" target="_blank"><img src="https://imgur.com/gFsh5q8.png"/></a>
+
+Get an ML Job Result
+====================
+
+::
+
+    export JOB_RESULT_ID=1
+    ./get-a-result.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ?autoplay=1" target="_blank"><img src="https://asciinema.org/a/3nE0kab7oVyFIOAywQqM7BPyZ.png"/></a>
+
+Get Recent Prepared Datasets
+============================
+
+::
+
+    ./get-recent-datasets.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk?autoplay=1" target="_blank"><img src="https://asciinema.org/a/9O32uMMCj9NmTLuYqFoyIE1rk.png"/></a>
+
+Get Recent ML Jobs
+==================
+
+::
+
+    ./get-recent-jobs.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2?autoplay=1" target="_blank"><img src="https://asciinema.org/a/7TBpEj757q4crNHCDASlChWn2.png"/></a>
+
+
+Get Recent ML Job Results
+=========================
+
+This is nice for reviewing historical accuracy as your tune your models.
+
+::
+
+    ./get-recent-results.py
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k?autoplay=1" target="_blank"><img src="https://asciinema.org/a/TTjDnqc65voanvFq4HUxJ142k.png"/></a>
 
 Run Tests
 ---------
