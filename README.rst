@@ -146,14 +146,15 @@ Verify the containers started
 ::
 
     docker ps
-    CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                    NAMES
-    2506f9793c21        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   33 seconds ago      Up 33 seconds                                worker
-    a9e80d0b16c1        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                api
-    35611733edd0        jayjohnson/ai-core:latest   "/bin/sh -c 'cd /opt…"   34 seconds ago      Up 33 seconds                                core
-    d7f96b5f8882        jayjohnson/ai-core:latest   "/opt/antinex/core/d…"   35 seconds ago      Up 34 seconds                                jupyter
-    f344b1cfa5cd        redis:4.0.5-alpine          "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:6379->6379/tcp   redis
-    976c31bfbb8c        jayjohnson/pgadmin4:1.0.0   "python ./usr/local/…"   35 seconds ago      Up 34 seconds       0.0.0.0:83->5050/tcp     pgadmin
-    f9139346c278        postgres:10.2-alpine        "docker-entrypoint.s…"   35 seconds ago      Up 34 seconds       0.0.0.0:5432->5432/tcp   postgres
+    CONTAINER ID        IMAGE                                COMMAND                  CREATED             STATUS              PORTS                    NAMES
+    d34c8973066b        jayjohnson/antinex-pipeline:latest   "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   pipeline
+    12ef5482bc17        jayjohnson/antinex-worker:latest     "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   worker
+    da7970ae165f        jayjohnson/antinex-api:latest        "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   api
+    11a2c95b7247        jayjohnson/antinex-core:latest       "/bin/sh -c 'cd /opt…"   2 hours ago         Up 2 hours                                   core
+    1f26d89c8c2c        jayjohnson/antinex-jupyter:latest    "/opt/antinex/core/d…"   2 hours ago         Up 2 hours                                   jupyter
+    4905682ff3b4        postgres:10.4-alpine                 "docker-entrypoint.s…"   2 hours ago         Up 2 hours          0.0.0.0:5432->5432/tcp   postgres
+    fd8300740935        redis:4.0.9-alpine                   "docker-entrypoint.s…"   2 hours ago         Up 2 hours          0.0.0.0:6379->6379/tcp   redis
+    7c682ba78adb        jayjohnson/pgadmin4:1.0.0            "python ./usr/local/…"   2 hours ago         Up 2 hours          0.0.0.0:83->5050/tcp     pgadmin
 
 Quick links
 -----------
