@@ -37,7 +37,7 @@ Getting Started
     ::
 
         mkdir -p -m 777 /opt/antinex
-        git clone git@github.com:jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
+        git clone https://github.com/jay-johnson/train-ai-with-django-swagger-jwt.git /opt/antinex/api
 
 #.  Setting up Database Tools
 
