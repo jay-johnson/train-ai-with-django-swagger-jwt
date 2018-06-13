@@ -191,8 +191,9 @@ How do I get started?
 
     ::
 
-        git clone https://github.com/jay-johnson/network-pipeline.git
-        cd network-pipeline
+        mkdir -p -m 777 /opt/antinex
+        git clone https://github.com/jay-johnson/network-pipeline.git /opt/antinex/pipeline
+        cd /opt/antinex/pipeline
         virtualenv -p python3 /tmp/netpipevenv && source /tmp/netpipevenv/bin/activate && pip install -e .
 
 #.  Start Redis
@@ -201,6 +202,8 @@ How do I get started?
 
     ::
 
+        # if you do not have docker-compose installed, you can try to install it with:
+        # pip install docker-compose
         ./start.sh
 
 #.  Verify Redis is Working
@@ -323,6 +326,7 @@ Note: If you are running without the docker containers, please make sure to clon
 
 ::
 
+    mkdir -p -m 777 /opt/antinex
     git clone https://github.com/jay-johnson/antinex-client.git /opt/antinex/client
     git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex/antinex-datasets
 
@@ -637,6 +641,7 @@ Or clone the repository to the default value for the environment variable (``DS_
 
 ::
 
+    mkdir -p -m 777 /opt/antinex
     git clone https://github.com/jay-johnson/network-pipeline-datasets.git /opt/antinex/datasets
 
 Build Dataset

@@ -5,10 +5,18 @@ Automating network exploit detection using highly accurate pre-trained deep neur
 
 As of 2018-03-12, the core can repeatedly predict attacks on Django, Flask, React + Redux, Vue, and Spring application servers by training using the pre-recorded `AntiNex datasets`_ with cross validation scores above **~99.8%** with automated scaler normalization.
 
+.. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
+    :target: https://travis-ci.org/jay-johnson/antinex-core
+
 Accuracy + Training + Cross Validation in a Jupyter Notebook
 ------------------------------------------------------------
 
 https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Protecting-Django.ipynb
+
+Using a Pre-Trained Deep Neural Network in a Jupyter Notebook
+-------------------------------------------------------------
+
+https://github.com/jay-johnson/antinex-core/blob/master/docker/notebooks/AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.ipynb
 
 .. _AntiNex datasets: https://github.com/jay-johnson/antinex-datasets
 
@@ -20,6 +28,59 @@ The core is a Celery worker pool for processing training and prediction requests
 This repository is a standalone training and prediction worker pool that is decoupled from the AntiNex REST API:
 
 https://github.com/jay-johnson/train-ai-with-django-swagger-jwt
+
+AntiNex Stack Status
+--------------------
+
+AntiNex Core Worker is part of the AntiNex stack:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Component
+     - Build
+     - Docs Link
+     - Docs Build
+   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
+     - .. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
+           :alt: Travis Tests
+           :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
+     - `Docs <http://antinex.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
+           :alt: Read the Docs REST API Tests
+           :target: https://readthedocs.org/projects/antinex/badge/?version=latest
+   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
+           :alt: Travis AntiNex Core Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-core.svg
+     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-core-worker/badge/?version=latest
+           :alt: Read the Docs AntiNex Core Tests
+           :target: http://antinex-core-worker.readthedocs.io/en/latest/?badge=latest
+   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`__
+     - .. image:: https://travis-ci.org/jay-johnson/network-pipeline.svg?branch=master
+           :alt: Travis AntiNex Network Pipeline Tests
+           :target: https://travis-ci.org/jay-johnson/network-pipeline.svg
+     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+           :alt: Read the Docs AntiNex Network Pipeline Tests
+           :target: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
+           :alt: Travis AntiNex AI Utils Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
+     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
+           :alt: Read the Docs AntiNex AI Utils Tests
+           :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
+   * - `Client <https://github.com/jay-johnson/antinex-client>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-client.svg?branch=master
+           :alt: Travis AntiNex Client Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-client.svg
+     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
+           :alt: Read the Docs AntiNex Client Tests
+           :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
 
 Install
 -------
@@ -42,6 +103,8 @@ Start the container for browsing with Jupyter:
 
 ::
 
+    # if you do not have docker compose installed, you can try installing it with:
+    # pip install docker-compose
     cd docker
     ./start-stack.sh
 
@@ -58,6 +121,8 @@ View Notebook Presentation Slides
 #.  Use ``Alt + r`` inside the notebook
 
 #.  Use the non-vertical scolling url: http://localhost:8889/Slides-AntiNex-Protecting-Django.slides.html
+
+#.  Use the non-vertical scolling url: http://localhost:8890/Slides-AntiNex-Using-Pre-Trained-Deep-Neural-Networks-For-Defense.slides.html
 
 Run
 ---
@@ -95,6 +160,7 @@ Please make sure to clone the dataset repo to the pre-configured location:
 
 ::
 
+    mkdir -p -m 777 /opt/antinex
     git clone https://github.com/jay-johnson/antinex-datasets.git /opt/antinex/antinex-datasets
 
 Django - Train and Predict
@@ -333,7 +399,7 @@ Linting
 
 flake8 .
 
-pycodestyle --exclude=.tox,.eggs
+pycodestyle .
 
 License
 -------
@@ -341,3 +407,4 @@ License
 Apache 2.0 - Please refer to the LICENSE_ for more details
 
 .. _License: https://github.com/jay-johnson/antinex-core/blob/master/LICENSE
+
