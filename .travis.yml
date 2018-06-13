@@ -61,7 +61,7 @@ script:
   - python manage.py test
 
 after_success:
-  - export USE_VERSION=1.0.49
+  - export USE_VERSION=1.0.51
   - echo "Building Docker images with tag=${USE_VERSION}"
   - echo "Test Success - Branch=${TRAVIS_BRANCH} Version=${USE_VERSION} Pull Request=${TRAVIS_PULL_REQUEST} Tag=${TRAVIS_TAG}"
   - if [[ "$TRAVIS_BRANCH" == "master" ]]; then echo -e "Push Container to Docker Hub"; fi
