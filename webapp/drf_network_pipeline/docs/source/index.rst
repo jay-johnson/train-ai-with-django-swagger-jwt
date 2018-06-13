@@ -213,14 +213,6 @@ The AntiNex REST API is part of the AntiNex stack:
      - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
            :alt: Read the Docs AntiNex Client Tests
            :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
-   * - `Fuzzball <https://github.com/jay-johnson/fuzzball>`__
-     - .. image:: https://travis-ci.org/jay-johnson/fuzzball.svg?branch=master
-           :alt: Travis Fuzzball Tests
-           :target: https://travis-ci.org/jay-johnson/fuzzball.svg
-     - `Docs <http://fuzzball.readthedocs.io/en/latest/>`__
-     - .. image:: https://readthedocs.org/projects/fuzzball/badge/?version=latest
-           :alt: Read the Docs Fuzzball Testing Tool
-           :target: https://readthedocs.org/projects/fuzzball/badge/?version=latest
 
 More Included App URLs
 ======================
@@ -432,16 +424,6 @@ This repository is a standalone library that uses Scikit-Learn, Keras and Tensor
    :maxdepth: 2
     
    antinex-utils
-
-AntiNex Fuzzball
-----------------
-
-Please refer to the repository for the latest code and documentation: https://github.com/jay-johnson/fuzzball
-
-.. toctree::
-   :maxdepth: 2
-    
-   antinex-fuzzball
 
 API Reference
 =============
