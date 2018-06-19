@@ -133,7 +133,8 @@ prod-compose.yml
 
 nohup.out
 db.sqlite3-journal
-webapp/drf_network_pipeline/docs/build/*.rst
+webapp/drf_network_pipeline/docs/build/html
+webapp/drf_network_pipeline/docs/build/doctrees
 webapp/drf_network_pipeline/docs/latest.log
 webapp/staticfiles
 openshift/.pgdeployment
