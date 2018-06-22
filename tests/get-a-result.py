@@ -5,7 +5,7 @@ import sys
 import json
 import requests
 import argparse
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 

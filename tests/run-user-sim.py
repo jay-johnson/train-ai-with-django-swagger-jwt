@@ -7,7 +7,7 @@ import json
 import random
 import time
 import requests
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 
 
 useralias = "user1"

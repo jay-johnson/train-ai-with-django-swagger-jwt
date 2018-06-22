@@ -36,6 +36,7 @@ sphinx
 sphinx-autobuild
 sphinx_bootstrap_theme
 sphinx_rtd_theme
+spylunking
 uwsgi
 whitenoise==4.0b4
 Werkzeug==0.12.2

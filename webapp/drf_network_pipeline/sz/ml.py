@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework import status as drf_status
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import FAILED
 from drf_network_pipeline.pipeline.consts import ERR

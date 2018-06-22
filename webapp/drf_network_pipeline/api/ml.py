@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework import permissions
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from rest_framework.response import Response
 from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult

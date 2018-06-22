@@ -10,7 +10,7 @@ from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
 from drf_network_pipeline.job_utils.handle_task_method import \
     handle_task_method
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 
 
 name = "run-task"

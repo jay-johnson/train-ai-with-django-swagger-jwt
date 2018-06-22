@@ -3,7 +3,7 @@
 import os
 import json
 from celery import Celery
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 

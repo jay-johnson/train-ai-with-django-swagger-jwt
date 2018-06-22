@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import json
 import uuid
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.consts import SUCCESS
 from antinex_utils.consts import ERR
 from antinex_utils.consts import FAILED

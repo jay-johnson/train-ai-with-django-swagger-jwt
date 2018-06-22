@@ -1,4 +1,4 @@
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db.models import Q

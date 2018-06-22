@@ -5,7 +5,7 @@ import sys
 import json
 import argparse
 from celery import signals
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 from celery_loaders.work_tasks.get_celery_app import get_celery_app
 
 

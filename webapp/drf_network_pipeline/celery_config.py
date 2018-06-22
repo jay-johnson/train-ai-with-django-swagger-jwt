@@ -2,7 +2,7 @@ import os
 import django
 from celery import Celery
 from celery import signals
-from antinex_utils.log.setup_logging import build_colorized_logger
+from spylunking.log.setup_logging import build_colorized_logger
 
 
 # Disable celery log hijacking
