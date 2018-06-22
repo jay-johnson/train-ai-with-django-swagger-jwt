@@ -122,8 +122,8 @@ echo ""
 
 not_done=1
 while [[ "${not_done}" == "1" ]]; do
-    test_pg_svc=$(oc status -v | grep 'svc/redis' | wc -l)
-    if [[ "${test_pg_svc}" != "0" ]]; then
+    test_rd_svc=$(oc status -v | grep 'svc/redis' | wc -l)
+    if [[ "${test_rd_svc}" != "0" ]]; then
         echo "Exposing Redis service"
         oc expose svc/redis
         echo ""
