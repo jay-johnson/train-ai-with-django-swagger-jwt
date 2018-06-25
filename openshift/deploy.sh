@@ -12,6 +12,12 @@ test_svc_pg_exists=$(oc status | grep "svc/${pg_service_name}" | wc -l)
 test_pv_redis_exists=$(oc get pv | grep ${redis_pv} | wc -l)
 test_pvc_redis_exists=$(oc get pvc | grep ${redis_pvc} | wc -l)
 
+splunk_enabled="0"
+if [[ "${1}" == "splunk" ]] || [[ "${1}" == "splunkenterprise" ]]; then
+    splunk_enabled="1"
+    echo "splunk enabled"
+fi
+
 first_time_deploy="0"
 if [[ "${test_exists}" == "0" ]]; then
     oc new-project ${project}
@@ -36,7 +42,13 @@ oc status
 
 # start the AntiNex docker image download as it can take a few minutes
 echo "Deploying AntiNex - AI Core"
-oc apply -f core/deployment.yaml
+if [[ "${splunk_enabled}" == "1" ]]; then
+    echo " - core/log_to_splunk_deployment.yaml"
+    oc apply -f core/log_to_splunk_deployment.yaml
+else
+    echo " - core/deployment.yaml"
+    oc apply -f core/deployment.yaml
+fi
 echo ""
 
 echo "Deploying Redis"
@@ -132,14 +144,14 @@ while [[ "${not_done}" == "1" ]]; do
     sleep 1
 done
 
-echo "Checking if AntiNex API Workers are ready"
+echo "Checking if AntiNex Core is ready"
 echo ""
 
 not_done=1
 while [[ "${not_done}" == "1" ]]; do
     test_core_deployment=$(oc status -v | grep 'deployment/core' | wc -l)
     if [[ "${test_core_deployment}" != "0" ]]; then
-        echo "AntiNex API Workers are running"
+        echo "AntiNex Core is running"
         oc status -v | grep deployment/core
         echo ""
         not_done="0"
@@ -148,7 +160,13 @@ while [[ "${not_done}" == "1" ]]; do
 done
 
 echo "Deploying AntiNex - Django Rest Framework REST API workers"
-oc apply -f worker/deployment.yaml
+if [[ "${splunk_enabled}" == "1" ]]; then
+    echo " - worker/log_to_splunk_deployment.yaml"
+    oc apply -f worker/log_to_splunk_deployment.yaml
+else
+    echo " - worker/deployment.yaml"
+    oc apply -f worker/deployment.yaml
+fi
 echo ""
 
 echo "Deploying AntiNex - Django Rest Framework REST API server"
@@ -156,11 +174,23 @@ oc apply -f api/service.yaml -f api/deployment.yaml
 echo ""
 
 echo "Deploying AntiNex - Network Pipeline consumer"
-oc apply -f pipeline/deployment.yaml
+if [[ "${splunk_enabled}" == "1" ]]; then
+    echo " - pipeline/log_to_splunk_deployment.yaml"
+    oc apply -f pipeline/log_to_splunk_deployment.yaml
+else
+    echo " - pipeline/deployment.yaml"
+    oc apply -f pipeline/deployment.yaml
+fi
 echo ""
 
 echo "Deploying Jupyter integrated with AntiNex"
-oc apply -f jupyter/service.yaml -f jupyter/deployment.yaml
+if [[ "${splunk_enabled}" == "1" ]]; then
+    echo " - jupyter/log_to_splunk_deployment.yaml"
+    oc apply -f jupyter/service.yaml -f jupyter/log_to_splunk_deployment.yaml
+else
+    echo " - jupyter/deployment.yaml"
+    oc apply -f jupyter/service.yaml -f jupyter/deployment.yaml
+fi
 echo ""
 
 echo "Checking OpenShift cluster status"
