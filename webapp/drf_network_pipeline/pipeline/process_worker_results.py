@@ -8,8 +8,9 @@ from drf_network_pipeline.pipeline.models import MLJob
 from drf_network_pipeline.pipeline.models import MLJobResult
 
 
-name = "ml_prc_results"
-log = build_colorized_logger(name=name)
+name = 'ml_prc_results'
+log = build_colorized_logger(
+    name=name)
 
 
 def handle_worker_results_message(

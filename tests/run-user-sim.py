@@ -14,8 +14,9 @@ useralias = "user1"
 if len(sys.argv) > 1:
     useralias = str(sys.argv[1]).lower()
 
-name = "{}-sim".format(useralias)
-log = build_colorized_logger(name=name)
+name = '{}-sim'.format(useralias)
+log = build_colorized_logger(
+    name=name)
 
 
 def build_request_data(useralias,

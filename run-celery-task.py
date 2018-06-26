@@ -4,13 +4,14 @@ import os
 import sys
 import json
 import argparse
-from celery import signals
 from spylunking.log.setup_logging import build_colorized_logger
+from celery import signals
 from celery_loaders.work_tasks.get_celery_app import get_celery_app
 
 
-name = "run-celery-task"
-log = build_colorized_logger(name=name)
+name = 'run-celery-task'
+log = build_colorized_logger(
+    name=name)
 
 parser = argparse.ArgumentParser(description="sending Celery task data")
 parser.add_argument(

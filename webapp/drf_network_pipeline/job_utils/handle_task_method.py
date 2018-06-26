@@ -4,8 +4,9 @@ from drf_network_pipeline.pipeline.consts import NOTDONE
 from spylunking.log.setup_logging import build_colorized_logger
 
 
-name = "handle_task_method"
-log = build_colorized_logger(name=name)
+name = 'handle_task_method'
+log = build_colorized_logger(
+    name=name)
 
 
 def handle_task_method(

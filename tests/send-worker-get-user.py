@@ -7,8 +7,9 @@ from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 
-name = "send-worker-get-user"
-log = build_colorized_logger(name=name)
+name = 'send-worker-get-user'
+log = build_colorized_logger(
+    name=name)
 
 log.info("creating celery app")
 app = Celery("test-decoupled-app")

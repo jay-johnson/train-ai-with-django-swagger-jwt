@@ -8,8 +8,9 @@ from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 
-name = "get-recent-datasets"
-log = build_colorized_logger(name=name)
+name = 'get-recent-datasets'
+log = build_colorized_logger(
+    name=name)
 
 
 url = os.getenv(

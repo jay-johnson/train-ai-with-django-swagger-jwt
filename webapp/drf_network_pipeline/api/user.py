@@ -7,8 +7,9 @@ from drf_network_pipeline.sz.user import UserSerializer
 from spylunking.log.setup_logging import build_colorized_logger
 
 
-name = "user-api"
-log = build_colorized_logger(name=name)
+name = 'user-api'
+log = build_colorized_logger(
+    name=name)
 
 
 User = get_user_model()  # noqa

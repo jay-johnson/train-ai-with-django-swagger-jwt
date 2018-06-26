@@ -10,8 +10,9 @@ from drf_network_pipeline.sz.ml import MLJobsSerializer
 from drf_network_pipeline.sz.ml import MLJobResultsSerializer
 
 
-name = "ml"
-log = build_colorized_logger(name=name)
+name = 'ml'
+log = build_colorized_logger(
+    name=name)
 
 
 class MLPrepareViewSet(

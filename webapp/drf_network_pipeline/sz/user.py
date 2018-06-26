@@ -15,8 +15,9 @@ from drf_network_pipeline.job_utils.run_task import run_task
 from drf_network_pipeline.users.tasks import task_get_user
 
 
-name = "user-sz"
-log = build_colorized_logger(name=name)
+name = 'user-sz'
+log = build_colorized_logger(
+    name=name)
 
 
 User = get_user_model()  # noqa

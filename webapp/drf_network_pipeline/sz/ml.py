@@ -22,8 +22,9 @@ from drf_network_pipeline.pipeline.create_ml_job_record import \
     create_ml_job_record
 
 
-name = "ml-sz"
-log = build_colorized_logger(name=name)
+name = 'ml-sz'
+log = build_colorized_logger(
+    name=name)
 
 
 User = get_user_model()  # noqa

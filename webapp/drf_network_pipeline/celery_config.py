@@ -12,8 +12,9 @@ def setup_celery_logging(**kwargs):
     pass
 
 
-name = "worker"
-log = build_colorized_logger(name=name)
+name = 'worker'
+log = build_colorized_logger(
+    name=name)
 
 
 # Required load order for backend workers

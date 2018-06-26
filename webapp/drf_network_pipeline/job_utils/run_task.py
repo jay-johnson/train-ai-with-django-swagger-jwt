@@ -4,17 +4,18 @@ from drf_network_pipeline.pipeline.consts import SUCCESS
 from drf_network_pipeline.pipeline.consts import ERR
 from drf_network_pipeline.pipeline.consts import NOTRUN
 from drf_network_pipeline.pipeline.consts import NOTDONE
+from spylunking.log.setup_logging import build_colorized_logger
 from drf_network_pipeline.job_utils.build_task_request import \
     build_task_request
 from drf_network_pipeline.job_utils.build_task_response import \
     build_task_response
 from drf_network_pipeline.job_utils.handle_task_method import \
     handle_task_method
-from spylunking.log.setup_logging import build_colorized_logger
 
 
-name = "run-task"
-log = build_colorized_logger(name=name)
+name = 'run-task'
+log = build_colorized_logger(
+    name=name)
 
 
 def run_task(

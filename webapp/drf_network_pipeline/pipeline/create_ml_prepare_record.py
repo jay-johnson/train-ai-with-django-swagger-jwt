@@ -12,8 +12,9 @@ from drf_network_pipeline.users.db_lookup_user import \
     db_lookup_user
 
 
-name = "create_ml_prepare"
-log = build_colorized_logger(name=name)
+name = 'create_ml_prepare'
+log = build_colorized_logger(
+    name=name)
 
 
 def create_ml_prepare_record(

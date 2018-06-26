@@ -9,8 +9,9 @@ from spylunking.log.setup_logging import build_colorized_logger
 from antinex_utils.utils import ppj
 
 
-name = "get-a-result"
-log = build_colorized_logger(name=name)
+name = 'get-a-result'
+log = build_colorized_logger(
+    name=name)
 
 
 parser = argparse.ArgumentParser(description="get a MLJobResult")

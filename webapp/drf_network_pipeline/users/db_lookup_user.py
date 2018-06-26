@@ -9,8 +9,9 @@ from drf_network_pipeline.pipeline.consts import NOTRUN
 
 User = get_user_model()  # noqa
 
-name = "user_tasks"
-log = build_colorized_logger(name=name)
+name = 'user_tasks'
+log = build_colorized_logger(
+    name=name)
 
 
 def db_lookup_user(

@@ -15,8 +15,9 @@ from drf_network_pipeline.pipeline.build_worker_result_node import \
     build_worker_result_node
 
 
-name = "create_ml_job"
-log = build_colorized_logger(name=name)
+name = 'create_ml_job'
+log = build_colorized_logger(
+    name=name)
 
 
 def create_ml_job_record(
