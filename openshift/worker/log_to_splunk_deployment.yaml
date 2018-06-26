@@ -101,8 +101,8 @@ spec:
           value: "8080"
         - name: DEPLOY_CONFIG
           value: log_to_splunk
-        - name: COMPONENT_NAME
-          value: api
+        - name: LOG_NAME
+          value: worker
         - name: ENV_NAME
           value: ocp
         - name: SHARED_LOG_CFG
