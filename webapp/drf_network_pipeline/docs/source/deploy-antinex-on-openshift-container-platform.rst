@@ -106,6 +106,12 @@ Deploy the containers to OpenShift Container Platform
 
     ./deploy.sh
 
+If you have Splunk set up you can deploy the splunk deployment configs with the command:
+
+::
+
+    ./deploy.sh splunkenterprise
+
 Check the AntiNex Stack
 -----------------------
 
@@ -330,7 +336,99 @@ You can drop the database and restore it to the latest migration with this comma
     ./tools/drop-database.sh
 
 Debugging
-=========
+---------
+
+Here is how to debug AntiNex on OpenShift. This is a work in progress so please feel free to reach out if you see a problem that is not documented here.
+
+Drill Down into the Splunk Logs
+-------------------------------
+
+If you deployed AntiNex with Splunk, then can use the Spylunking - `sp command line tool <https://github.com/jay-johnson/spylunking#pull-logs-with-a-query-on-the-command-line-1>`__  or use the Splunk web app: http://splunkenterprise:8000/en-US/app/search/search
+
+Find API Logs in Splunk
+-----------------------
+
+Find the API's logs by using the `deployment config environment variables <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/4d3e90271ad7c0996685576e09cdfddc2299580d/openshift/api/log_to_splunk_deployment.yaml#L106-L111>`__ with the command:
+
+::
+
+    sp -q 'index="antinex" AND name="api" | head 5 | reverse'
+    creating client user=trex address=splunkenterprise:8089
+    connecting trex@splunkenterprise:8089
+    2018-06-26 22:07:08,971 ml-sz - INFO - MLJob get user_id=2 pk=4
+    2018-06-26 22:07:08,976 ml-sz - INFO - MLJob get res={'status': 0, 'code': 200, 'er
+    2018-06-26 22:07:09,011 ml - INFO - mljob_result get
+    2018-06-26 22:07:09,012 ml-sz - INFO - MLJobResults get user_id=2 pk=4
+    2018-06-26 22:07:11,458 ml-sz - INFO - MLJobResults get res={'status': 0, 'code': 200, 'er
+    done
+ 
+Find Worker Logs in Splunk
+--------------------------
+
+Find the Worker's logs by using the `deployment config environment variables <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/4d3e90271ad7c0996685576e09cdfddc2299580d/openshift/worker/log_to_splunk_deployment.yaml#L102-L107>`__ with the command:
+
+::
+
+    sp -q 'index="antinex" AND name="worker" | head 5 | reverse'
+    creating client user=trex address=splunkenterprise:8089
+    connecting trex@splunkenterprise:8089
+    2018-06-26 22:07:01,990 ml_prc_results - INFO - APIRES updating job_id=4 result_id=4
+    2018-06-26 22:07:01,991 ml_prc_results - INFO - saving job_id=4
+    2018-06-26 22:07:02,003 ml_prc_results - INFO - saving result_id=4
+    2018-06-26 22:07:07,898 ml_prc_results - INFO - APIRES done
+    2018-06-26 22:07:07,899 celery.app.trace - INFO - Task drf_network_pipeline.pipeline.tasks.task_ml_process_results[5499207f-4faa-430e-89ec-c136829da902] succeeded in 6.908605030999752s: None
+    done
+
+Find Core Logs in Splunk
+------------------------
+
+Find the Core's logs by using the `deployment config environment variables <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt/blob/4d3e90271ad7c0996685576e09cdfddc2299580d/openshift/core/log_to_splunk_deployment.yaml#L58-L63>`__ with the command:
+
+::
+
+    sp -q 'index="antinex" AND name="core" | head 5 | reverse'
+    creating client user=trex address=splunkenterprise:8089
+    connecting trex@splunkenterprise:8089
+    2018-06-26 22:06:55,834 send_results - INFO - sending response queue=drf_network_pipeline.pipeline.tasks.task_ml_process_results task=drf_network_pipeline.pipeline.tasks.task_ml_process_results retries=100000
+    2018-06-26 22:06:57,530 send_results - INFO - task.id=5499207f-4faa-430e-89ec-c136829da902
+    2018-06-26 22:06:57,530 send_results - INFO - send_results_to_broker - done
+    2018-06-26 22:06:57,530 processor - INFO - CORERES Full-Django-AntiNex-Simple-Scaler-DNN publishing results success=True
+    2018-06-26 22:06:57,531 processor - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - model=full-django-antinex-simple-scaler-dnn finished processing
+    done
+
+Find Core AI Utilities Logs in Splunk
+-------------------------------------
+
+Find the Core's `AntiNex Utility <https://github.com/jay-johnson/antinex-utils>`__ logs with the command:
+
+::
+
+    sp -q 'index="antinex" AND name="core" AND make_predict | head 5 | reverse'
+    creating client user=trex address=splunkenterprise:8089
+    connecting trex@splunkenterprise:8089
+    2018-06-26 22:06:42,236 make_predict - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - ml_type=classification scores=[0.00016556291390729116, 0.9982615894039735] accuracy=99.82615894039735 merging samples=30200 with predictions=30200 labels={'-1': 'not_attack', '0': 'not_attack', '1': 'attack'} 
+    2018-06-26 22:06:48,017 make_predict - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - packaging classification predictions=30200 rows=30200 
+    2018-06-26 22:06:48,017 make_predict - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - no image_file 
+    2018-06-26 22:06:48,017 make_predict - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - created image_file=None 
+    2018-06-26 22:06:48,018 make_predict - INFO - Full-Django-AntiNex-Simple-Scaler-DNN - predictions done 
+    done
+
+Find Worker AI Utilities Logs in Splunk
+---------------------------------------
+
+Find the Worker's `AntiNex Utility <https://github.com/jay-johnson/antinex-utils>`__ logs with the command:
+
+::
+
+    sp -q 'index="antinex" AND name="worker" AND make_predict | head 5 | reverse'
+    creating client user=trex address=splunkenterprise:8089
+    connecting trex@splunkenterprise:8089
+    2018-06-26 21:45:04,351 make_predict - INFO - job_3_result_3 - merge_df=1651 
+    2018-06-26 21:45:04,351 make_predict - INFO - job_3_result_3 - packaging regression predictions=1651 rows=18 
+    2018-06-26 21:45:04,352 make_predict - INFO - job_3_result_3 - no image_file 
+    2018-06-26 21:45:04,352 make_predict - INFO - job_3_result_3 - created image_file=None 
+    2018-06-26 21:45:04,352 make_predict - INFO - job_3_result_3 - predictions done 
+    done
 
 Tail API Logs
 -------------

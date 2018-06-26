@@ -170,7 +170,13 @@ fi
 echo ""
 
 echo "Deploying AntiNex - Django Rest Framework REST API server"
-oc apply -f api/service.yaml -f api/deployment.yaml 
+if [[ "${splunk_enabled}" == "1" ]]; then
+    echo " - api/log_to_splunk_deployment.yaml"
+    oc apply -f api/service.yaml -f api/log_to_splunk_deployment.yaml
+else
+    echo " - pipeline/deployment.yaml"
+    oc apply -f api/service.yaml -f api/deployment.yaml
+fi
 echo ""
 
 echo "Deploying AntiNex - Network Pipeline consumer"
