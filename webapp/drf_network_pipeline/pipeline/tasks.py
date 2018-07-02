@@ -31,6 +31,10 @@ from kombu import Exchange
 from kombu import Queue
 
 
+log = build_colorized_logger(
+    name='ml.tasks')
+
+
 # allow tasks to be sent straight to the worker
 @shared_task(
     name=("drf_network_pipeline.pipeline.tasks."
@@ -46,9 +50,6 @@ def task_ml_prepare(
     :param self: parent task object for bind=True
     :param req_node: job utils dictionary for passing a dictionary
     """
-
-    log = build_colorized_logger(
-        name='task_ml_prepare')
 
     log.info(("task - {} - start "
               "req_node={}")
@@ -256,8 +257,6 @@ def task_publish_to_core(
     :param self: parent task object for bind=True
     :param publish_node: dictionary to send to the AntiNex Core Worker
     """
-    log = build_colorized_logger(
-        name='task_publish_to_core')
 
     if settings.ANTINEX_WORKER_ENABLED:
 
@@ -409,9 +408,6 @@ def task_ml_process_results(
     :param self: parent task object for bind=True
     :param res_node: results dictionary from the core
     """
-    log = build_colorized_logger(
-        name='task_ml_process_results')
-
     if settings.ANTINEX_WORKER_ENABLED:
         log.info("processing worker results")
         process_worker_results(
@@ -437,9 +433,6 @@ def task_ml_job(
     :param self: parent task object for bind=True
     :param req_node: job utils dictionary for passing a dictionary
     """
-    log = build_colorized_logger(
-        name='task_ml_job')
-
     log.info(("task - {} - start "
               "req_node={}")
              .format(

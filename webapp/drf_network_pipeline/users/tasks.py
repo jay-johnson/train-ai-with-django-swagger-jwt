@@ -11,6 +11,10 @@ from drf_network_pipeline.users.db_lookup_user import \
     db_lookup_user
 
 
+log = build_colorized_logger(
+    name='users.tasks')
+
+
 # allow tasks to be sent straight to the worker
 @shared_task(
     name=("drf_network_pipeline.users.tasks."
@@ -26,8 +30,6 @@ def task_get_user(
     :param self: parent task object for bind=True
     :param req_node: dictionary for lookup values
     """
-    log = build_colorized_logger(
-        name='task_get_user')
 
     label = "task_get_user"
 
