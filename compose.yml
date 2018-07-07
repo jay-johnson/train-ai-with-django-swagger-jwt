@@ -30,7 +30,7 @@ services:
   redis:
     container_name: "redis"
     hostname: redis
-    image: redis:4.0.9-alpine
+    image: redis:4.0.10-alpine
     ports:
       - "6379:6379"
 
