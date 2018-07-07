@@ -73,6 +73,8 @@ spec:
           value: "192.168.0.21:8088"
         - name: SPLUNK_API_ADDRESS
           value: "192.168.0.21:8089"
+        - name: SPLUNK_TCP_ADDRESS
+          value: "192.168.0.21:1514"
         - name: SPLUNK_USER
           value: trex
         - name: SPLUNK_PASSWORD
