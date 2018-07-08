@@ -290,7 +290,7 @@ There are a few ways to make live predictions depending on how the pipeline and 
     ::
 
         export ANTINEX_PUBLISH_ENABLED=1
-        export ANTINEX_URL=http://localhost:8080
+        export ANTINEX_URL=http://localhost:8010
         export ANTINEX_USER=root
         export ANTINEX_EMAIL=123321
         export ANTINEX_PASSWORD=123321
@@ -372,7 +372,7 @@ Scapy_ currently provides the traffic capture tooling, but the code already has 
 
 #.  Capture TCP Data
 
-    By default TCP capture is only capturing traffic on ports: 80, 443, 8080, and 8443. This can be modified with the ``NETWORK_FILTER`` environment variable. Please avoid capturing on the redis port (default 6379) and rabbitmq port (default 5672) to prevent duplicate sniffing on the already-captured data that is being forwarded to the message queues which are ideally running in another virtual machine.
+    By default TCP capture is only capturing traffic on ports: 80, 443, 8010, and 8443. This can be modified with the ``NETWORK_FILTER`` environment variable. Please avoid capturing on the redis port (default 6379) and rabbitmq port (default 5672) to prevent duplicate sniffing on the already-captured data that is being forwarded to the message queues which are ideally running in another virtual machine.
     
     This guide assumes you are running all these tools from the base directory of the repository.
 

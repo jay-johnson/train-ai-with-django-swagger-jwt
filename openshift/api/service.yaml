@@ -19,9 +19,9 @@ metadata:
   name: api
 spec:
   ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
+  - name: "8010"
+    port: 8010
+    targetPort: 8010
   selector:
     antinex: api
     purpose: rest

@@ -125,9 +125,9 @@ Return the 30,200 predicted records and accuracy scores (which were 99.826%) fro
 ::
 
     ai_get_results.py -u root -p 123321 -i 1
-    2018-03-29 20:52:26,348 - ai-client - INFO - creating client user=root url=http://localhost:8080 result_id=1
+    2018-03-29 20:52:26,348 - ai-client - INFO - creating client user=root url=http://localhost:8010 result_id=1
     2018-03-29 20:52:26,349 - ai-client - INFO - loading request in result_id=1
-    2018-03-29 20:52:26,360 - ai-client - INFO - log in user=root url=http://localhost:8080/api-token-auth/ ca_file=None cert=None
+    2018-03-29 20:52:26,360 - ai-client - INFO - log in user=root url=http://localhost:8010/api-token-auth/ ca_file=None cert=None
     2018-03-29 20:52:30,876 - ai-client - INFO - accuracy=99.82615894039735 num_results=30200
     2018-03-29 20:52:30,876 - ai-client - INFO - done getting result.id=1
 
@@ -231,22 +231,22 @@ Django REST API with Swagger
 
 Credentials: **root** and **123321**
 
-http://localhost:8080/swagger/
+http://localhost:8010/swagger/
 
 - `Build and Train a DNN`_
 - `Get Training Predictions and Accuracy Results`_
 - `Get Training Job Record`_
 - `Prepare a New Dataset`_
 
-.. _Build and Train a DNN: http://localhost:8080/swagger/#!/ml/ml_create
-.. _Get Training Predictions and Accuracy Results: http://localhost:8080/swagger/#!/mlresults/mlresults_read
-.. _Get Training Job Record: http://localhost:8080/swagger/#!/ml/ml_read
-.. _Prepare a New Dataset: http://localhost:8080/swagger/#!/mlprepare/mlprepare_create
+.. _Build and Train a DNN: http://localhost:8010/swagger/#!/ml/ml_create
+.. _Get Training Predictions and Accuracy Results: http://localhost:8010/swagger/#!/mlresults/mlresults_read
+.. _Get Training Job Record: http://localhost:8010/swagger/#!/ml/ml_read
+.. _Prepare a New Dataset: http://localhost:8010/swagger/#!/mlprepare/mlprepare_create
 
 Django-hosted Sphinx Docs
 -------------------------
 
-http://localhost:8080/docs/
+http://localhost:8010/docs/
 
 Jupyter
 -------

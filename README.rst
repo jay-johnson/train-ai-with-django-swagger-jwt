@@ -157,7 +157,7 @@ If you are running all the containers, you can use these links to move around:
 
 - Use Swagger to Train a new Deep Neural Network (login with ``trex`` and ``123321``)
 
-  http://localhost:8080/swagger/#!/ml/ml_create
+  http://localhost:8010/swagger/#!/ml/ml_create
 
 - Jupyter Notebook showing how the Deep Neural Networks are Trained (login with ``admin`` and ``ALT + r`` to view the slideshow)
 
@@ -256,11 +256,11 @@ Note: if you are running the docker "full stack" please make sure to run: ``expo
 
     ./start.sh
 
-    Starting Django listening on TCP port 8080
-    http://localhost:8080/swagger
+    Starting Django listening on TCP port 8010
+    http://localhost:8010/swagger
 
     [2018-02-07 11:27:20 -0800] [10418] [INFO] Starting gunicorn 19.7.1
-    [2018-02-07 11:27:20 -0800] [10418] [INFO] Listening at: http://127.0.0.1:8080 (10418)
+    [2018-02-07 11:27:20 -0800] [10418] [INFO] Listening at: http://127.0.0.1:8010 (10418)
     [2018-02-07 11:27:20 -0800] [10418] [INFO] Using worker: sync
     [2018-02-07 11:27:20 -0800] [10418] [INFO] DJANGO_DEBUG=yes - auto-reload enabled
     [2018-02-07 11:27:20 -0800] [10418] [INFO] Server is ready. Spawning workers
@@ -301,7 +301,7 @@ Create the user ``trex`` with password ``123321``:
     && ./tests/create-user.sh \
     && env | grep API | sort
 
-    Creating user: trex on http://localhost:8080/users/
+    Creating user: trex on http://localhost:8010/users/
     {"id":2,"username":"trex","email":"bugs@antinex.com"}
     Getting token for user: trex
     {"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2LCJ1c2VybmFtZSI6InRyZXgiLCJleHAiOjE1MjgyNjExMjgsImVtYWlsIjoiYnVnc0BhbnRpbmV4LmNvbSJ9.W6Lb2N1v8S3e6EMT7RuTvfUQMTbKjrmYzhMxtFQ9jhk"}
@@ -310,7 +310,7 @@ Create the user ``trex`` with password ``123321``:
     API_FIRSTNAME=Guest
     API_LASTNAME=Guest
     API_PASSWORD=123321
-    API_URL=http://localhost:8080
+    API_URL=http://localhost:8010
     API_USER=trex
     API_VERBOSE=true
 
@@ -489,7 +489,7 @@ Swagger
 Create a User
 -------------
 
-http://localhost:8080/swagger/#!/users/users_create
+http://localhost:8010/swagger/#!/users/users_create
 
 Click on the yellow ``Example Value`` section to paste in defaults or paste in your version of:
 
@@ -509,12 +509,12 @@ If you want to login as the super user:
 - Username: ``trex``
 - Password: ``123321``
 
-http://localhost:8080/api-auth/login/
+http://localhost:8010/api-auth/login/
 
 Logout User
 -----------
 
-http://localhost:8080/swagger/?next=/swagger/#!/accounts/accounts_logout_create
+http://localhost:8010/swagger/?next=/swagger/#!/accounts/accounts_logout_create
 
 JWT
 ===
@@ -538,7 +538,7 @@ This will validate authentication with JWT is working:
       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0LCJ1c2VybmFtZSI6InJvb3QiLCJleHAiOjE1MTc1OTg3NDEsImVtYWlsIjoicm9vdEBlbWFpbC5jb20ifQ.WAIatDGkeFJbH6LL_4rRQaAydZXcE8j0KK7dBnA2GJU"
     }
 
-http://localhost:8080/swagger/?next=/swagger/#!/ml/ml_run_create
+http://localhost:8010/swagger/?next=/swagger/#!/ml/ml_run_create
 
 Development
 ===========
@@ -546,7 +546,7 @@ Development
 Swagger Prepare a new Dataset from Captured Recordings
 ------------------------------------------------------
 
-http://localhost:8080/swagger/#!/mlprepare/mlprepare_create
+http://localhost:8010/swagger/#!/mlprepare/mlprepare_create
 
 Paste in the following values and click **Try it Out**:
 
@@ -598,7 +598,7 @@ Paste in the following values and click **Try it Out**:
 Swagger Train a Keras Deep Neural Network with Tensorflow
 ---------------------------------------------------------
 
-http://0.0.0.0:8080/swagger/#!/ml/ml_create
+http://0.0.0.0:8010/swagger/#!/ml/ml_create
 
 Paste in the following values and click **Try it Out**:
 

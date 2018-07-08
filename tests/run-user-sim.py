@@ -66,7 +66,7 @@ def build_request_data(useralias,
 
 url = os.getenv(
     "ANTINEX_URL",
-    "http://localhost:8080")
+    "http://localhost:8010")
 output_dir = os.getenv(
     "OUTPUT_DIR",
     "/tmp/")

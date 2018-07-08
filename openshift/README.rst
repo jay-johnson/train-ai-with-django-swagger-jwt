@@ -132,7 +132,7 @@ You can also use the command line:
     oc status -v
     In project antinex on server https://ocp39.homelab.com:8443
 
-    http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
+    http://api-antinex.apps.homelab.com to pod port 8010 (svc/api)
     deployment/api deploys jayjohnson/antinex-api:latest
         deployment #1 running for 7 hours - 1 pod
 
@@ -242,7 +242,7 @@ OpenShift Container Platform
         ::
 
             $ oc status | grep svc/api
-            http://api-antinex.apps.homelab.com to pod port 8080 (svc/api)
+            http://api-antinex.apps.homelab.com to pod port 8010 (svc/api)
 
     #.  Confirm it is Discovered by the AntiNex Get API URL Tool
 

@@ -3,7 +3,7 @@ export API_PASSWORD="123321"
 export API_EMAIL="bugs@antinex.com"
 export API_FIRSTNAME="Guest"
 export API_LASTNAME="Guest"
-export API_URL="http://localhost:8080"
+export API_URL="http://localhost:8010"
 export API_VERBOSE="true"
 export API_DEBUG="false"
 

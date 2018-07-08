@@ -5,7 +5,7 @@ pw="123321"
 email="bugs@antinex.com"
 firstname="Guest"
 lastname="Guest"
-auth_url="http://0.0.0.0:8080/users/"
+auth_url="http://0.0.0.0:8010/users/"
 
 if [[ "${1}" != "" ]]; then
     user=${1}

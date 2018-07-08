@@ -42,7 +42,7 @@ if args.data_file:
 
 url = os.getenv(
     "ANTINEX_URL",
-    "http://localhost:8080")
+    "http://localhost:8010")
 username = os.getenv(
     "API_USER",
     "root")

@@ -33,7 +33,7 @@ bind = "{}:{}".format(
         "0.0.0.0"),
     os.getenv(
         "WEBAPP_PORT",
-        "8080"))
+        "8010"))
 backlog = 2048
 
 #

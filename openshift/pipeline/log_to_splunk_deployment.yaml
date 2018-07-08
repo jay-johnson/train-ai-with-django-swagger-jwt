@@ -84,7 +84,7 @@ spec:
         - name: ANTINEX_TEST_SIZE
           value: "0.2"
         - name: ANTINEX_URL
-          value: http://api:8080
+          value: http://api:8010
         - name: FORWARD_BROKER_URL
           value: redis://redis:6379/0
         - name: ANTINEX_USER

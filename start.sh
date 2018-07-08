@@ -43,12 +43,12 @@ echo "Deploying Statics"
 echo ""
 
 echo ""
-echo "Starting Django listening on TCP port 8080"
-echo "http://localhost:8080/swagger"
+echo "Starting Django listening on TCP port 8010"
+echo "http://localhost:8010/swagger"
 echo ""
 # runserver has issues with
 # threads which break keras
-# python ./manage.py runserver 0.0.0.0:8080
+# python ./manage.py runserver 0.0.0.0:8010
 
 if [[ "${APP_SERVER}" == "uwsgi" ]]; then
     uwsgi ./django-uwsgi.ini --thunder-lock

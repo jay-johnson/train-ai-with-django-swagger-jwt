@@ -3,7 +3,7 @@
 venv=~/.venvs/venvdrfpipeline
 env_name=drf-dev
 webapp_host="localhost"
-webapp_port="8080"
+webapp_port="8010"
 
 # support for using venv in other locations
 if [[ "${USE_VENV}" != "" ]]; then
@@ -81,7 +81,7 @@ echo "http://${webapp_host}:${webapp_port}/swagger"
 echo ""
 # runserver has issues with
 # threads which break keras
-# python ./manage.py runserver 0.0.0.0:8080
+# python ./manage.py runserver 0.0.0.0:8010
 
 if [[ "${APP_SERVER}" == "uwsgi" ]]; then
     uwsgi ./django-uwsgi.ini --thunder-lock

@@ -30,7 +30,7 @@ These are the helper methods for abstracting celery calls from the Django REST F
         NOTDONE = 6
 
 #.  **err** will be an empty string on **SUCCESS** and not-empty if there was a problem
-#.  **data** is the result from the Celery worker (if it was used instead of **python manage.py runserver 0.0.0.0:8080**)
+#.  **data** is the result from the Celery worker (if it was used instead of **python manage.py runserver 0.0.0.0:8010**)
 #.  **use_cache** is a flag meaning the results ere also cached in the **cache_key** for **django-cacheops** to use (this is not supported yet)
 #.  **task_name** is a human readable task label for debugging in the logs
 
