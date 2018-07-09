@@ -1,0 +1,134 @@
+version: '2'
+
+services:
+
+  # PostgreSQL database
+  postgres:
+    container_name: "postgres"
+    image: postgres:10.4-alpine
+    hostname: postgres
+    env_file:
+      - ./envs/postgres-dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  # pgAdmin
+  pgadmin:
+    container_name: "pgadmin"
+    image: jayjohnson/pgadmin4:1.0.0
+    hostname: pgadmin
+    env_file:
+      - ./envs/pgadmin-dev.env
+    ports:
+      - "83:5050"
+    volumes:
+      - ./data/pgadmin:/data
+  
+  # Redis
+  redis:
+    container_name: "redis"
+    hostname: redis
+    image: redis:4.0.10-alpine
+    ports:
+      - "6379:6379"
+
+  # Jupyter notebooks, converted noteooks as presentation html slides, and tensorboard
+  jupyter:
+    container_name: "jupyter"
+    hostname: jupyter
+    image: jayjohnson/antinex-jupyter:latest
+    network_mode: "host"
+    environment:
+      - JUPYTER_PASS=admin
+      - SHARED_DIR=/opt/data
+      - BROKER_URL=redis://0.0.0.0:6379/6
+    ports:
+      - "8888:8888"
+      - "8889:8889"
+      - "8890:8890"
+      - "6006:6006"
+    entrypoint: "/opt/antinex/core/docker/jupyter/start-container.sh"
+
+  # AntiNex Celery Worker for using pre-trained models
+  core:
+    container_name: "core"
+    hostname: core
+    image: jayjohnson/antinex-core:latest
+    network_mode: "host"
+    environment:
+      - SHARED_DIR=/opt/data
+      - BROKER_URL=redis://0.0.0.0:6379/6
+    volumes:
+      - /tmp:/tmp
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/core/run-antinex-core.sh'"
+
+  # Django Rest Framework + JWT + Swagger
+  api:
+    container_name: "api"
+    hostname: api
+    image: jayjohnson/antinex-api:latest
+    network_mode: "host"
+    environment:
+      # for nginx hosting the statics need to be
+      # deployed on startup to the mounted volume
+      - SKIP_COLLECT_STATICS=0
+    env_file:
+      - ./envs/all-dev.env
+    ports:
+      - "8010:8010"
+    volumes:
+      - /tmp:/tmp
+      - /opt/antinex/static:/opt/antinex/api/webapp/staticfiles
+      - /opt/antinex/api/webapp/drf_network_pipeline/settings.py:/opt/antinex/api/webapp/drf_network_pipeline/settings.py
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-django.sh'"
+
+  # Django Rest Framework Celery Worker
+  worker:
+    container_name: "worker"
+    hostname: worker
+    image: jayjohnson/antinex-worker:latest
+    network_mode: "host"
+    env_file:
+      - ./envs/all-dev.env
+    volumes:
+      - /tmp:/tmp
+    depends_on:
+      - api
+      - postgres
+      - redis
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/api && 
+                 /opt/antinex/api/run-worker.sh'"
+  
+  # Network Pipeline Packet Processor
+  # auto-publishes to the Django Rest Framework 
+  # for making predictions on network traffic
+  # using pre-trained deep neural networks
+  # running in the AntiNex Core
+  pipeline:
+    container_name: "pipeline"
+    hostname: pipeline
+    image: jayjohnson/antinex-pipeline:latest
+    network_mode: "host"
+    env_file:
+      - ./envs/pipeline-dev.env
+    volumes:
+      - /tmp:/tmp
+    depends_on:
+      - api
+      - core
+      - postgres
+      - redis
+    entrypoint: "/bin/sh -c 'cd /opt/antinex/pipeline && 
+                 . /opt/venv/bin/activate &&
+                 /opt/antinex/pipeline/network_pipeline/scripts/packets_redis.py'"
+

@@ -26,6 +26,9 @@ class Common(Configuration):
     # SECURITY WARNING: do not run with debug turned on in production!
     DEBUG = values.BooleanValue(False)
 
+    # for using HTTPS in swagger
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
     ALLOWED_HOSTS = [
         "localhost",
         "127.0.0.1",
@@ -33,6 +36,7 @@ class Common(Configuration):
         "webapp",
         "dev.antinex",
         "api.antinex.com"
+        "ark.antinex.com"
     ]
 
     # Application definition
