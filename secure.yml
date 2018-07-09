@@ -85,7 +85,6 @@ services:
     volumes:
       - /tmp:/tmp
       - /opt/antinex/static:/opt/antinex/api/webapp/staticfiles
-      - /opt/antinex/api/webapp/drf_network_pipeline/settings.py:/opt/antinex/api/webapp/drf_network_pipeline/settings.py
     depends_on:
       - postgres
       - redis
