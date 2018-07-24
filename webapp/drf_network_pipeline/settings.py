@@ -27,7 +27,11 @@ class Common(Configuration):
     DEBUG = values.BooleanValue(False)
 
     # for using HTTPS in swagger
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+    SECURE_PROXY_SSL_HEADER = (
+        os.getenv(
+            'HTTP_X_FORWARDED_PROTOCOL_KEY',
+            'HTTP_X_FORWARDED_PROTOCOL').strip().upper(),
+        'https')
 
     ALLOWED_HOSTS = [
         "localhost",
