@@ -431,6 +431,7 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
+   deploy-antinex-on-kubernetes
    deploy-antinex-on-openshift-container-platform
    pipeline
    job_utils
