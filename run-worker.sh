@@ -77,6 +77,10 @@ if [[ "${SHARED_LOG_CFG}" != "" ]]; then
     echo ""
 fi
 
+if  [[ "${ANTINEX_API_NUM_WORKERS}" != "" ]]; then
+    num_workers=${ANTINEX_API_NUM_WORKERS}
+fi
+
 # Use the WORKER_EXTRA_ARGS to pass in specific args:
 # http://docs.celeryproject.org/en/latest/reference/celery.bin.worker.html
 #
@@ -86,12 +90,15 @@ fi
 # --without-gossip
 # --without-mingle
 
-if [[ "${num_workers}" == "1" ]]; then
-    echo "Starting Worker=${worker_module}"
+if [[ "${ANTINEX_API_WORKER_ARGS}" != "" ]]; then
+    echo "Launching custom api worker=${ANTINEX_API_WORKER_ARGS}"
+    celery worker ${ANTINEX_API_WORKER_ARGS}
+elif [[ "${num_workers}" == "1" ]]; then
+    echo "Starting worker=${worker_module}"
     echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}"
     celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} -Q $custom_queues ${WORKER_EXTRA_ARGS}
 else
-    echo "Starting Workers=${worker_module}"
+    echo "Starting workers=${worker_module}"
     echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}"
     celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}
 fi
