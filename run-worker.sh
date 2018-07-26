@@ -77,13 +77,22 @@ if [[ "${SHARED_LOG_CFG}" != "" ]]; then
     echo ""
 fi
 
+# Use the WORKER_EXTRA_ARGS to pass in specific args:
+# http://docs.celeryproject.org/en/latest/reference/celery.bin.worker.html
+#
+# example args from 4.2.0:
+# --without-heartbeat
+# --heartbeat-interval N
+# --without-gossip
+# --without-mingle
+
 if [[ "${num_workers}" == "1" ]]; then
     echo "Starting Worker=${worker_module}"
-    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} -Q ${custom_queues}"
-    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} -Q $custom_queues
+    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}"
+    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} -Q $custom_queues ${WORKER_EXTRA_ARGS}
 else
     echo "Starting Workers=${worker_module}"
-    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues}"
-    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues}
+    echo "celery worker -A ${worker_module} -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}"
+    celery worker -A $worker_module -c ${num_workers} -l ${log_level} -n ${worker_name} --logfile=${log_file} -Q ${custom_queues} ${WORKER_EXTRA_ARGS}
 fi
 echo ""
