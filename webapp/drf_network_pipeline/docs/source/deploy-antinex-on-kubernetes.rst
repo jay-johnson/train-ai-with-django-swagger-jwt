@@ -1,7 +1,7 @@
 Deploy to Kubernetes
 --------------------
 
-This is a work in progress guide for installing a local kubernetes cluster with helm on a single Ubuntu host (validated on Ubuntu 18.04). Once the cluster is running, you can deploy the following docker containers:
+This is a work in progress guide for installing a local Kubernetes cluster with helm on a single Ubuntu host (validated on Ubuntu 18.04). Once the cluster is running, you can deploy the following docker containers to run the `AntiNex stack <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__:
 
 - `Redis <https://hub.docker.com/r/bitnami/redis/>`__
 - `Postgres <https://github.com/CrunchyData/crunchy-containers>`__
@@ -11,6 +11,10 @@ This is a work in progress guide for installing a local kubernetes cluster with 
 - `Core Celery Workers <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/core/deployment.yml>`__
 - `pgAdmin4 <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/pgadmin/crunchy-template-http.json>`__
 - `(Optional) Splunk with TCP and HEC Service Endpoints <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/splunk/deployment.yml>`__
+
+Please ensure the Ubuntu host has at least 4 CPU cores and more than 8 GB ram. Here is a screenshot from a recent AI training test with only 3 cores:
+
+.. image:: https://i.imgur.com/KQ7MBdM.png
 
 Getting Started
 ---------------
@@ -29,12 +33,20 @@ This guide installs the following systems and NFS volumes to prepare the host fo
 Install
 =======
 
-Run this as root.
+Here is a video showing how to prepare the host to run a local Kubernetes cluster:
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193463?autoplay=1" target="_blank"><img src="https://asciinema.org/a/193463.png"/></a>
+
+Preparing the host to run Kubernetes requires run this as root
 
 ::
 
     sudo su
     ./prepare.sh
+
+.. note:: This has only been tested on Ubuntu 18.04 and requires commenting out all swap entries in ``/etc/fstab`` to work
 
 Validate
 --------
@@ -110,12 +122,27 @@ Validate
 Deploy Redis and Postgres and the Nginx Ingress
 -----------------------------------------------
 
-Deploy Redis, the Postgres database with pgAdmin4, and the nginx-ingress using the following command.
+Here is a video showing how to deploy Postgres, Redis, Nginx Ingress, and the pgAdmin4 as pods in the cluster:
 
-.. note:: Please ensure helm is installed and the tiller pod in the ``kube-system`` namespace is the ``Running`` state or redis will encounter issues.
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193476?autoplay=1" target="_blank"><img src="https://asciinema.org/a/193476.png"/></a>
+
+.. note:: Postgres, pgAdmin4 and Redis use persistent volumes to store data outside the Kubernetes cluster using NFS-mounted volumes
+
+Here are the commands to deploy Postgres, Redis, Nginx Ingress, and pgAdmin4 in the cluster:
+
+.. note:: Please ensure helm is installed and the tiller pod in the ``kube-system`` namespace is the ``Running`` state or Redis will encounter deployment issues
 
 ::
 
+    # note this has only been tested on Ubuntu 18.04:
+    sudo su
+    apt install golang-go
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+    go get github.com/blang/expenv
+    ./user-install-kubeconfig.sh
     ./deploy-resources.sh
 
 If you want to deploy splunk you can add it as an argument:
@@ -127,7 +154,13 @@ If you want to deploy splunk you can add it as an argument:
 Start Applications
 ------------------
 
-Start all applications with the command:
+Here is a video showing how to start the Django REST Framework, Celery Workers, Jupyter, and the AntiNex Core as pods in the cluster:
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193485?autoplay=1" target="_blank"><img src="https://asciinema.org/a/193485.png"/></a>
+
+Start all applications as your user with the command:
 
 ::
 
@@ -151,7 +184,13 @@ Depending on how fast your network connection is the initial container downloads
 Run a Database Migration
 ------------------------
 
-To apply django database migrations, run the following command:
+Here is a video showing how to apply database schema migrations in the cluster:
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193491?autoplay=1" target="_blank"><img src="https://asciinema.org/a/193491.png"/></a>
+
+To apply new Django database migrations, run the following command:
 
 ::
 
@@ -235,10 +274,76 @@ Login with:
 
 https://splunk.example.com
 
+Training AI with the Django REST API
+------------------------------------
+
+These steps install the `AntiNex python client <https://github.com/jay-johnson/antinex-client>`__ for training a deep neural network to predict attack packets from recorded network data (all of which is already included in the docker containers).
+
+#.  Create a virtual environment and install the client
+
+    ::
+
+        virtualenv -p python3 /opt/venv && source /opt/venv/bin/activate
+        pip install antinex-client
+
+#.  Watch the application logs
+
+
+    From a separate terminal, you can tail the Django REST API logs with the command:
+
+    ::
+
+        ./api/logs.sh
+
+    From a separate terminal, you can tail the Django Celery Worker logs with the command:
+
+    ::
+
+        ./worker/logs.sh
+
+    From a separate terminal, you can tail the AntiNex Core Worker logs with the command:
+
+    ::
+
+        ./core/logs.sh
+
+    .. note::  Use ``ctrl + c`` to stop these log tailing commands
+
+Train a Deep Neural Network on Kubernetes
+-----------------------------------------
+
+With virtual environment set up, we can use the client to train a deep neural network with the included datasets:
+
+.. note:: this can take a few minutes to finish depending on your hosting resources
+
+::
+
+    ai -a https://api.example.com -u trex -p 123321 -s -f ./tests/scaler-full-django-antinex-simple.json
+
+While you wait, here is a video showing the training and get results:
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193494?autoplay=1" target="_blank"><img src="https://i.imgur.com/0hcMfti.png"/></a>
+
+Get the AI Job Record
+---------------------
+
+::
+
+    ai_get_job.py -a https://api.example.com -u trex -p 123321 -i 1
+
+Get the AI Training Job Results
+-------------------------------
+
+::
+
+    ai_get_results.py -a https://api.example.com -u trex -p 123321 -i 1 -s
+
 Standalone Deployments
 ----------------------
 
-Below are steps to manually deploy each component in the stack with kubernetes.
+Below are steps to manually deploy each component in the stack with Kubernetes.
 
 Deploy Redis
 ------------
@@ -342,7 +447,7 @@ Using Crunchy Data's postgres containers requires having go installed:
 
 ::
 
-    # note this has only been tested on ubuntu 18.04:
+    # note this has only been tested on Ubuntu 18.04:
     sudo apt install golang-go
     export GOPATH=$HOME/go
     export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
@@ -351,7 +456,7 @@ Using Crunchy Data's postgres containers requires having go installed:
 Start
 =====
 
-Start the `Postgres container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/postgres/deployment.yml>`__ within kubernetes:
+Start the `Postgres container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/postgres/deployment.yml>`__ within Kubernetes:
 
 ::
 
@@ -422,7 +527,7 @@ Please confirm go is installed with the `Install Go section <https://github.com/
 Start
 =====
 
-Start the `pgAdmin4 container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/pgadmin/deployment.yml>`__ within kubernetes:
+Start the `pgAdmin4 container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/pgadmin/deployment.yml>`__ within Kubernetes:
 
 ::
 
@@ -445,7 +550,7 @@ SSH into pgAdmin
 Deploy Django REST API
 ----------------------
 
-Use these commands to manage the `Django REST Framework pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/api/deployment.yml>`__ within kubernetes.
+Use these commands to manage the `Django REST Framework pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/api/deployment.yml>`__ within Kubernetes.
 
 Start
 =====
@@ -480,7 +585,7 @@ SSH into the API
 Deploy Django Celery Workers
 ----------------------------
 
-Use these commands to manage the `Django Celery Worker pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/worker/deployment.yml>`__ within kubernetes.
+Use these commands to manage the `Django Celery Worker pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/worker/deployment.yml>`__ within Kubernetes.
 
 Start
 =====
@@ -506,7 +611,7 @@ SSH into the Worker
 Deploy AntiNex Core
 -------------------
 
-Use these commands to manage the `Backend AntiNex Core pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/core/deployment.yml>`__ within kubernetes.
+Use these commands to manage the `Backend AntiNex Core pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/core/deployment.yml>`__ within Kubernetes.
 
 Start
 =====
@@ -532,7 +637,7 @@ SSH into the API
 Deploy Jupyter
 --------------
 
-Use these commands to manage the `Jupyter pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/jupyter/deployment.yml>`__ within kubernetes.
+Use these commands to manage the `Jupyter pods <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/jupyter/deployment.yml>`__ within Kubernetes.
 
 Start
 =====
@@ -567,7 +672,7 @@ SSH into Jupyter
 Deploy Splunk
 -------------
 
-Use these commands to manage the `Splunk container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/splunk/deployment.yml>`__ within kubernetes.
+Use these commands to manage the `Splunk container <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/splunk/deployment.yml>`__ within Kubernetes.
 
 Start
 =====
@@ -657,9 +762,9 @@ SSH into Splunk
 Deploy Nginx Ingress
 --------------------
 
-This project is currently using the `nginx-ingress <https://github.com/nginxinc/kubernetes-ingress>`__ instead of the `Kubernetes Ingress using nginx <https://github.com/kubernetes/ingress-nginx>`__. Use these commands to manage and debug the nginx ingress within kubernetes.
+This project is currently using the `nginx-ingress <https://github.com/nginxinc/kubernetes-ingress>`__ instead of the `Kubernetes Ingress using nginx <https://github.com/kubernetes/ingress-nginx>`__. Use these commands to manage and debug the nginx ingress within Kubernetes.
 
-.. note:: The default Yaml file annotations only work with the `nginx-ingress customizations <https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/customization#customization-of-nginx-configuration>`__.
+.. note:: The default Yaml file annotations only work with the `nginx-ingress customizations <https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/customization#customization-of-nginx-configuration>`__
 
 Start
 =====
@@ -695,7 +800,6 @@ View a Specific Ingress Configuration
 -------------------------------------
 
 If you know the pod name and the namespace for the nginx-ingress, then you can view the configs from the command line with:
-
 
 ::
 
@@ -763,6 +867,12 @@ Flannel can exhaust all available ip addresses in the CIDR network range. When t
 Reset Cluster
 -------------
 
+Here is a video showing how to reset the local Kubernetes cluster.
+
+.. raw:: html
+
+    <a href="https://asciinema.org/a/193472?autoplay=1" target="_blank"><img src="https://asciinema.org/a/193472.png"/></a>
+
 Please be careful as these commands will shutdown all containers and reset the Kubernetes cluster.
 
 .. note:: All created data should be persisted in the NFS ``/data/k8`` directories
@@ -788,3 +898,4 @@ License
 Apache 2.0 - Please refer to the LICENSE_ for more details
 
 .. _License: https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/LICENSE
+
