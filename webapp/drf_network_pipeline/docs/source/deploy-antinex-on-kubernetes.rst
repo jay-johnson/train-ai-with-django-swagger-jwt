@@ -1,5 +1,5 @@
-Deploy a Distributed Stack to Kubernetes
-----------------------------------------
+Deploying a Distributed AI Stack to Kubernetes on Ubuntu
+--------------------------------------------------------
 
 .. image:: https://i.imgur.com/qiyhAq9.png
 
@@ -7,6 +7,7 @@ Install and manage a Kubernetes cluster with helm on a single Ubuntu host. Once 
 
 This guide was built for deploying the `AntiNex stack of docker containers <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__ on a Kubernetes cluster:
 
+- `Cert Manager with Let's Encrypt SSL support <https://github.com/jetstack/cert-manager>`__
 - `Redis <https://hub.docker.com/r/bitnami/redis/>`__
 - `Postgres <https://github.com/CrunchyData/crunchy-containers>`__
 - `Django REST API with JWT and Swagger <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/api/deployment.yml>`__
@@ -155,6 +156,12 @@ If you want to deploy splunk you can add it as an argument:
 
     ./deploy-resources.sh splunk
 
+If you want to deploy splunk with Let's Encrypt make sure to add ``prod`` as an argument:
+
+::
+
+    ./deploy-resources.sh splunk prod
+
 Start Applications
 ------------------
 
@@ -175,6 +182,14 @@ If you want to deploy the splunk-ready application builds, you can add it as an 
 ::
 
     ./start.sh splunk
+
+If you want to deploy the splunk-ready application builds integrated with Let's Encrypt TLS encryption, just add ``prod`` as an argument:
+
+::
+
+    ./start.sh splunk prod
+
+.. note:: The `Cert Manager <https://github.com/jetstack/cert-manager>`__ is set to staging mode by default and requires the ``prod`` argument to prevent accidentally getting blocked due to Lets Encrypt rate limits
 
 Confirm Pods are Running
 ========================
@@ -203,7 +218,7 @@ To apply new Django database migrations, run the following command:
 Add Ingress Locations to /etc/hosts
 -----------------------------------
 
-When running locally, all ingress urls need to resolve on the network. Please append the following entries to your local ``/etc/hosts`` file on the ``127.0.0.1`` line:
+When running locally (also known in these docs as ``dev`` mode), all ingress urls need to resolve on the network. Please append the following entries to your local ``/etc/hosts`` file on the ``127.0.0.1`` line:
 
 ::
 
@@ -826,6 +841,12 @@ To deploy splunk you can add the argument ``splunk`` to the `./deploy-resources.
 
     ./splunk/run.sh
 
+Or if you want to use Let's Encrypt for SSL:
+
+::
+
+    ./splunk/run.sh prod
+
 Deploy Splunk-Ready Applications
 --------------------------------
 
@@ -855,6 +876,141 @@ View Ingress Config
 ::
 
     ./splunk/view-ingress-config.sh
+
+Create your own self-signed x509 TLS Keys, Certs and Certificate Authority with Ansible
+---------------------------------------------------------------------------------------
+
+If you have openssl installed you can use this ansible playbook to create your own certificate authority (CA), keys and certs.
+
+#.  Create the CA, Keys and Certificates
+
+    ::
+
+        cd ansible
+        ansible-playbook -i inventory_dev create-x509s.yml
+
+#.  Check the CA, x509, keys and certificates for the client and server were created
+
+    ::
+
+        ls -l ./ssl
+
+Deploying Your Own x509 TLS Encryption files as Kubernetes Secrets
+------------------------------------------------------------------
+
+This is a work in progress, but in ``dev`` mode the cert-manager is not in use. Instead the cluster utilizes pre-generated x509s TLS SSL files created with the `included ansible playbook create-x509s.yml <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/ansible/create-x509s.yml>`__. Once created, you can deploy them as Kubernetes secrets using the `deploy-secrets.sh <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/ansible/deploy-secrets.sh>`__ script and reload them at any time in the future.
+
+Deploy Secrets
+==============
+
+Run this to create the TLS secrets:
+
+::
+
+    ./ansible/deploy-secrets.sh
+
+List Secrets
+============
+
+::
+
+    kubectl get secrets | grep tls
+    tls-client              kubernetes.io/tls                     2         15s
+    tls-database            kubernetes.io/tls                     2         15s
+    tls-docker              kubernetes.io/tls                     2         15s
+    tls-jenkins             kubernetes.io/tls                     2         14s
+    tls-jupyter             kubernetes.io/tls                     2         14s
+    tls-k8                  kubernetes.io/tls                     2         13s
+    tls-kafka               kubernetes.io/tls                     2         13s
+    tls-kibana              kubernetes.io/tls                     2         13s
+    tls-nginx               kubernetes.io/tls                     2         12s
+    tls-pgadmin             kubernetes.io/tls                     2         12s
+    tls-phpmyadmin          kubernetes.io/tls                     2         12s
+    tls-rabbitmq            kubernetes.io/tls                     2         11s
+    tls-redis               kubernetes.io/tls                     2         11s
+    tls-restapi             kubernetes.io/tls                     2         11s
+    tls-splunk              kubernetes.io/tls                     2         10s
+    tls-webserver           kubernetes.io/tls                     2         10s
+
+Reload Secrets
+==============
+
+If you want to deploy new TLS secrets at any time, use the ``reload`` argument with the ``deploy-secrets.sh`` script. Doing so will delete the original secrets and recreate all of them using the new TLS values:
+
+::
+
+    ./ansible/deploy-secrets.sh -r
+
+Deploy Cert Manager with Let's Encrypt
+--------------------------------------
+
+Use these commands to manage the `Cert Manager with Let's Encrypt SSL support <https://github.com/jetstack/cert-manager>`__ within Kubernetes. By default, the cert manager is deployed only in ``prod`` mode. If you run it in production mode, then it will install real, valid x509 certificates from `Let's Encrypt <https://letsencrypt.org/>`__ into the nginx-ingress automatically.
+
+Start with Let's Encrypt x509 SSL Certificates
+==============================================
+
+Start the cert manager in ``prod`` mode to enable Let's Encrypt TLS Encryption with the command:
+
+::
+
+    ./start.sh prod
+
+Or manually with the command:
+
+::
+
+    ./cert-manager/run.sh prod
+
+If you have splunk you can just add it to the arguments:
+
+::
+
+    ./start.sh splunk prod
+
+View Logs
+=========
+
+When using the production mode, make sure to view the logs to ensure you are not being blocked due to rate limiting:
+
+::
+
+    ./cert-manager/logs.sh
+
+Stop the Cert Manager
+---------------------
+
+If you notice things are not working correctly, you can quickly prevent yourself from getting blocked by stopping the cert manager with the command:
+
+::
+
+    ./cert-manager/_uninstall.sh
+
+.. note:: If you get blocked due to rate-limits it will show up in the cert-manager logs like:
+
+   ::
+
+        I0731 07:53:43.313709       1 sync.go:273] Error issuing certificate for default/api.antinex.com-tls: error getting certificate from acme server: acme: urn:ietf:params:acme:error:rateLimited: Error finalizing order :: too many certificates already issued for exact set of domains: api.antinex.com: see https://letsencrypt.org/docs/rate-limits/
+        E0731 07:53:43.313738       1 sync.go:182] [default/api.antinex.com-tls] Error getting certificate 'api.antinex.com-tls': secret "api.antinex.com-tls" not found
+
+Debugging
+=========
+
+To reduce debugging issues, the cert manager ClusterIssuer objects use the same name for staging and production mode. This is nice beacuse you do not have to update all the annotations to deploy on production vs staging:
+
+The cert manager starts and defines the issuer name for both production and staging as: 
+
+::
+
+    --set ingressShim.defaultIssuerName=letsencrypt-issuer
+
+Make sure to set any nginx ingress annotations that need Let's Encrypt SSL encryption to these values:
+
+::
+
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      kubernetes.io/ingress.class: "nginx"
+      certmanager.k8s.io/cluster-issuer: "letsencrypt-issuer"
 
 Troubleshooting
 ---------------
@@ -896,10 +1052,44 @@ Or use the file:
     sudo su
     ./tools/cluster-reset.sh
 
+Or the full reset and deploy once ready:
+
+::
+
+    sudo su
+    cert_env=dev; ./tools/reset-flannel-cni-networks.sh; ./tools/cluster-reset.sh ; ./user-install-kubeconfig.sh ; sleep 30; ./deploy-resources.sh splunk ${cert_env}
+    exit
+    # as your user
+    ./user-install-kubeconfig.sh
+    # depending on testing vs prod:
+    # ./start.sh splunk
+    # ./start.sh splunk prod
+
+Development
+-----------
+
+Right now, the python virtual environment is only used to bring in ansible for running playbooks, but it will be used in the future with the kubernetes python client as I start using it more and more.
+
+::
+
+    virtualenv -p python3 /opt/venv && source /opt/venv/bin/activate && pip install -e .
+
+Testing
+-------
+
+::
+
+    py.test
+
+or
+
+::
+
+    python setup.py test
+
 License
 -------
 
 Apache 2.0 - Please refer to the LICENSE_ for more details
 
 .. _License: https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/LICENSE
-
