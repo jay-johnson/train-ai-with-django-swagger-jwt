@@ -562,7 +562,13 @@ class Development(Common):
     """
     The in-development settings and the default configuration.
     """
-    DEBUG = True
+    DEBUG = bool(os.getenv(
+        'DJANGO_DEBUG',
+        'yes') == 'yes')
+
+    TEMPLATE_DEBUG = bool(os.getenv(
+        'DJANGO_TEMPLATE_DEBUG',
+        'yes') == 'yes')
 
     ALLOWED_HOSTS = [
         "localhost",
