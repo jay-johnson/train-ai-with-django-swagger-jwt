@@ -1,6 +1,6 @@
 FROM jayjohnson/ai-core:latest
 
-RUN echo "creating project directories" \
+RUN echo "preparing image and building" \
   && mkdir -p -m 777 /var/log/antinex/api \
   && mkdir -p -m 777 /opt/antinex \
   && chmod 777 //var/log/antinex/api \
@@ -21,7 +21,16 @@ RUN echo "creating project directories" \
   && pip install --upgrade -r /opt/antinex/api/requirements.txt \
   && echo "building docs" \
   && cd /opt/antinex/api/webapp/drf_network_pipeline/docs \
-  && pip install -r /opt/antinex/api/webapp/drf_network_pipeline/docs/doc-requirements.txt \
+  && pip install -r /opt/antinex/api/webapp/drf_network_pipeline/docs/doc-requirements.txt
+
+RUN echo "Downgrading numpy and setuptools for tensorflow" \
+  && . /opt/venv/bin/activate \
+  && pip install --upgrade numpy==1.14.5 \
+  && pip install --upgrade setuptools==39.1.0
+
+RUN echo "Making Sphinx docs" \
+  && . /opt/venv/bin/activate \
+  && cd /opt/antinex/api/webapp/drf_network_pipeline/docs \
   && ls -l \
   && make html
 
