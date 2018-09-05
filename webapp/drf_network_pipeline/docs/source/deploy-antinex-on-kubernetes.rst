@@ -1,12 +1,13 @@
-Deploying a Distributed AI Stack to Kubernetes on Ubuntu
+Deploying a Distributed AI Stack to Kubernetes on CentOS
 --------------------------------------------------------
 
 .. image:: https://i.imgur.com/qiyhAq9.png
 
-Install and manage a Kubernetes cluster with helm on a single Ubuntu host. Once running, you can deploy a distributed, scalable python stack capable of delivering a resilient REST service with JWT for authentication and Swagger for development. This service uses a decoupled REST API with two distinct worker backends for routing simple database read and write tasks vs long-running tasks that can use a Redis cache and do not need a persistent database connection. This is handy for not only simple CRUD applications and use cases, but also serving a secure multi-tenant environment where multiple users manage long-running tasks like training deep neural networks that are capable of making near-realtime predictions.
+Install and manage a Kubernetes cluster with helm on a single CentOS 7 vm or in multi-host mode that runs the cluster on 3 CentOS 7 vms. Once running, you can deploy a distributed, scalable python stack capable of delivering a resilient REST service with JWT for authentication and Swagger for development. This service uses a decoupled REST API with two distinct worker backends for routing simple database read and write tasks vs long-running tasks that can use a Redis cache and do not need a persistent database connection. This is handy for not only simple CRUD applications and use cases, but also serving a secure multi-tenant environment where multiple users manage long-running tasks like training deep neural networks that are capable of making near-realtime predictions.
 
-This guide was built for deploying the `AntiNex stack of docker containers <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__ on a Kubernetes cluster:
+This guide was built for deploying the `AntiNex stack of docker containers <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__ on a Kubernetes single host or multi-host cluster:
 
+- `Managing a Multi-Host Kubernetes Cluster with an External DNS Server <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/multihost#managing-a-multi-host-kubernetes-cluster-with-an-external-dns-server>`__
 - `Cert Manager with Let's Encrypt SSL support <https://github.com/jetstack/cert-manager>`__
 - `A Rook Ceph Cluster for Persistent Volumes <https://rook.io/docs/rook/master/ceph-quickstart.html>`__
 - `Minio S3 Object Store <https://docs.minio.io/docs/deploy-minio-on-kubernetes.html>`__
@@ -22,7 +23,7 @@ This guide was built for deploying the `AntiNex stack of docker containers <http
 Getting Started
 ---------------
 
-.. note:: Please ensure the Ubuntu host has at least 4 CPU cores and more than 8 GB ram. Here is a screenshot from a recent AI training test with only 3 cores:
+.. note:: Please ensure for single-vm hosting that the CentOS machine has at least 4 CPU cores and more than 8 GB ram. Here is a screenshot of the CPU utilization during AI training with only 3 cores:
 
     .. image:: https://i.imgur.com/KQ7MBdM.png
 
@@ -53,7 +54,9 @@ Preparing the host to run Kubernetes requires run this as root
     sudo su
     ./prepare.sh
 
-.. note:: This has only been tested on Ubuntu 18.04 and requires commenting out all swap entries in ``/etc/fstab`` to work
+.. note:: This has only been tested on CentOS 7 and Ubuntu 18.04 and requires commenting out all swap entries in ``/etc/fstab`` to work
+
+.. warning:: This guide used to install the cluster on Ubuntu 18.04, but after seeing high CPU utilization after a few days of operation this guide was moved to CentOS 7. The specific issues on Ubuntu were logged in ``journalctl -xe`` and appeared to be related to "volumes not being found" and "networking disconnects".
 
 Validate
 --------
@@ -101,46 +104,6 @@ Validate
         kube-scheduler-dev              1/1       Running   0          3m
         tiller-deploy-759cb9df9-wxvp8   1/1       Running   0          4m
 
-Using the Minio S3 Object Store
--------------------------------
-
-By default, the Kubernetes cluster has a `Minio S3 object store running on a Ceph Persistent Volume <https://docs.minio.io/docs/deploy-minio-on-kubernetes.html>`__. S3 is a great solution for distributing files, datasets, configurations, static assets, build artifacts and many more across components, regions, and datacenters using an S3 distributed backend. Minio can also replicate some of the `AWS Lambda event-based workflows <https://aws.amazon.com/lambda/>`__ with `Minio bucket event listeners <https://docs.minio.io/docs/python-client-api-reference>`__.
-
-For reference, Minio was deployed using this script:
-
-::
-
-    ./minio/run.sh
-
-Test Minio S3 with Bucket Creation and File Upload and Download
-===============================================================
-
-.. note:: This tool requires ``boto3``
-
-::
-
-    source ./minio/envs/ext.env
-    ./minio/run_s3_test.py
-
-Confirm the Verification Tests worked with the Minio Dashboard
-==============================================================
-
-Login with:
-
-- access key: ``trexaccesskey``
-- secret key: ``trex123321``
-
-https://minio.example.com/minio/s3-verification-tests/
-
-Using the Rook Ceph Cluster
----------------------------
-
-By default, the Kubernetes cluster is running a `Rook Ceph cluster for storage <https://rook.io/docs/rook/master/ceph-quickstart.html>`__ which provides HA persistent volumes and claims.
-
-You can review the persistent volumes and claims using the Ceph Dashboard:
-
-https://ceph.example.com
-
 Deploy Redis and Postgres and the Nginx Ingress
 -----------------------------------------------
 
@@ -156,14 +119,25 @@ Here are the commands to deploy Postgres, Redis, Nginx Ingress, and pgAdmin4 in 
 
 .. note:: Please ensure helm is installed and the tiller pod in the ``kube-system`` namespace is the ``Running`` state or Redis will encounter deployment issues
 
+Install Go using the `./tools/install-go.sh script <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/tools/install-go.sh>`__ or with the commands:
+
 ::
 
-    # note this has only been tested on Ubuntu 18.04:
+    # note go install has only been tested on CentOS 7 and Ubuntu 18.04:
     sudo su
-    apt install golang-go
-    export GOPATH=$HOME/go
-    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-    go get github.com/blang/expenv
+    GO_VERSION="1.11"
+    GO_OS="linux"
+    GO_ARCH="amd64"
+    go_file="go${GO_VERSION}.${GO_OS}-${GO_ARCH}.tar.gz"
+    curl https://dl.google.com/go/${go_file} --output /tmp/${go_file}
+    export GOPATH=$HOME/go/bin
+    export PATH=$PATH:$GOPATH:$GOPATH/bin
+    tar -C $HOME -xzf /tmp/${go_file}
+    $GOPATH/go get github.com/blang/expenv
+    # make sure to add GOPATH and PATH to ~/.bashrc
+
+::
+
     ./user-install-kubeconfig.sh
     ./deploy-resources.sh
 
@@ -245,7 +219,72 @@ Append the entries to the existing ``127.0.0.1`` line:
 
 ::
 
-    127.0.0.1   <leave-original-values-here> api.example.com jupyter.example.com pgadmin.example.com splunk.example.com splunkapi.example.com splunktcp.example.com s3.example.com ceph.example.com minio.example.com
+    127.0.0.1   <leave-original-values-here> api.example.com jupyter.example.com pgadmin.example.com splunk.example.com s3.example.com ceph.example.com minio.example.com
+
+Using the Minio S3 Object Store
+-------------------------------
+
+By default, the Kubernetes cluster has a `Minio S3 object store running on a Ceph Persistent Volume <https://docs.minio.io/docs/deploy-minio-on-kubernetes.html>`__. S3 is a great solution for distributing files, datasets, configurations, static assets, build artifacts and many more across components, regions, and datacenters using an S3 distributed backend. Minio can also replicate some of the `AWS Lambda event-based workflows <https://aws.amazon.com/lambda/>`__ with `Minio bucket event listeners <https://docs.minio.io/docs/python-client-api-reference>`__.
+
+For reference, Minio was deployed using this script:
+
+::
+
+    ./minio/run.sh
+
+View the Verification Tests on the Minio Dashboard
+==================================================
+
+Login with:
+
+- access key: ``trexaccesskey``
+- secret key: ``trex123321``
+
+https://minio.example.com/minio/s3-verification-tests/
+
+Test Minio S3 with Bucket Creation and File Upload and Download
+===============================================================
+
+#.  Run from inside the API container
+
+    ::
+
+        ./api/ssh.sh
+        source /opt/venv/bin/activate && run_s3_test.py
+
+    Example logs:
+
+    ::
+
+        creating test file: run-s3-test.txt
+        connecting: http://minio-service:9000
+        checking bucket=s3-verification-tests exists
+        upload_file(run-s3-test.txt, s3-verification-tests, s3-worked-on-2018-08-12-15-21-02)
+        upload_file(s3-verification-tests, s3-worked-on-2018-08-12-15-21-02, download-run-s3-test.txt)
+        download_filename=download-run-s3-test.txt contents: tested on: 2018-08-12 15:21:02
+        exit
+
+#.  Run from outside the Kubernetes cluster
+
+    .. note:: This tool requires the python ``boto3`` pip is installed
+
+    ::
+
+        source ./minio/envs/ext.env
+        ./minio/run_s3_test.py
+
+#.  Verify the files were uploaded to Minio
+
+    https://minio.example.com/minio/s3-verification-tests/
+
+Using the Rook Ceph Cluster
+---------------------------
+
+By default, the Kubernetes cluster is running a `Rook Ceph cluster for storage <https://rook.io/docs/rook/master/ceph-quickstart.html>`__ which provides HA persistent volumes and claims.
+
+You can review the persistent volumes and claims using the Ceph Dashboard:
+
+https://ceph.example.com
 
 Create a User
 -------------
@@ -494,15 +533,22 @@ Deploy Postgres
 Install Go
 ==========
 
-Using Crunchy Data's postgres containers requires having go installed:
+Using Crunchy Data's postgres containers requires having go installed. Go can be installed using the `./tools/install-go.sh script <https://github.com/jay-johnson/deploy-to-kubernetes/blob/master/tools/install-go.sh>`__ or with the commands:
 
 ::
 
-    # note this has only been tested on Ubuntu 18.04:
-    sudo apt install golang-go
-    export GOPATH=$HOME/go
-    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-    go get github.com/blang/expenv
+    # note go install has only been tested on CentOS 7 and Ubuntu 18.04:
+    sudo su
+    GO_VERSION="1.11"
+    GO_OS="linux"
+    GO_ARCH="amd64"
+    go_file="go${GO_VERSION}.${GO_OS}-${GO_ARCH}.tar.gz"
+    curl https://dl.google.com/go/${go_file} --output /tmp/${go_file}
+    export GOPATH=$HOME/go/bin
+    export PATH=$PATH:$GOPATH:$GOPATH/bin
+    tar -C $HOME -xzf /tmp/${go_file}
+    $GOPATH/go get github.com/blang/expenv
+    # make sure to add GOPATH and PATH to ~/.bashrc
 
 Start
 =====
@@ -1009,7 +1055,7 @@ If you notice things are not working correctly, you can quickly prevent yourself
 Debugging
 =========
 
-To reduce debugging issues, the cert manager ClusterIssuer objects use the same name for staging and production mode. This is nice beacuse you do not have to update all the annotations to deploy on production vs staging:
+To reduce debugging issues, the cert manager ClusterIssuer objects use the same name for staging and production mode. This is nice because you do not have to update all the annotations to deploy on production vs staging:
 
 The cert manager starts and defines the issuer name for both production and staging as: 
 
@@ -1289,7 +1335,6 @@ Describe Persistent Volumes
         Options:    map[clusterNamespace:rook-ceph image:pvc-c88fc37b-9adf-11e8-9fae-0800270864a8 pool:replicapool storageClass:rook-ceph-block]
     Events:         <none>
 
-
 Show Ceph Cluster Status
 ========================
 
@@ -1348,7 +1393,6 @@ Show Ceph Free Space
         NAME            ID     USED     %USED     MAX AVAIL     OBJECTS 
         replicapool     1        99         0        50246M          12 
 
-
 Show Ceph RDOS Free Space
 =========================
 
@@ -1375,6 +1419,59 @@ Flannel can exhaust all available ip addresses in the CIDR network range. When t
 ::
 
     ./tools/reset-flannel-cni-networks.sh
+
+AntiNex Stack Status
+--------------------
+
+Here are the AntiNex repositories, documentation and build reports:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Component
+     - Build
+     - Docs Link
+     - Docs Build
+   * - `REST API <https://github.com/jay-johnson/train-ai-with-django-swagger-jwt>`__
+     - .. image:: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg?branch=master
+           :alt: Travis Tests
+           :target: https://travis-ci.org/jay-johnson/train-ai-with-django-swagger-jwt.svg
+     - `Docs <http://antinex.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex/badge/?version=latest
+           :alt: Read the Docs REST API Tests
+           :target: https://readthedocs.org/projects/antinex/badge/?version=latest
+   * - `Core Worker <https://github.com/jay-johnson/antinex-core>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-core.svg?branch=master
+           :alt: Travis AntiNex Core Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-core.svg
+     - `Docs <http://antinex-core-worker.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-core-worker/badge/?version=latest
+           :alt: Read the Docs AntiNex Core Tests
+           :target: http://antinex-core-worker.readthedocs.io/en/latest/?badge=latest
+   * - `Network Pipeline <https://github.com/jay-johnson/network-pipeline>`__
+     - .. image:: https://travis-ci.org/jay-johnson/network-pipeline.svg?branch=master
+           :alt: Travis AntiNex Network Pipeline Tests
+           :target: https://travis-ci.org/jay-johnson/network-pipeline.svg
+     - `Docs <http://antinex-network-pipeline.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+           :alt: Read the Docs AntiNex Network Pipeline Tests
+           :target: https://readthedocs.org/projects/antinex-network-pipeline/badge/?version=latest
+   * - `AI Utils <https://github.com/jay-johnson/antinex-utils>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-utils.svg?branch=master
+           :alt: Travis AntiNex AI Utils Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-utils.svg
+     - `Docs <http://antinex-ai-utilities.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-ai-utilities/badge/?version=latest
+           :alt: Read the Docs AntiNex AI Utils Tests
+           :target: http://antinex-ai-utilities.readthedocs.io/en/latest/?badge=latest
+   * - `Client <https://github.com/jay-johnson/antinex-client>`__
+     - .. image:: https://travis-ci.org/jay-johnson/antinex-client.svg?branch=master
+           :alt: Travis AntiNex Client Tests
+           :target: https://travis-ci.org/jay-johnson/antinex-client.svg
+     - `Docs <http://antinex-client.readthedocs.io/en/latest/>`__
+     - .. image:: https://readthedocs.org/projects/antinex-client/badge/?version=latest
+           :alt: Read the Docs AntiNex Client Tests
+           :target: https://readthedocs.org/projects/antinex-client/badge/?version=latest
 
 Reset Cluster
 -------------
